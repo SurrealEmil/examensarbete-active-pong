@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 /* import { useEffect } from 'react' */
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StartScreen from './components/StartScreen/StartScreen';
@@ -20,6 +20,22 @@ const playersData = [
 ]
 
 const App = () => {
+    const [serverMessage, setServerMessage] = useState("Loading...");
+
+    useEffect(() => {
+        fetch("https://localhost:7070/api/ping")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => setServerMessage(data.message))
+            .catch((error) => {
+                console.error("Error fetching API:", error);
+                setServerMessage("Failed to connect to server");
+            });
+    }, []);
   
 /*   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -42,6 +58,9 @@ const App = () => {
       <ConnectOverlay/>
     <Router>
       <div className="App">
+         <h2>Backend Response:</h2>
+         <p>{serverMessage}</p>
+
         <Routes>
           <Route path="/" element={<StartScreen />} />
           <Route path="/pong" element={<PongGame />} />

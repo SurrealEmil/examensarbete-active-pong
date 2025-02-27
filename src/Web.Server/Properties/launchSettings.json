@@ -36,6 +36,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "Web.Client": {
+      "commandName": "Executable",
+      "executablePath": "npm",
+      "workingDirectory": "..\\Web.Client",
+      "arguments": "run dev",
+      "environmentVariables": {
+        "BROWSER": "none"
+      }
     }
   }
 }
