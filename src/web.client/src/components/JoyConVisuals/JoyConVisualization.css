@@ -1,0 +1,40 @@
+.joycon-visualization {
+    /* border: 1px solid #ccc; */
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    width: 200px;
+    text-align: center;
+  }
+  
+  .joystick {
+    width: 20px;
+    height: 20px;
+    /* background-color: #007bff; */
+    border-radius: 50%;
+    margin: 10px auto;
+    transition: transform 0.1s ease-out;
+  }
+  
+  .buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .button {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    /* background-color: #ddd; */
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+ /*  .button.highlight {
+    background-color: #28a745;
+    color: white;
+  } */
+  

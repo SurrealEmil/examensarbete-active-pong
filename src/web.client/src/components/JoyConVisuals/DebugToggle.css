@@ -1,0 +1,13 @@
+.debug-toggle {
+    margin: 10px 0;
+    /* color: white; */
+  }
+  
+  .debug-toggle label {
+    cursor: pointer;
+  }
+  
+  .debug-toggle input {
+    margin-right: 5px;
+  }
+  

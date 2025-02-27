@@ -1,0 +1,22 @@
+.error-message {
+    /* background-color: #f8d7da; */
+    /* color: #721c24; */
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+  }
+  
+  .error-message button {
+    /* background-color: #721c24; */
+    /* color: white; */
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+ /*  .error-message button:hover {
+    background-color: #501217;
+  }
+   */

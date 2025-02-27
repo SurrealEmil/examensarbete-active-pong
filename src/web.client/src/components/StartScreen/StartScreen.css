@@ -1,0 +1,256 @@
+  /* START SCREEN CONTAINER */
+.start-screen-container {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    overflow: scroll;
+    color: var(--white);
+    font-family: 'Arcade';
+    text-align: center;    
+}
+
+  /* Title */
+.title {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5rem;
+  font-size: 9rem;
+  letter-spacing: 1rem;    
+  width: 80%;            
+  height: 25%;                  
+  text-shadow: black 10px 10px 1px;
+  /* border: 2px solid pink; */
+}
+  
+  /* Mode info at center */
+.mode-info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+  padding: 0rem;
+  height: 100%;
+  width: 70%;
+  gap: 2rem;  
+  /* border: 2px solid pink; */
+}
+  
+.mode-info-container h2 {
+  margin-top: 0rem;
+  text-shadow:
+      -1px -1px 0 black,
+       1px -1px 0 black,
+      -1px  1px 0 black,
+       1px  1px 0 black;
+
+  
+}
+  
+.mode-info-container p {
+  font-size: 1.5rem;
+    /* border: 2px solid pink; */
+}
+
+.qr-container{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+    /* border: 2px solid pink; */
+}
+
+.qr-code img{
+  width: 15rem;
+  height: 15rem;
+}
+  
+.qr-scan img{
+  width: 13rem;
+  height: 13rem;
+}
+  
+.enter-text {
+  font-size: 1.5rem;
+  margin-top: 0rem;
+  color: var(--orange);
+  text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black;
+  animation: pulsate 1.4s step-end infinite;
+}
+
+
+.pong-background {
+  position: absolute;
+  opacity: 0.9;
+  z-index: -200;
+  height: 100vh;
+  width: 100vw;
+  /* border: 3px solid rgb(255, 0, 255); */
+  }
+
+
+
+
+  /* ADMIN Button & Hamburger */
+  .admin-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    padding: 10px 15px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between icon and "ADMIN" text */
+  }
+  
+  .hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 20px;
+    height: 16px;
+  }
+  
+  .hamburger-icon span {
+    display: block;
+    height: 2px;
+    background-color: white;
+    border-radius: 2px;
+  }
+  
+  /* The BLACK BOX - fixed size for consistency */
+  .admin-dropdown {
+    position: absolute;
+    top: 50px; /* just below admin button */
+    right: 20px;
+    width: 250px;    /* fixed width */
+    height: 200px;   /* fixed height */
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid white;
+    border-radius: 5px;
+    z-index: 10; /* Make sure it's on top */
+  
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* center the items vertically */
+    align-items: center;
+  }
+  
+  /* We adjust the .menu-list to fill the entire black box
+   and use space-between to push items to top & bottom */
+  .menu-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* top group at top, bottom group at bottom */
+    width: 90%;
+    height: 100%; /* fill the entire .admin-dropdown */
+  }
+  
+  /* The top group of items */
+  .menu-top {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* space between items */
+  }
+  
+  /* Each item in the list */
+  .menu-item {
+    position: relative;
+    margin: 5px 0;
+    padding-left: 2rem; /* space for the pong ball on the left */
+    text-align: left; /* left align the text */
+    color: white;
+  }
+  
+  /* highlight if selected */
+  .menu-item.selected {
+    color: var(--orange);
+  }
+  
+  /* The "pong ball" indicator on the left */
+  .pong-ball {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-color: var(--orange);
+    border: 2px solid black;
+  
+    transition: opacity 0.1s;
+    opacity: 0; /* default is hidden unless selected */
+  }
+  
+
+  
+
+  @keyframes pulsate {
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+/* Rules List */
+  .rules {
+    text-align: left;
+
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    
+    align-items: center;
+  }
+  
+  .rules ul {
+    list-style-type: none; /* Removes the bullet points */
+    padding-left: 20px; /* Keeps indentation */
+  }  
+  
+  .rules li {
+    margin-top: 2rem;
+    margin-bottom: 0.3rem;
+    font-size: 1rem;
+    text-align: center;
+
+    /* Optional: text-shadow for an arcade outline */
+    text-shadow:
+      -1px -1px 0 black,
+       1px -1px 0 black,
+      -1px  1px 0 black,
+       1px  1px 0 black;
+  }
+  
+  /* Footer */
+.footer {
+  margin-top: 8rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  /* margin-bottom: 1rem; */
+  color: var(--white);
+  text-shadow: black 1px 1px 1px;
+  padding: 0.2rem;
+  gap: 1rem;
+  /* border: 2px solid pink; */
+  }
+
+.footer img {
+  width: 2.5rem;
+  filter: drop-shadow(2px 2px 0 #000000);
+}
+  

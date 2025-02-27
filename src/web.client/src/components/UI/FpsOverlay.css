@@ -1,0 +1,16 @@
+.fps-overlay {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    z-index: 1000;
+  }
+  .lag-spike {
+    color: red;
+    font-weight: bold;
+  }
+  

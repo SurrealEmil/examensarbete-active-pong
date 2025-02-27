@@ -1,0 +1,10 @@
+.scores {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  position: absolute; 
+  width: 20rem;
+  color: var(--white);
+  font-size: 4rem;
+ /*  border: 2px solid pink; */
+}

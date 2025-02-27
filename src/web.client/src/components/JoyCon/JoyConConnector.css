@@ -1,0 +1,11 @@
+.joycon-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.joycon-visualizations {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
