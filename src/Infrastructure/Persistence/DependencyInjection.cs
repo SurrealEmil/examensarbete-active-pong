@@ -1,4 +1,6 @@
-﻿using Domain.DbInterfaces;
+﻿using Application.Interfaces;
+using Application.Services;
+using Domain.DbInterfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,10 +28,14 @@ namespace Infrastructure.Persistence
 
 
             // Register the CosmosDB Service
-            services.AddScoped<ICosmosDbService, CosmosDbService>();
+            //services.AddScoped<ICosmosDbService, CosmosDbService>();
 
             // Register the CosmosDB Initializer
             services.AddSingleton<CosmosDbInitializer>();
+
+            // ✅ Register User Repository & Service
+            services.AddScoped<IUserRepository, UserRepository>(); // Repository for DB access
+            services.AddScoped<IUserService, UserService>();       // Service for business logic
 
             return services;
         }
