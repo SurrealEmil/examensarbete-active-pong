@@ -58,7 +58,7 @@ namespace Infrastructure.Persistence
             return await GetUserById(userId) != null;
         }
 
-        public async Task<bool> QrCodeExists(int qrCode)
+        public async Task<bool> QrCodeExists(string qrCode)
         {
             var query = new QueryDefinition("SELECT * FROM c WHERE c.QrCodeIdentifier = @qrCode")
                 .WithParameter("@qrCode", qrCode);
@@ -75,5 +75,67 @@ namespace Infrastructure.Persistence
             return false; // If no matches were found, return false
         }
 
+        public async Task<Domain.Entities.User> GetUserByEmail(string email)
+        {
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.Email = @Email")
+                .WithParameter("@Email", email);
+
+            using FeedIterator<Domain.Entities.User> resultSet = _container.GetItemQueryIterator<Domain.Entities.User>(query);
+
+            while (resultSet.HasMoreResults)
+            {
+                var response = await resultSet.ReadNextAsync();
+                if (response.Any())
+                    return response.First();
+            }
+
+            return null;
+        }
+
+        public async Task UpdateUser(Domain.Entities.User user)
+        {
+            try
+            {
+                await _container.UpsertItemAsync(user, new PartitionKey(user.UserId));
+            }
+            catch (CosmosException ex)
+            {
+                throw new Exception($"Failed to update user: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Domain.Entities.User> GetUserByUsername(string username)
+        {
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.Username = @Username")
+                .WithParameter("@Username", username);
+
+            using FeedIterator<Domain.Entities.User> resultSet = _container.GetItemQueryIterator<Domain.Entities.User>(query);
+
+            while (resultSet.HasMoreResults)
+            {
+                var response = await resultSet.ReadNextAsync();
+                if (response.Any())
+                    return response.First();
+            }
+
+            return null;
+        }
+
+        public async Task<Domain.Entities.User?> GetUserByQrCode(string qrCode)
+        {
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.QrCodeIdentifier = @qrCode")
+                        .WithParameter("@qrCode", qrCode);
+
+            using var iterator = _container.GetItemQueryIterator<Domain.Entities.User>(query);
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                var user = response.FirstOrDefault();
+                if (user != null)
+                    return user;
+            }
+
+            return null; // ❌ User not found
+        }
     }
 }

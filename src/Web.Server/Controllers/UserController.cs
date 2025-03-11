@@ -1,5 +1,8 @@
 ﻿using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Web.Server.DTOs;
 
 namespace Web.Server.Controllers
 {
@@ -14,7 +17,7 @@ namespace Web.Server.Controllers
             _userService = userService;
         }
 
-        // ✅ Get a User by ID
+        // Get a User by ID
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(string userId)
         {
@@ -22,7 +25,7 @@ namespace Web.Server.Controllers
             return user != null ? Ok(user) : NotFound("User not found.");
         }
 
-        // ✅ Get All Users
+        // Get All Users
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -30,7 +33,24 @@ namespace Web.Server.Controllers
             return Ok(users);
         }
 
-        // ✅ Delete a User by ID
+        // Update a User by ID
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized("Invalid token");
+
+            var updatedUser = await _userService.UpdateUser(userId, request.Username, request.Email);
+            if (updatedUser == null)
+                return NotFound("User not found");
+
+            return Ok(new { message = "User updated successfully", updatedUser });
+        }
+
+
+        // Delete a User by ID
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(string userId)
         {

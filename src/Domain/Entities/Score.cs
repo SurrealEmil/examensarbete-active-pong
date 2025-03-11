@@ -9,20 +9,20 @@ namespace Domain.Entities
 {
     public class Score
     {
-        private Guid _scoreId;
 
         [JsonProperty("id")]
-        public string ScoreId => _scoreId.ToString();
+        public string ScoreId { get; private set; }
 
+        [JsonProperty("MatchId")]
         public string PartitionKey => MatchId;
 
         public string MatchId { get; private set; }
         public string UserId { get; private set; }
         public int ScoreValue { get; private set; }
 
-        public Score(Guid scoreId, string matchId, string userId, int scoreValue)
+        public Score(string scoreId, string matchId, string userId, int scoreValue)
         {
-            _scoreId = scoreId;
+            ScoreId = scoreId;
             MatchId = matchId;
             UserId = userId;
             ScoreValue = scoreValue;

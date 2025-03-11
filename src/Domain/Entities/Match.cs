@@ -9,36 +9,24 @@ namespace Domain.Entities
 {
     public class Match
     {
-        private Guid _matchId;
 
         [JsonProperty("id")]
-        public string MatchId => _matchId.ToString();
+        public string MatchId { get; private set; }
 
+        [JsonProperty("MatchId")]
         public string PartitionKey => MatchId;
 
-        public string EventId { get; private set; }
-        public string GameModeId { get; private set; }
+        public string GameMode { get; private set; }
         public PlayerInfo Player1 { get; private set; }
         public PlayerInfo? Player2 { get; private set; }
         public string? WinnerId { get; private set; }
         public DateTime StartTime { get; private set; }
         public DateTime? EndTime { get; private set; }
 
-        [JsonConstructor]
-        private Match(string id, string eventId, string gameModeId, PlayerInfo player1, DateTime startTime)
+        public Match(string matchId, string gameMode, PlayerInfo player1, DateTime startTime)
         {
-            _matchId = Guid.Parse(id);
-            EventId = eventId;
-            GameModeId = gameModeId;
-            Player1 = player1;
-            StartTime = startTime;
-        }
-
-        public Match(Guid matchId, string eventId, string gameModeId, PlayerInfo player1, DateTime startTime)
-        {
-            _matchId = matchId;
-            EventId = eventId;
-            GameModeId = gameModeId;
+            MatchId = matchId;
+            GameMode = gameMode;
             Player1 = player1;
             StartTime = startTime;
         }

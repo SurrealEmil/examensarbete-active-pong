@@ -14,6 +14,10 @@ namespace Domain.DbInterfaces
         Task AddUser(User user);
         Task DeleteUser(string userId);
         Task<bool> UserExists(string userId);
-        Task<bool> QrCodeExists(int qrCode);
+        Task<bool> QrCodeExists(string qrCode);
+        Task<User> GetUserByEmail(string email);
+        Task UpdateUser(User user);
+        Task<User> GetUserByUsername(string username);
+        Task<User> GetUserByQrCode(string qrCode);
     }
 }

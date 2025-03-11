@@ -9,21 +9,21 @@ namespace Domain.Entities
 {
     public class Leaderboard
     {
-        private Guid _leaderboardId;
 
         [JsonProperty("id")]
-        public string LeaderboardId => _leaderboardId.ToString();
+        public string LeaderboardId { get; private set; }
 
+        [JsonProperty("GameModeId")]
         public string PartitionKey => GameModeId;
 
         public string GameModeId { get; private set; }
-        public List<LeaderboardEntry> TopPlayers { get; private set; }
+        public List<LeaderboardEntry> TopPlayers { get; private set; } = new();
 
-        public Leaderboard(Guid leaderboardId, string gameModeId, List<LeaderboardEntry> topPlayers)
+        public Leaderboard(string leaderboardId, string gameModeId, List<LeaderboardEntry> topPlayers)
         {
-            _leaderboardId = leaderboardId;
+            LeaderboardId = leaderboardId;
             GameModeId = gameModeId;
-            TopPlayers = topPlayers;
+            TopPlayers = topPlayers ?? new List<LeaderboardEntry>();
         }
     }
 }

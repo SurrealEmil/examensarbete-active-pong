@@ -20,22 +20,25 @@ namespace Infrastructure.Persistence
                 throw new ArgumentNullException("CosmosDB configuration values cannot be null.");
             }
 
-            // ✅ Register CosmosDB Client
+            // Register CosmosDB Client
             services.AddSingleton<CosmosClient>(sp =>
             {
                 return new CosmosClient(endpointUri, primaryKey);
             });
 
-
-            // Register the CosmosDB Service
-            //services.AddScoped<ICosmosDbService, CosmosDbService>();
-
             // Register the CosmosDB Initializer
             services.AddSingleton<CosmosDbInitializer>();
 
-            // ✅ Register User Repository & Service
+            // Register JWT Service
+            services.AddScoped<IJwtService, JwtService>();
+
+            // Register User Repository & Service
             services.AddScoped<IUserRepository, UserRepository>(); // Repository for DB access
             services.AddScoped<IUserService, UserService>();       // Service for business logic
+
+            // Register Match Repository & Service
+            services.AddScoped<IMatchRepository, MatchRepository>(); // Repository for DB access
+            services.AddScoped<IMatchService, MatchService>();       // Service for business logic
 
             return services;
         }

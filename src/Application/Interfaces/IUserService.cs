@@ -13,5 +13,8 @@ namespace Application.Interfaces
         Task<List<User>> GetAllUsers();
         Task<User> RegisterUser(string username, string email);
         Task DeleteUser(string userId);
+        Task<User> GetUserByEmail(string email);
+        public Task<User?> UpdateUser(string userId, string username, string email);
+        Task<User> GetUserByQrCode(string qrCode);
     }
 }

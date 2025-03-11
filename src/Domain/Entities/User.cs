@@ -18,12 +18,11 @@ namespace Domain.Entities
 
         public string Username { get; private set; }
         public string Email { get; private set; }
-        public int QrCodeIdentifier { get; private set; }
+        public string QrCodeIdentifier { get; private set; }
         public int MatchesPlayed { get; private set; }
         public bool IsAdmin { get; private set; }
-        public string? JwtToken { get; private set; }
 
-        public User(string userId, string username, string email, int qrCodeIdentifier, bool isAdmin)
+        public User(string userId, string username, string email, string qrCodeIdentifier, bool isAdmin)
         {
             UserId = userId;
             Username = username;
@@ -31,11 +30,20 @@ namespace Domain.Entities
             QrCodeIdentifier = qrCodeIdentifier;
             MatchesPlayed = 0;
             IsAdmin = isAdmin;
-            JwtToken = null;
         }
 
         public void IncrementMatchesPlayed() => MatchesPlayed++;
 
-        public void SetJwtToken(string token) => JwtToken = token;
+        public void SetUsername(string newUsername)
+        {
+            if (!string.IsNullOrEmpty(newUsername))
+                Username = newUsername;
+        }
+
+        public void SetEmail(string newEmail)
+        {
+            if (!string.IsNullOrEmpty(newEmail))
+                Email = newEmail;
+        }
     }
 }
