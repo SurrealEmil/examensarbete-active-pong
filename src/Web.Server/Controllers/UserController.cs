@@ -11,10 +11,34 @@ namespace Web.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ILeaderboardService _leaderboardService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ILeaderboardService leaderboardService)
         {
             _userService = userService;
+            _leaderboardService = leaderboardService;
+        }
+
+        [Authorize] //  Requires valid token
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Invalid token.");
+
+            var user = await _userService.GetUserById(userId);
+            if (user == null) return NotFound("User not found.");
+
+            var playerStats = await _leaderboardService.GetPlayerBestScoreAcrossModes(userId);
+
+            return Ok(new
+            {
+                Username = user.Username,
+                Email = user.Email,
+                QrCode = user.QrCode,
+                Stats = playerStats ?? new { message = "No games played yet." }
+            });
         }
 
         // Get a User by ID
@@ -22,6 +46,14 @@ namespace Web.Server.Controllers
         public async Task<IActionResult> GetUser(string userId)
         {
             var user = await _userService.GetUserById(userId);
+            return user != null ? Ok(user) : NotFound("User not found.");
+        }
+
+        // Get a User by QR Code
+        [HttpGet("qr/{qrCode}")]
+        public async Task<IActionResult> GetUserByQrCode(string qrCode)
+        {
+            var user = await _userService.GetUserByQrCode(qrCode);
             return user != null ? Ok(user) : NotFound("User not found.");
         }
 

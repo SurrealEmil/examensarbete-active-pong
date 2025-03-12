@@ -36,10 +36,6 @@ namespace Infrastructure.Persistence
             services.AddScoped<IUserRepository, UserRepository>(); // Repository for DB access
             services.AddScoped<IUserService, UserService>();       // Service for business logic
 
-            // Register Match Repository & Service
-            services.AddScoped<IMatchRepository, MatchRepository>(); // Repository for DB access
-            services.AddScoped<IMatchService, MatchService>();       // Service for business logic
-
             return services;
         }
     }
