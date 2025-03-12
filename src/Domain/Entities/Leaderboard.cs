@@ -9,8 +9,8 @@ namespace Domain.Entities
         [JsonProperty("id")]
         public string LeaderboardId { get; private set; } // Required for CosmosDB
 
-        [JsonProperty("GameMode")]
-        public string PartitionKey => GameMode;  // GameMode as partition key
+        [JsonProperty("LeaderboardId")]
+        public string PartitionKey => LeaderboardId; // GameMode as partition key
 
         public string GameMode { get; private set; } // Each leaderboard is for a specific game mode
         public List<LeaderboardEntry> Entries { get; private set; }

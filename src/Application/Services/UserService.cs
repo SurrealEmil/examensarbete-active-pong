@@ -116,8 +116,6 @@ namespace Application.Services
             return user;
         }
 
-
-
         //TODO: Move to handler or simular
         private void RemoveExpiredUsers()
         {

@@ -1,8 +1,11 @@
 ﻿using Application.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Server.Controllers
 {
+    [Route("api/leaderboard")]
+    [ApiController]
     public class LeaderboardController : Controller
     {
         private readonly ILeaderboardService _leaderboardService;
@@ -16,12 +19,13 @@ namespace Web.Server.Controllers
 
         // Submit score (called when game ends)
         [HttpPost("submit")]
-        public async Task<IActionResult> SubmitScore([FromBody] ScoreRequest request)
+        public async Task<IActionResult> SubmitScore([FromBody] LeaderboardEntry entry)
         {
-            var user = await _userService.GetUserById(request.UserId);
+            var user = await _userService.GetUserById(entry.UserId);
             if (user == null) return BadRequest("User not found.");
 
-            await _leaderboardService.AddEntry(request.UserId, user.Username, request.Score, request.GameMode);
+            // Submit the entry to the leaderboard (Rank is assigned automatically)
+            await _leaderboardService.AddEntry(entry);
 
             // Remove user from active list (game is finished)
             _userService.RemoveUserFromActiveList(user.UserId);
@@ -30,19 +34,22 @@ namespace Web.Server.Controllers
         }
 
         // Get top 10 scores for a game mode
-        [HttpGet("{gameMode}/top10")]
-        public async Task<IActionResult> GetTop10Scores(string gameMode)
+        [HttpGet("{gameMode}/top-players")]
+        public async Task<IActionResult> GetTopPlayers(string gameMode)
         {
-            var topPlayers = await _leaderboardService.GetTop10(gameMode);
+            var topPlayers = await _leaderboardService.GetTopPlayers(gameMode);
+            if (topPlayers == null || !topPlayers.Any())
+                return NotFound(new { message = "No players found for this game mode." });
+
             return Ok(topPlayers);
         }
 
-        // Get player's best score and rank
-        [HttpGet("{gameMode}/player/{userId}")]
-        public async Task<IActionResult> GetPlayerBestScore(string gameMode, string userId)
+        [HttpGet("player/{userId}/best-score")]
+        public async Task<IActionResult> GetPlayerBestScoreAcrossModes(string userId)
         {
-            var playerEntry = await _leaderboardService.GetPlayerBestScore(gameMode, userId);
-            if (playerEntry == null) return NotFound("No games played yet.");
+            var playerEntry = await _leaderboardService.GetPlayerBestScoreAcrossModes(userId);
+            if (playerEntry == null) return NotFound(new { message = "No games played yet." });
+
             return Ok(playerEntry);
         }
 

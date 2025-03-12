@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -36,8 +37,8 @@ namespace Web.Server.Controllers
             {
                 Username = user.Username,
                 Email = user.Email,
-                QrCode = user.QrCode,
-                Stats = playerStats ?? new { message = "No games played yet." }
+                QrCode = user.QrCodeIdentifier,
+                Stats = playerStats ?? new LeaderboardEntry(userId, user.Username, 0, 0, "No games played yet")
             });
         }
 

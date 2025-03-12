@@ -36,6 +36,11 @@ namespace Infrastructure.Persistence
             services.AddScoped<IUserRepository, UserRepository>(); // Repository for DB access
             services.AddScoped<IUserService, UserService>();       // Service for business logic
 
+            // Register Leaderboard Repository & Service
+            services.AddScoped<ILeaderboardService, LeaderboardService>();
+            services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
+
+
             return services;
         }
     }

@@ -30,15 +30,12 @@ namespace Infrastructure.Persistence
             try
             {
                 _logger.LogInformation($"Creating database: {databaseName} with shared throughput if it doesn't exist...");
-                Database database = (await _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName, throughput: 400)).Database; // ✅ Shared throughput at DB level
+                Database database = (await _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName, throughput: 400)).Database; // Shared throughput at DB level
                 _logger.LogInformation($"Database {database.Id} is ready.");
 
                 // ✅ Create containers without specifying throughput (they use shared throughput)
                 await CreateContainer(database, "Users", "/UserId");
-                await CreateContainer(database, "Matches", "/MatchId");
-                await CreateContainer(database, "Scores", "/MatchId");
-                await CreateContainer(database, "GameModes", "/GameModeId");
-                await CreateContainer(database, "Leaderboards", "/GameModeId");
+                await CreateContainer(database, "Leaderboards", "/LeaderboardId");
 
                 _logger.LogInformation("All required containers are ready.");
             }
