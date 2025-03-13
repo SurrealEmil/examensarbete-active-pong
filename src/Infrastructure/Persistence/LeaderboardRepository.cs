@@ -67,7 +67,7 @@ namespace Infrastructure.Persistence
 
             var iterator = _container.GetItemQueryIterator<Leaderboard>(query);
 
-            // ✅ Provide a default GameMode to satisfy the constructor
+            // Provide a default GameMode to satisfy the constructor
             var bestEntry = new LeaderboardEntry(userId, "", 0, 0, "Unknown");
 
             while (iterator.HasMoreResults)

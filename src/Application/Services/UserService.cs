@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs.UserDTOs;
+using Application.Interfaces;
 using Domain.DbInterfaces;
 using Domain.Entities;
 using MediatR;
@@ -21,56 +22,74 @@ namespace Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> GetUserById(string userId)
+        public async Task<UserDto?> RegisterUser(string username, string email)
         {
-            return await _userRepository.GetUserById(userId);
-        }
-
-        public async Task<List<User>> GetAllUsers()
-        {
-            return await _userRepository.GetAllUsers();
-        }
-
-        public async Task<User?> RegisterUser(string username, string email)
-        {
+            // Validate input
             if (!IsValidEmail(email))
                 throw new ArgumentException("Invalid email format.");
 
             if (!IsValidUsername(username))
                 throw new ArgumentException("Invalid username format. Usernames must be 3-20 characters long and contain only letters, numbers, and underscores.");
 
-            var existingEmailUser = await _userRepository.GetUserByEmail(email);
-            if (existingEmailUser != null)
+            // Ensure email and username are not already taken
+            if (await _userRepository.GetUserByEmail(email) != null)
                 throw new ArgumentException("Email is already in use.");
 
-            var existingUsernameUser = await _userRepository.GetUserByUsername(username);
-            if (existingUsernameUser != null)
+            if (await _userRepository.GetUserByUsername(username) != null)
                 throw new ArgumentException("Username is already in use.");
 
+            // Generate User ID and Unique QR Code
             var userId = Guid.NewGuid().ToString();
             string qrCodeIdentifier = await GenerateUniqueQrCode();
 
+            // Create new User entity
             var user = new User(userId, username, email, qrCodeIdentifier, false);
             await _userRepository.AddUser(user);
-            return user;
+
+            return new UserDto(user);
         }
 
-        public async Task DeleteUser(string userId)
+        public async Task<UserDto?> GetUserById(string userId)
         {
-            await _userRepository.DeleteUser(userId);
+            var user = await _userRepository.GetUserById(userId);
+            return user != null ? new UserDto(user) : null;
         }
 
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<UserDto?> GetUserByEmail(string email)
         {
-            return await _userRepository.GetUserByEmail(email);
+            var user = await _userRepository.GetUserByEmail(email);
+            return user != null ? new UserDto(user) : null;
         }
 
-        public async Task<User?> UpdateUser(string userId, string username, string email)
+        public async Task<UserDto?> GetUserByQrCode(string qrCode)
+        {
+            var user = await _userRepository.GetUserByQrCode(qrCode);
+            if (user == null) return null;
+
+            // Remove expired users before adding a new one
+            RemoveExpiredUsers();
+
+            // Prevent duplicate scan
+            if (_activePlayers.ContainsKey(user.UserId))
+                throw new InvalidOperationException("User is already in a game.");
+
+            _activePlayers[user.UserId] = DateTime.UtcNow;
+            return new UserDto(user);
+        }
+
+        public async Task<List<UserDto>> GetAllUsers()
+        {
+            var users = await _userRepository.GetAllUsers();
+            return users.Select(user => new UserDto(user)).ToList();
+        }
+
+        public async Task<UserDto?> UpdateUser(string userId, string username, string email)
         {
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
-                return null; // ❌ User not found
+                return null;
 
+            // Validate and update email
             if (!string.IsNullOrEmpty(email))
             {
                 if (!IsValidEmail(email))
@@ -83,6 +102,7 @@ namespace Application.Services
                 user.SetEmail(email);
             }
 
+            // Validate and update username
             if (!string.IsNullOrEmpty(username))
             {
                 if (!IsValidUsername(username))
@@ -95,26 +115,19 @@ namespace Application.Services
                 user.SetUsername(username);
             }
 
-            await _userRepository.UpdateUser(user); // ✅ Save changes
-            return user;
+            await _userRepository.UpdateUser(user);
+            return new UserDto(user);
         }
 
-        public async Task<User?> GetUserByQrCode(string qrCode)
+        public async Task DeleteUser(string userId)
         {
-            var user = await _userRepository.GetUserByQrCode(qrCode);
-            if (user == null) return null;
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+                throw new ArgumentException("User not found.");
 
-            // Remove expired users
-            RemoveExpiredUsers();
-
-            // Check if user is already in a game
-            if (_activePlayers.ContainsKey(user.UserId))
-                return null; // ❌ Prevent duplicate scan
-
-            // Add user with a timestamp
-            _activePlayers[user.UserId] = DateTime.UtcNow;
-            return user;
+            await _userRepository.DeleteUser(userId);
         }
+
 
         //TODO: Move to handler or simular
         private void RemoveExpiredUsers()

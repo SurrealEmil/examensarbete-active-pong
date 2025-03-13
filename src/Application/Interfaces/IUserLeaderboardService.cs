@@ -1,5 +1,4 @@
-﻿using Application.DTOs.UserDTOs;
-using Domain.Entities;
+﻿using Application.DTOs.UserLeaderboardDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IJwtService
+    public interface IUserLeaderboardService
     {
-        string GenerateToken(UserDto user);
+        Task<UserLeaderboardDto?> GetUserLeaderboardInfo(string userId);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Web.Server.DTOs
+﻿namespace Web.Server.Requests.UserRequests
 {
     public class UpdateUserRequest
     {

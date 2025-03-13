@@ -17,23 +17,46 @@ namespace Web.Server.Controllers
             _userService = userService;
         }
 
-        // Submit score (called when game ends)
+        // Submit a single-player score
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitScore([FromBody] LeaderboardEntry entry)
         {
             var user = await _userService.GetUserById(entry.UserId);
-            if (user == null) return BadRequest("User not found.");
+            if (user == null)
+                return BadRequest("User not found.");
 
-            // Submit the entry to the leaderboard (Rank is assigned automatically)
+            entry.SetUsername(user.Username); // ✅ Ensure Username is set from UserId
+
             await _leaderboardService.AddEntry(entry);
-
-            // Remove user from active list (game is finished)
             _userService.RemoveUserFromActiveList(user.UserId);
 
             return Ok(new { message = "Score submitted successfully!" });
         }
 
-        // Get top 10 scores for a game mode
+        // Submit scores for multiplayer games (supports one or two players)
+        [HttpPost("submit-multiplayer")]
+        public async Task<IActionResult> SubmitScores([FromBody] List<LeaderboardEntry?> entries)
+        {
+            if (entries == null || entries.Count == 0)
+                return BadRequest("At least one score is required.");
+            if (entries.Count > 2)
+                return BadRequest("This endpoint supports up to two players per game.");
+
+            foreach (var entry in entries.Where(e => e != null)) // ✅ Ignore null entries
+            {
+                var user = await _userService.GetUserById(entry.UserId);
+                if (user == null)
+                    return BadRequest($"User {entry.UserId} not found.");
+
+                entry.SetUsername(user.Username);
+                await _leaderboardService.AddEntry(entry);
+                _userService.RemoveUserFromActiveList(user.UserId);
+            }
+
+            return Ok(new { message = "Scores submitted successfully!" });
+        }
+
+        // Get top 10 players for a specific game mode
         [HttpGet("{gameMode}/top-players")]
         public async Task<IActionResult> GetTopPlayers(string gameMode)
         {
@@ -44,21 +67,15 @@ namespace Web.Server.Controllers
             return Ok(topPlayers);
         }
 
+        // Get a player's best score across all game modes
         [HttpGet("player/{userId}/best-score")]
         public async Task<IActionResult> GetPlayerBestScoreAcrossModes(string userId)
         {
             var playerEntry = await _leaderboardService.GetPlayerBestScoreAcrossModes(userId);
-            if (playerEntry == null) return NotFound(new { message = "No games played yet." });
+            if (playerEntry == null)
+                return NotFound(new { message = "No games played yet." });
 
             return Ok(playerEntry);
-        }
-
-        //TODO: Move to DTOs folder
-        public class ScoreRequest
-        {
-            public string UserId { get; set; }  // User submitting the score
-            public int Score { get; set; }  // Score achieved
-            public string GameMode { get; set; }  // The game mode played
         }
     }
 }

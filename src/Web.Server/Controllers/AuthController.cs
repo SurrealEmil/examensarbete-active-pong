@@ -1,8 +1,6 @@
 ﻿using Application.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Web.Server.DTOs;
+using Web.Server.Requests.AuthRequests;
 
 namespace Web.Server.Controllers
 {
@@ -19,7 +17,7 @@ namespace Web.Server.Controllers
             _jwtService = jwtService;
         }
 
-        // Register a New User
+        // 🔹 Register and Get JWT Token
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
@@ -29,19 +27,9 @@ namespace Web.Server.Controllers
             // Register the user
             var newUser = await _userService.RegisterUser(request.Username, request.Email);
 
-            // Generate JWT token for immediate login
+            // Generate and set JWT token
             string token = _jwtService.GenerateToken(newUser);
-
-            // Set JWT token as an HTTP-only cookie
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,      // Prevents JavaScript access
-                Secure = true,        // Requires HTTPS
-                SameSite = SameSiteMode.Strict, // Prevents CSRF attacks
-                Expires = DateTime.UtcNow.AddHours(1) // Token expiration
-            };
-
-            Response.Cookies.Append("AuthToken", token, cookieOptions);
+            SetAuthTokenCookie(token);
 
             return Ok(new
             {
@@ -51,33 +39,43 @@ namespace Web.Server.Controllers
             });
         }
 
-        // Login and Get JWT Token
+        // 🔹 Login and Get JWT Token
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
             var user = await _userService.GetUserByEmail(request.Email);
             if (user == null)
                 return Unauthorized("Invalid credentials.");
 
             string token = _jwtService.GenerateToken(user);
-
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,      // Prevents JavaScript access
-                Secure = true,        // Requires HTTPS
-                SameSite = SameSiteMode.Strict, // Prevents CSRF attacks
-                Expires = DateTime.UtcNow.AddHours(1) // Token expiration
-            };
-
-            Response.Cookies.Append("AuthToken", token, cookieOptions);
+            SetAuthTokenCookie(token);
 
             return Ok(new { message = "Login successful", token });
         }
 
-
-        // Logout (Client-Side)
+        // 🔹 Logout (Expire Token)
         [HttpPost("logout")]
         public IActionResult Logout()
+        {
+            ExpireAuthTokenCookie();
+            return Ok(new { message = "User logged out successfully" });
+        }
+
+        // 🔹 Helper Methods for Managing Auth Token Cookies
+        private void SetAuthTokenCookie(string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,                        // Prevents JavaScript access
+                Secure = true,                          // Requires HTTPS
+                SameSite = SameSiteMode.Strict,         // Prevents CSRF attacks
+                Expires = DateTime.UtcNow.AddHours(1)   // Token expiration
+            };
+
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
+        }
+
+        private void ExpireAuthTokenCookie()
         {
             var cookieOptions = new CookieOptions
             {
@@ -87,15 +85,7 @@ namespace Web.Server.Controllers
                 Expires = DateTime.UtcNow.AddDays(-1) // Expire immediately
             };
 
-            Response.Cookies.Append("AuthToken", "", cookieOptions); // Overwrite and expire
-
-            return Ok(new { message = "User logged out successfully" });
+            Response.Cookies.Append("AuthToken", "", cookieOptions);
         }
-    }
-
-    //TODO: Move Request bodys
-    public class LoginRequest
-    {
-        public string Email { get; set; }
     }
 }
