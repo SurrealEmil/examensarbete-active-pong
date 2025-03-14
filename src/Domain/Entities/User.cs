@@ -14,25 +14,22 @@ namespace Domain.Entities
         public string UserId { get; private set; }
 
         [JsonProperty("UserId")]  // Ensure this matches the container partition key
-        public string PartitionKey => UserId;
+        public string PartitionKey { get; private set; }
 
         public string Username { get; private set; }
         public string Email { get; private set; }
         public string QrCodeIdentifier { get; private set; }
-        public int MatchesPlayed { get; private set; }
         public bool IsAdmin { get; private set; }
 
         public User(string userId, string username, string email, string qrCodeIdentifier, bool isAdmin)
         {
             UserId = userId;
+            PartitionKey = userId;
             Username = username;
             Email = email;
             QrCodeIdentifier = qrCodeIdentifier;
-            MatchesPlayed = 0;
             IsAdmin = isAdmin;
         }
-
-        public void IncrementMatchesPlayed() => MatchesPlayed++;
 
         public void SetUsername(string newUsername)
         {

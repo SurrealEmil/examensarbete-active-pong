@@ -35,5 +35,11 @@ namespace Domain.Entities
         {
             Rank = newRank; // Update rank when recalculating leaderboard
         }
+
+        // Add a method to update Username
+        public void SetUsername(string username)
+        {
+            Username = username;
+        }
     }
 }

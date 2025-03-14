@@ -1,4 +1,4 @@
-﻿namespace Web.Server.DTOs
+﻿namespace Web.Server.Requests.AuthRequests
 {
     public class RegisterUserRequest
     {

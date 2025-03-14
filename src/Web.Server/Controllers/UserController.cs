@@ -1,9 +1,8 @@
 ﻿using Application.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Web.Server.DTOs;
+using Web.Server.Requests.UserRequests;
 
 namespace Web.Server.Controllers
 {
@@ -12,38 +11,35 @@ namespace Web.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ILeaderboardService _leaderboardService;
+        private readonly IUserLeaderboardService _userLeaderboardService;
 
-        public UserController(IUserService userService, ILeaderboardService leaderboardService)
+        public UserController(IUserService userService, IUserLeaderboardService userLeaderboardService)
         {
             _userService = userService;
-            _leaderboardService = leaderboardService;
+            _userLeaderboardService = userLeaderboardService;
         }
 
-        [Authorize] //  Requires valid token
+        // Get a User Profile (Requires Auth)
+        [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
         {
+            string token = Request.Cookies["AuthToken"]; // Read from cookie
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized("Missing token.");
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Invalid token.");
 
-            var user = await _userService.GetUserById(userId);
-            if (user == null) return NotFound("User not found.");
+            var userProfile = await _userLeaderboardService.GetUserLeaderboardInfo(userId);
+            if (userProfile == null) return NotFound("User not found.");
 
-            var playerStats = await _leaderboardService.GetPlayerBestScoreAcrossModes(userId);
-
-            return Ok(new
-            {
-                Username = user.Username,
-                Email = user.Email,
-                QrCode = user.QrCodeIdentifier,
-                Stats = playerStats ?? new LeaderboardEntry(userId, user.Username, 0, 0, "No games played yet")
-            });
+            return Ok(userProfile);
         }
 
         // Get a User by ID
-        [HttpGet("{userId}")]
+        [HttpGet("id/{userId}")]
         public async Task<IActionResult> GetUser(string userId)
         {
             var user = await _userService.GetUserById(userId);
@@ -66,7 +62,7 @@ namespace Web.Server.Controllers
             return Ok(users);
         }
 
-        // Update a User by ID
+        // Update a User (Requires Auth)
         [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
@@ -81,7 +77,6 @@ namespace Web.Server.Controllers
 
             return Ok(new { message = "User updated successfully", updatedUser });
         }
-
 
         // Delete a User by ID
         [HttpDelete("{userId}")]

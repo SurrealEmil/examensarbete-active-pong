@@ -20,10 +20,13 @@ namespace Infrastructure.Persistence
                 throw new ArgumentNullException("CosmosDB configuration values cannot be null.");
             }
 
-            // Register CosmosDB Client
+            // Register CosmosDB Client with Gateway Mode
             services.AddSingleton<CosmosClient>(sp =>
             {
-                return new CosmosClient(endpointUri, primaryKey);
+                return new CosmosClient(endpointUri, primaryKey, new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Gateway // Uses HTTP instead of Direct TCP
+                });
             });
 
             // Register the CosmosDB Initializer
@@ -40,6 +43,9 @@ namespace Infrastructure.Persistence
             services.AddScoped<ILeaderboardService, LeaderboardService>();
             services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 
+            // Register UserLeaderboard Repository & Service
+            services.AddScoped<IUserLeaderboardService, UserLeaderboardService>();
+            services.AddScoped<IUserLeaderboardRepository, UserLeaderboardRepository>();
 
             return services;
         }
