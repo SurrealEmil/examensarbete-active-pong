@@ -5,7 +5,7 @@ namespace Web.Server.Controllers
 {
     [ApiController]
     [Route("api/ping")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     public class PingController : ControllerBase
     {
         [HttpGet]

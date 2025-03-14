@@ -24,6 +24,10 @@ namespace Web.Server.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
         {
+            string token = Request.Cookies["AuthToken"]; // Read from cookie
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized("Missing token.");
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("Invalid token.");
