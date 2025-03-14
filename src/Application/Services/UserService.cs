@@ -24,6 +24,9 @@ namespace Application.Services
 
         public async Task<UserDto?> RegisterUser(string username, string email)
         {
+            username = username.ToLower();
+            email = email.ToLower();
+
             // Validate input
             if (!IsValidEmail(email))
                 throw new ArgumentException("Invalid email format.");
@@ -57,6 +60,8 @@ namespace Application.Services
 
         public async Task<UserDto?> GetUserByEmail(string email)
         {
+            email = email.ToLower();
+
             var user = await _userRepository.GetUserByEmail(email);
             return user != null ? new UserDto(user) : null;
         }
@@ -85,6 +90,9 @@ namespace Application.Services
 
         public async Task<UserDto?> UpdateUser(string userId, string username, string email)
         {
+            username = username.ToLower();
+            email = email.ToLower();
+
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
                 return null;

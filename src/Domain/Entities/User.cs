@@ -25,8 +25,8 @@ namespace Domain.Entities
         {
             UserId = userId;
             PartitionKey = userId;
-            Username = username;
-            Email = email;
+            Username = username.ToLower();
+            Email = email.ToLower();
             QrCodeIdentifier = qrCodeIdentifier;
             IsAdmin = isAdmin;
         }
@@ -34,13 +34,13 @@ namespace Domain.Entities
         public void SetUsername(string newUsername)
         {
             if (!string.IsNullOrEmpty(newUsername))
-                Username = newUsername;
+                Username = newUsername.ToLower();
         }
 
         public void SetEmail(string newEmail)
         {
             if (!string.IsNullOrEmpty(newEmail))
-                Email = newEmail;
+                Email = newEmail.ToLower();
         }
     }
 }

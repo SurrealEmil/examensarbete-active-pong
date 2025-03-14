@@ -78,7 +78,7 @@ namespace Infrastructure.Persistence
         public async Task<Domain.Entities.User> GetUserByEmail(string email)
         {
             var query = new QueryDefinition("SELECT * FROM c WHERE c.Email = @Email")
-                .WithParameter("@Email", email);
+                .WithParameter("@Email", email.ToLower());
 
             using FeedIterator<Domain.Entities.User> resultSet = _container.GetItemQueryIterator<Domain.Entities.User>(query);
 
@@ -107,7 +107,7 @@ namespace Infrastructure.Persistence
         public async Task<Domain.Entities.User> GetUserByUsername(string username)
         {
             var query = new QueryDefinition("SELECT * FROM c WHERE c.Username = @Username")
-                .WithParameter("@Username", username);
+                .WithParameter("@Username", username.ToLower());
 
             using FeedIterator<Domain.Entities.User> resultSet = _container.GetItemQueryIterator<Domain.Entities.User>(query);
 

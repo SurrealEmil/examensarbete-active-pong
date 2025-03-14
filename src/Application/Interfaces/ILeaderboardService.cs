@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.LeaderboardDTOs;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Application.Interfaces
     {
         Task AddEntry(LeaderboardEntry entry);
         Task<List<LeaderboardEntry>> GetTopPlayers(string gameMode);
+        Task<List<LeaderboardEntry>> GetAllPlayers(string gameMode);
         Task<LeaderboardEntry?> GetPlayerBestScoreAcrossModes(string userId);
     }
 }

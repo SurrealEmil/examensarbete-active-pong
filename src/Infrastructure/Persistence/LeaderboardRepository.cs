@@ -59,6 +59,12 @@ namespace Infrastructure.Persistence
             return leaderboard?.Entries.Take(10).ToList() ?? new List<LeaderboardEntry>();
         }
 
+        public async Task<List<LeaderboardEntry>> GetAllPlayers(string gameMode)
+        {
+            var leaderboard = await GetLeaderboardByGameMode(gameMode);
+            return leaderboard?.Entries.ToList() ?? new List<LeaderboardEntry>();
+        }
+
         // Get Player's Best Score Across All Modes
         public async Task<LeaderboardEntry?> GetPlayerBestScoreAcrossModes(string userId)
         {

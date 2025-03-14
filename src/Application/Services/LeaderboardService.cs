@@ -30,6 +30,12 @@ namespace Application.Services
             return await _leaderboardRepository.GetTopPlayers(gameMode);
         }
 
+        // Get All Players
+        public async Task<List<LeaderboardEntry>> GetAllPlayers(string gameMode)
+        {
+            return await _leaderboardRepository.GetAllPlayers(gameMode);
+        }
+
         // Get Player's Best Score
         public async Task<LeaderboardEntry?> GetPlayerBestScoreAcrossModes(string userId)
         {
