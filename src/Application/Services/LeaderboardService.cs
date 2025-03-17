@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs.LeaderboardDTOs;
+using Application.Interfaces;
 using Domain.DbInterfaces;
 using Domain.Entities;
 using System;
@@ -19,9 +20,12 @@ namespace Application.Services
         }
 
         // Submit Score
-        public async Task AddEntry(LeaderboardEntry entry)
+        public async Task<LeaderboardEntryDto> AddEntry(string userId, string username, int bestScore, string gameMode)
         {
+            var entry = new LeaderboardEntry(userId, username, bestScore, 0, gameMode);
             await _leaderboardRepository.AddOrUpdateEntry(entry);
+
+            return new LeaderboardEntryDto(entry); // ✅ Returns DTO for confirmation
         }
 
         // Get Top 10 Players

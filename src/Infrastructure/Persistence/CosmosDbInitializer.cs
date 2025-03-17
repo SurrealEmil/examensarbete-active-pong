@@ -28,18 +28,26 @@ public class CosmosDbInitializer
 
         try
         {
-            _logger.LogInformation($"Creating database: {databaseName} with shared throughput if it doesn't exist...");
+            _logger.LogInformation($"Creating database: {databaseName} if it doesn't exist...");
             Database database = (await _cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName, throughput: 400)).Database;
             _logger.LogInformation($"Database {database.Id} is ready.");
 
-            // Create containers
+            // Create necessary containers
             await CreateContainer(database, "Users", "/UserId");
             await CreateContainer(database, "Leaderboards", "/LeaderboardId");
 
             _logger.LogInformation("All required containers are ready.");
 
-            // Seed Users & Leaderboards
-            await SeedUsersAndLeaderboard(database);
+            // Check if the database is empty before seeding
+            bool isEmpty = await IsDatabaseEmpty(database);
+            if (isEmpty)
+            {
+                await SeedUsersAndLeaderboard(database);
+            }
+            else
+            {
+                _logger.LogInformation("Database is not empty. Skipping seeding.");
+            }
         }
         catch (Exception ex)
         {
@@ -51,7 +59,7 @@ public class CosmosDbInitializer
     {
         try
         {
-            _logger.LogInformation($"Creating container: {containerName} with partition key {partitionKey}...");
+            _logger.LogInformation($"Creating container: {containerName}...");
             var response = await database.CreateContainerIfNotExistsAsync(new ContainerProperties(containerName, partitionKey));
             _logger.LogInformation($"Container {response.Container.Id} is ready.");
         }
@@ -59,6 +67,29 @@ public class CosmosDbInitializer
         {
             _logger.LogError($"Error creating container {containerName}: {ex.Message}");
         }
+    }
+
+    private async Task<bool> IsDatabaseEmpty(Database database)
+    {
+        var usersContainer = database.GetContainer("Users");
+        var leaderboardsContainer = database.GetContainer("Leaderboards");
+
+        bool usersEmpty = await IsContainerEmpty(usersContainer);
+        bool leaderboardsEmpty = await IsContainerEmpty(leaderboardsContainer);
+
+        return usersEmpty && leaderboardsEmpty;
+    }
+
+    private async Task<bool> IsContainerEmpty(Container container)
+    {
+        var query = new QueryDefinition("SELECT VALUE COUNT(1) FROM c");
+        using var iterator = container.GetItemQueryIterator<int>(query);
+        if (iterator.HasMoreResults)
+        {
+            var response = await iterator.ReadNextAsync();
+            return response.FirstOrDefault() == 0; // Returns true if count is 0
+        }
+        return true; // Default to empty if unable to retrieve data
     }
 
     private async Task SeedUsersAndLeaderboard(Database database)
@@ -69,20 +100,19 @@ public class CosmosDbInitializer
         var random = new Random();
         var gameModes = new List<string> { "Pong", "Arcade", "Party" };
         var usernames = new List<string>
-    {
-        "PlayerOne", "ShadowHunter", "ArcadeKing", "PongMaster", "NightFury",
-        "QuickSilver", "StormBreaker", "NeonNinja", "ZeroGravity", "CodeWarrior", "YourMove"
-    };
+        {
+            "PlayerOne", "ShadowHunter", "ArcadeKing", "PongMaster", "NightFury",
+            "QuickSilver", "StormBreaker", "NeonNinja", "ZeroGravity", "CodeWarrior", "YourMove"
+        };
+
+        _logger.LogInformation("Seeding users and leaderboard data...");
 
         var users = new List<Domain.Entities.User>();
         var leaderboardEntries = new List<LeaderboardEntry>();
 
-        _logger.LogInformation("Seeding users and leaderboard data...");
-
-        for (int i = 0; i < usernames.Count; i++)
+        foreach (var username in usernames)
         {
             string userId = Guid.NewGuid().ToString();
-            string username = usernames[i];
             string email = $"{username.ToLower()}@example.com";
             string qrCodeIdentifier = random.Next(100000, 999999).ToString();
 
@@ -96,21 +126,21 @@ public class CosmosDbInitializer
             }
         }
 
-        // Insert Users into CosmosDB
+        // **Insert Users into CosmosDB**
         foreach (var user in users)
         {
             await usersContainer.UpsertItemAsync(user, new PartitionKey(user.UserId));
         }
 
-        // Insert Leaderboard Entries into CosmosDB **(Sorting + Rank Fix)**
+        // **Insert or Update Leaderboard Entries**
         foreach (var gameMode in gameModes)
         {
             var sortedEntries = leaderboardEntries
                 .Where(e => e.GameMode == gameMode)
-                .OrderByDescending(e => e.BestScore) // Sort scores highest to lowest
+                .OrderByDescending(e => e.BestScore)
                 .Select((entry, index) =>
                 {
-                    entry.UpdateRank(index + 1); // Assign correct rank
+                    entry.UpdateRank(index + 1);
                     return entry;
                 })
                 .ToList();
@@ -119,7 +149,6 @@ public class CosmosDbInitializer
             await leaderboardsContainer.UpsertItemAsync(leaderboard, new PartitionKey(gameMode));
         }
 
-        _logger.LogInformation("Seeding Complete: 11 Users & Leaderboard Scores Added with Correct Rankings.");
+        _logger.LogInformation("Seeding Complete: 11 Users & Leaderboard Scores Added.");
     }
-
 }

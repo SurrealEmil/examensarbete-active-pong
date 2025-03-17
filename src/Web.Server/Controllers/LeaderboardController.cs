@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs.LeaderboardDTOs;
+using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -21,19 +22,20 @@ namespace Web.Server.Controllers
 
         // Submit a single-player score
         [HttpPost("submit")]
-        public async Task<IActionResult> SubmitScore([FromBody] LeaderboardEntry entry)
+        public async Task<IActionResult> SubmitScore([FromBody] ScoreLeaderboardRequest request)
         {
-            var user = await _userService.GetUserById(entry.UserId);
+            var user = await _userService.GetUserById(request.UserId);
             if (user == null)
                 return BadRequest("User not found.");
 
-            entry.SetUsername(user.Username); // Ensure Username is set from UserId
+            // Pass Username to the Service
+            var leaderboardEntry = await _leaderboardService.AddEntry(user.UserId, user.Username, request.BestScore, request.GameMode);
 
-            await _leaderboardService.AddEntry(entry);
             _userService.RemoveUserFromActiveList(user.UserId);
 
-            return Ok(new { message = "Score submitted successfully!" });
+            return Ok(new { message = "Score submitted successfully!", entry = leaderboardEntry });
         }
+
 
         // Submit scores for multiplayer games (Player 1 required, Player 2 optional)
         [HttpPost("submit-multiplayer")]
@@ -42,13 +44,15 @@ namespace Web.Server.Controllers
             if (request.Player1 == null)
                 return BadRequest("Player 1 is required.");
 
+            var responses = new List<LeaderboardEntryDto>();
+
             // 🔹 Process Player 1
             var user1 = await _userService.GetUserById(request.Player1.UserId);
             if (user1 == null) return BadRequest($"User {request.Player1.UserId} not found.");
 
-            request.Player1.SetUsername(user1.Username);
-            await _leaderboardService.AddEntry(request.Player1);
+            var entry1 = await _leaderboardService.AddEntry(user1.UserId, user1.Username, request.Player1.BestScore, request.Player1.GameMode);
             _userService.RemoveUserFromActiveList(user1.UserId);
+            responses.Add(entry1);
 
             // 🔹 Process Player 2 (if provided)
             if (request.Player2 != null)
@@ -56,12 +60,12 @@ namespace Web.Server.Controllers
                 var user2 = await _userService.GetUserById(request.Player2.UserId);
                 if (user2 == null) return BadRequest($"User {request.Player2.UserId} not found.");
 
-                request.Player2.SetUsername(user2.Username);
-                await _leaderboardService.AddEntry(request.Player2);
+                var entry2 = await _leaderboardService.AddEntry(user2.UserId, user2.Username, request.Player2.BestScore, request.Player2.GameMode);
                 _userService.RemoveUserFromActiveList(user2.UserId);
+                responses.Add(entry2);
             }
 
-            return Ok(new { message = "Scores submitted successfully!" });
+            return Ok(new { message = "Scores submitted successfully!", entries = responses });
         }
 
         // Get top 10 players for a specific game mode
