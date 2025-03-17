@@ -3,6 +3,7 @@ using Application.DTOs.UserLeaderboardDTOs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Domain.Entities;
+using Domain.Interfaces;
 
 namespace Infrastructure.Persistence
 {
@@ -11,9 +12,9 @@ namespace Infrastructure.Persistence
         private readonly Container _usersContainer;
         private readonly Container _leaderboardsContainer;
 
-        public UserLeaderboardRepository(CosmosClient cosmosClient, IConfiguration configuration)
+        public UserLeaderboardRepository(CosmosClient cosmosClient, ISecretsService secretsService)
         {
-            var databaseName = configuration["CosmosDb:DatabaseName"];
+            var databaseName = secretsService.GetSecret("CosmosDbDatabaseName");
             _usersContainer = cosmosClient.GetContainer(databaseName, "Users");
             _leaderboardsContainer = cosmosClient.GetContainer(databaseName, "Leaderboards");
         }

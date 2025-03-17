@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.UserDTOs;
 using Domain.Entities;
+using Domain.Interfaces;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,19 +8,19 @@ using Microsoft.Extensions.Logging;
 public class CosmosDbInitializer
 {
     private readonly CosmosClient _cosmosClient;
-    private readonly IConfiguration _configuration;
+    private readonly ISecretsService _secretsService;
     private readonly ILogger<CosmosDbInitializer> _logger;
 
-    public CosmosDbInitializer(CosmosClient cosmosClient, IConfiguration configuration, ILogger<CosmosDbInitializer> logger)
+    public CosmosDbInitializer(CosmosClient cosmosClient, ISecretsService secretsService, ILogger<CosmosDbInitializer> logger)
     {
         _cosmosClient = cosmosClient;
-        _configuration = configuration;
+        _secretsService = secretsService;
         _logger = logger;
     }
 
     public async Task InitializeAsync()
     {
-        var databaseName = _configuration["CosmosDb:DatabaseName"];
+        var databaseName = _secretsService.GetSecret("CosmosDbDatabaseName");
         if (string.IsNullOrEmpty(databaseName))
         {
             _logger.LogError("CosmosDB database name is not configured.");

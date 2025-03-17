@@ -1,36 +1,44 @@
 using Infrastructure.Persistence;
-using Microsoft.Azure.Cosmos;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Domain.DbInterfaces;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register all Infrastructure services, including CosmosDB Client
-builder.Services.AddInfrastructure(builder.Configuration);
+// Register Infrastructure Services (Includes Secrets Service)
+builder.Services.AddInfrastructure();
 
-// ? Configure JWT Authentication
-var configuration = builder.Configuration;
-var jwtKey = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
-
+// Register Authentication & Authorization (Uses Secrets)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        using var scope = builder.Services.BuildServiceProvider().CreateScope();
+        var secretsService = scope.ServiceProvider.GetRequiredService<ISecretsService>();
+
+        var jwtKey = secretsService.GetSecret("JwtKey");
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new Exception("JwtKey is NULL or missing from secrets!");
+        }
+        Console.WriteLine($"Loaded JwtKey Length: {jwtKey.Length}");
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(jwtKey)
+            ValidIssuer = secretsService.GetSecret("JwtIssuer"),
+            ValidAudience = secretsService.GetSecret("JwtAudience"),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretsService.GetSecret("JwtKey")))
         };
+
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -46,7 +54,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
@@ -57,6 +64,7 @@ builder.Services.AddCors(options =>
                           .AllowCredentials());
 });
 
+// Add Controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -91,7 +99,7 @@ var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 
-// Run CosmosDB Initialization (Now it is registered!)
+// Run CosmosDB Initialization
 using (var scope = app.Services.CreateScope())
 {
     var initializer = scope.ServiceProvider.GetRequiredService<CosmosDbInitializer>();

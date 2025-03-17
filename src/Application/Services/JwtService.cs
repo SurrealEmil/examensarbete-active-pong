@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.UserDTOs;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,11 +12,11 @@ namespace Application.Services
 {
     public class JwtService : IJwtService
     {
-        private readonly IConfiguration _configuration;
+        private readonly ISecretsService _secretsService;
 
-        public JwtService(IConfiguration configuration)
+        public JwtService(ISecretsService secretsService)
         {
-            _configuration = configuration;
+            _secretsService = secretsService;
         }
 
         public string GenerateToken(UserDto user)
@@ -28,12 +29,17 @@ namespace Application.Services
                 new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            // 🔹 Retrieve secrets from ISecretsService
+            var secretKey = _secretsService.GetSecret("JwtKey");
+            var issuer = _secretsService.GetSecret("JwtIssuer");
+            var audience = _secretsService.GetSecret("JwtAudience");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
