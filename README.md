@@ -1,11 +1,11 @@
 # ActivePong API Documentation
 
-## 🔹 Authentication Endpoints
+## 🔹 Authentication Endpoints  
 
 > ⚠️ **Note:** Register and Login have response bodies, but they are only used in Swagger.
 
-### 📝 POST /api/user/register  
-Registers a new user.
+### 📝 POST /api/auth/register  
+Registers a new user and returns a **JWT token**.
 
 #### Request Body:
 ```json
@@ -16,12 +16,19 @@ Registers a new user.
 ```
 
 #### Response:
-- **200 OK** (Handled in Swagger)
-- **400 Bad Request** (Invalid input or email already in use)
+- **200 OK** – User registered and logged in successfully.
+```json
+{
+  "message": "User registered and logged in successfully",
+  "userId": "12345",
+  "token": "your-jwt-token"
+}
+```
+- **400 Bad Request** – Username and email are required.
 
 #### Axios Example:
 ```javascript
-axios.post(`${API_BASE_URL}/auth/register`, {
+axios.post(`${API_BASE_URL}/api/auth/register`, {
     username: "TestUser",
     email: "test@example.com"
 });
@@ -29,8 +36,8 @@ axios.post(`${API_BASE_URL}/auth/register`, {
 
 ---
 
-### 📝 POST /api/user/login  
-Authenticates a user.
+### 📝 POST /api/auth/login  
+Authenticates a user and returns a **JWT token**.
 
 #### Request Body:
 ```json
@@ -40,37 +47,43 @@ Authenticates a user.
 ```
 
 #### Response:
-- **200 OK** (Handled in Swagger)
-- **401 Unauthorized** (Invalid credentials)
+- **200 OK** – Login successful.
+```json
+{
+  "message": "Login successful",
+  "token": "your-jwt-token"
+}
+```
+- **401 Unauthorized** – Invalid credentials.
 
 #### Axios Example:
 ```javascript
-axios.post(`${API_BASE_URL}/auth/login`, {
+axios.post(`${API_BASE_URL}/api/auth/login`, {
     email: "test@example.com"
 });
 ```
 
 ---
 
-### 📝 POST /api/user/logout  
-Logs out the authenticated user.
+### 📝 POST /api/auth/logout  
+Logs out the authenticated user by **expiring the auth token cookie**.
 
 #### Response:
-- **200 OK** (Successfully logged out)
+- **200 OK** – User logged out successfully.
 
 #### Axios Example:
 ```javascript
 const logout = async () => {
-    await axios.post(`${API_BASE_URL}/auth/logout`);
+    await axios.post(`${API_BASE_URL}/api/auth/logout`);
 };
 ```
 
 ---
 
-## 🔹 User Endpoints
+## 🔹 User Endpoints  
 
 ### 📝 GET /api/user/profile  
-Retrieves the authenticated user's profile.
+Retrieves the authenticated user's profile. **Requires authentication.**
 
 #### Response:
 - **200 OK**
@@ -92,7 +105,192 @@ Retrieves the authenticated user's profile.
 
 #### Axios Example:
 ```javascript
-axios.get(`${API_BASE_URL}/user/profile`);
+axios.get(`${API_BASE_URL}/api/user/profile`, { withCredentials: true });
+```
+
+---
+
+### 📝 GET /api/user/id/{userId}  
+Retrieves a user by their **ID**.
+
+#### Request:
+- **Method:** `GET`
+- **URL:** `http://localhost:7070/api/user/id/{userId}`
+- **Path Parameter:** `userId` (string) – The unique identifier of the user.
+
+#### Response:
+- **200 OK** – Returns user data.  
+- **404 Not Found** – User not found.
+
+#### Example Request (Axios):
+```javascript
+axios.get(`http://localhost:7070/api/user/id/12345`);
+```
+
+---
+
+### 📝 GET /api/user/qr/{qrCode}  
+Retrieves user information based on a **QR code**.
+
+#### Request:
+- **Method:** `GET`
+- **URL:** `http://localhost:7070/api/user/qr/{qrCode}`
+- **Path Parameter:** `qrCode` (string) – The unique identifier assigned to a user.
+
+#### Response:
+- **200 OK** – Returns user data.  
+- **404 Not Found** – No user found with the provided QR code.
+
+#### Example Request (Axios):
+```javascript
+axios.get(`http://localhost:7070/api/user/qr/402874`);
+```
+
+---
+
+### 📝 GET /api/user/all  
+Retrieves **all registered users**.
+
+#### Response:
+- **200 OK** – Returns a list of users.
+
+#### Example Request (Axios):
+```javascript
+axios.get(`http://localhost:7070/api/user/all`);
+```
+
+---
+
+### 📝 PUT /api/user/update  
+Updates the authenticated user's profile. **Requires authentication.**
+
+#### Request Body:
+```json
+{
+  "username": "NewUsername",
+  "email": "new@example.com"
+}
+```
+
+#### Response:
+- **200 OK** – User updated successfully.
+- **401 Unauthorized** – User is not logged in.
+- **404 Not Found** – User not found.
+
+#### Example Request (Axios):
+```javascript
+axios.put(`${API_BASE_URL}/api/user/update`, {
+    username: "NewUsername",
+    email: "new@example.com"
+}, { withCredentials: true });
+```
+
+---
+
+### 📝 DELETE /api/user/{userId}  
+Deletes a user by their **ID**.
+
+#### Request:
+- **Method:** `DELETE`
+- **URL:** `http://localhost:7070/api/user/{userId}`
+- **Path Parameter:** `userId` (string) – The ID of the user to delete.
+
+#### Response:
+- **200 OK** – User deleted successfully.
+
+#### Example Request (Axios):
+```javascript
+axios.delete(`http://localhost:7070/api/user/12345`);
+```
+
+---
+
+## 🔹 Leaderboard Endpoints  
+
+### 📝 POST /api/leaderboard/submit-multiplayer  
+Submits **scores for one or two players** in a match.
+
+#### Request:
+- **Method:** `POST`
+- **URL:** `http://localhost:7070/api/leaderboard/submit-multiplayer`
+- **Headers:**  
+  - `accept: */*`  
+  - `Content-Type: application/json`  
+- **Request Body:**  
+  - `player1` (object) – Required. Contains `userId`, `bestScore`, and `gameMode`.  
+  - `player2` (object or null) – Optional. Can be `null` if only one player is submitting a score.  
+
+#### Example Request Body (Single Player):
+```json
+{
+  "player1": {
+    "userId": "12345",
+    "bestScore": 9800,
+    "gameMode": "Pong"
+  },
+  "player2": null
+}
+```
+
+#### Example Request Body (Two Players):
+```json
+{
+  "player1": {
+    "userId": "12345",
+    "bestScore": 9800,
+    "gameMode": "Pong"
+  },
+  "player2": {
+    "userId": "67890",
+    "bestScore": 7500,
+    "gameMode": "Pong"
+  }
+}
+```
+
+#### Response:
+- **200 OK** – Scores submitted successfully.  
+- **400 Bad Request** – Invalid input.  
+- **500 Internal Server Error** – Server issue.
+
+#### Example Request (Axios, Single Player):
+```javascript
+axios.post(`${API_BASE_URL}/api/leaderboard/submit-multiplayer`, {
+    player1: {
+        userId: "12345",
+        bestScore: 9800,
+        gameMode: "Pong"
+    },
+    player2: null
+});
+```
+
+---
+
+### 📝 GET /api/leaderboard/{gameMode}/top-players  
+Retrieves the **top 10 players** for a specific game mode.
+
+#### Response:
+- **200 OK** – Returns the top 10 players.
+- **404 Not Found** – No players found.
+
+#### Example Request (Axios):
+```javascript
+axios.get(`http://localhost:7070/api/leaderboard/Pong/top-players`);
+```
+
+---
+
+### 📝 GET /api/leaderboard/{gameMode}/all-players  
+Retrieves **all players** for a specific game mode.
+
+#### Response:
+- **200 OK** – Returns all players.
+- **404 Not Found** – No players found.
+
+#### Example Request (Axios):
+```javascript
+axios.get(`http://localhost:7070/api/leaderboard/Pong/all-players`);
 ```
 
 ---
