@@ -14,10 +14,10 @@ namespace Infrastructure.Persistence
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            // 🔹 Register Secrets Service in DI
+            // Register Secrets Service in DI
             services.AddSingleton<ISecretsService, SecretsService>();
 
-            // 🔹 Retrieve Secrets from the DI Container
+            // Retrieve Secrets from the DI Container
             services.AddSingleton(sp =>
             {
                 var secretsService = sp.GetRequiredService<ISecretsService>();
@@ -30,28 +30,28 @@ namespace Infrastructure.Persistence
                     throw new ArgumentNullException("CosmosDB configuration values cannot be null.");
                 }
 
-                // ✅ Register CosmosDB Client with Gateway Mode
+                // Register CosmosDB Client with Gateway Mode
                 return new CosmosClient(endpointUri, primaryKey, new CosmosClientOptions
                 {
                     ConnectionMode = ConnectionMode.Gateway // Uses HTTP instead of Direct TCP
                 });
             });
 
-            // ✅ Register the CosmosDB Initializer
+            // Register the CosmosDB Initializer
             services.AddSingleton<CosmosDbInitializer>();
 
-            // ✅ Register JWT Service
+            // Register JWT Service
             services.AddScoped<IJwtService, JwtService>();
 
-            // ✅ Register User Repository & Service
+            // Register User Repository & Service
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
 
-            // ✅ Register Leaderboard Repository & Service
+            // Register Leaderboard Repository & Service
             services.AddScoped<ILeaderboardService, LeaderboardService>();
             services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 
-            // ✅ Register UserLeaderboard Repository & Service
+            // Register UserLeaderboard Repository & Service
             services.AddScoped<IUserLeaderboardService, UserLeaderboardService>();
             services.AddScoped<IUserLeaderboardRepository, UserLeaderboardRepository>();
 

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface ISecretCache
+    public interface ILeaderboardUpdateService
     {
-        Task<string> GetSecretAsync(string secretName);
+        Task NotifyLeaderboardUpdated(string message);
     }
 }
