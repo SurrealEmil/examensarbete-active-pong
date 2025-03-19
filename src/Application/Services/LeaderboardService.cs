@@ -25,7 +25,7 @@ namespace Application.Services
             var entry = new LeaderboardEntry(userId, username, bestScore, 0, gameMode);
             await _leaderboardRepository.AddOrUpdateEntry(entry);
 
-            return new LeaderboardEntryDto(entry); // ✅ Returns DTO for confirmation
+            return new LeaderboardEntryDto(entry); // Returns DTO for confirmation
         }
 
         // Get Top 10 Players

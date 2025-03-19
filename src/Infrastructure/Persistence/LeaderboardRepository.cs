@@ -3,19 +3,20 @@ using Domain.DbInterfaces;
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Infrastructure.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.Persistence
 {
     public class LeaderboardRepository : ILeaderboardRepository
     {
         private readonly Container _container;
+        private readonly IHubContext<LeaderboardHub> _hubContext;
 
-        public LeaderboardRepository(CosmosClient cosmosClient)
+        public LeaderboardRepository(CosmosClient cosmosClient, IHubContext<LeaderboardHub> hubContext)
         {
             _container = cosmosClient.GetContainer("PongGameDB", "Leaderboards");
+            _hubContext = hubContext;
         }
 
         // Add a new entry or update existing one
@@ -50,6 +51,9 @@ namespace Infrastructure.Persistence
             }
 
             await _container.UpsertItemAsync(leaderboard, new PartitionKey(leaderboard.GameMode));
+
+            // Notify all clients about leaderboard updates
+            await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate");
         }
 
         // Get Top 10 Players for a game mode

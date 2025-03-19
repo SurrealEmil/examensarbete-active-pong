@@ -1,5 +1,5 @@
 ﻿using Domain.Interfaces;
-using Microsoft.AspNet.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.SignalR
 {
@@ -12,3 +12,4 @@ namespace Infrastructure.SignalR
         }
     }
 }
+

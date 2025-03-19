@@ -8,11 +8,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Register Infrastructure Services (Includes Secrets Service)
 builder.Services.AddInfrastructure();
+
+builder.Services.AddSignalR();
 
 // Register Authentication & Authorization (Uses Secrets)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -98,6 +101,9 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
+
+app.MapHub<LeaderboardHub>("/api/leaderboardhub");
+
 
 // Run CosmosDB Initialization
 using (var scope = app.Services.CreateScope())

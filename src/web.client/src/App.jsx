@@ -7,6 +7,7 @@ import ConnectOverlay from "./components/UI/ConnectOverlay";
 import axios from "axios"; // Import Axios
 import API_BASE_URL from "./config/apiConfig"; // Import API Base URL"
 import { QRCodeCanvas } from "qrcode.react";
+import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 
 const playersData = [
     { id: 1, rank: 1, name: "Arnold swh", score: 8179872 },
@@ -20,13 +21,45 @@ const playersData = [
     { id: 9, rank: 9, name: "Clint East", score: 2804 },
     { id: 10, rank: 10, name: "Sylvester Stall", score: 2804 },
 ];
-
+console.log("App component is rendering!");
 const App = () => {
-    const [serverMessage, setServerMessage] = useState("Loading...");
+    const [serverMessage, setServerMessage] = useState("Loading....");
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [username, setUsername] = useState(""); // Input for Register
     const [email, setEmail] = useState(""); // Input for Register & Login
+
+    // 🔹 NEW: Create connection state for SignalR
+    const [connection, setConnection] = useState(null);
+
+    // 1️⃣ On Mount: Start the SignalR connection
+    useEffect(() => {
+      const newConnection = new HubConnectionBuilder()
+        .withUrl(`${API_BASE_URL}/leaderboardhub`, {
+          withCredentials: true, // Required for sending cookies!
+        })
+        .configureLogging(LogLevel.Information) // optional
+        .build();
+
+      newConnection.start()
+        .then(() => {
+          console.log("Connected to SignalR!");
+          setConnection(newConnection);
+        })
+        .catch((err) => console.error("SignalR Connection Error:", err));
+    }, []);
+
+    // 2️⃣ Listen for SignalR events (once `connection` is established)
+    useEffect(() => {
+      if (connection) {
+        // When the Leaderboard is updated on the server
+        connection.on("ReceiveLeaderboardUpdate", () => {
+          console.log("Leaderboard updated via SignalR. Let's fetch new data!");
+          // You can either update local state or re-fetch your leaderboard or profile
+          fetchProfile(); 
+        });
+      }
+    }, [connection]);
 
     // 🔹 Ping Backend to Test Connection
     useEffect(() => {
