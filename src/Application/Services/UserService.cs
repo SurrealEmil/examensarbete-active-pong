@@ -15,7 +15,6 @@ namespace Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private static readonly Dictionary<string, DateTime> _activePlayers = new();
 
         public UserService(IUserRepository userRepository)
         {
@@ -71,14 +70,6 @@ namespace Application.Services
             var user = await _userRepository.GetUserByQrCode(qrCode);
             if (user == null) return null;
 
-            // Remove expired users before adding a new one
-            RemoveExpiredUsers();
-
-            // Prevent duplicate scan
-            if (_activePlayers.ContainsKey(user.UserId))
-                throw new InvalidOperationException("User is already in a game.");
-
-            _activePlayers[user.UserId] = DateTime.UtcNow;
             return new UserDto(user);
         }
 
@@ -136,30 +127,6 @@ namespace Application.Services
             await _userRepository.DeleteUser(userId);
         }
 
-
-        //TODO: Move to handler or simular
-        private void RemoveExpiredUsers()
-        {
-            var expirationTime = TimeSpan.FromMinutes(10); // Adjust the time as needed
-            var now = DateTime.UtcNow;
-
-            // Find users whose session has expired
-            var expiredUsers = _activePlayers
-                .Where(entry => now - entry.Value > expirationTime)
-                .Select(entry => entry.Key)
-                .ToList();
-
-            // Remove them from active list
-            foreach (var userId in expiredUsers)
-            {
-                _activePlayers.Remove(userId);
-            }
-        }
-
-        public void RemoveUserFromActiveList(string userId)
-        {
-            _activePlayers.Remove(userId);
-        }
 
         private bool IsValidEmail(string email)
         {

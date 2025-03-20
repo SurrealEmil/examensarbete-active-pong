@@ -31,8 +31,6 @@ namespace Web.Server.Controllers
             // Pass Username to the Service
             var leaderboardEntry = await _leaderboardService.AddEntry(user.UserId, user.Username, request.BestScore, request.GameMode);
 
-            _userService.RemoveUserFromActiveList(user.UserId);
-
             return Ok(new { message = "Score submitted successfully!", entry = leaderboardEntry });
         }
 
@@ -51,7 +49,6 @@ namespace Web.Server.Controllers
             if (user1 == null) return BadRequest($"User {request.Player1.UserId} not found.");
 
             var entry1 = await _leaderboardService.AddEntry(user1.UserId, user1.Username, request.Player1.BestScore, request.Player1.GameMode);
-            _userService.RemoveUserFromActiveList(user1.UserId);
             responses.Add(entry1);
 
             // 🔹 Process Player 2 (if provided)
@@ -61,7 +58,6 @@ namespace Web.Server.Controllers
                 if (user2 == null) return BadRequest($"User {request.Player2.UserId} not found.");
 
                 var entry2 = await _leaderboardService.AddEntry(user2.UserId, user2.Username, request.Player2.BestScore, request.Player2.GameMode);
-                _userService.RemoveUserFromActiveList(user2.UserId);
                 responses.Add(entry2);
             }
 

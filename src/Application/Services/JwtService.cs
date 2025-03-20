@@ -29,7 +29,7 @@ namespace Application.Services
                 new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
             };
 
-            // 🔹 Retrieve secrets from ISecretsService
+            // Retrieve secrets from ISecretsService
             var secretKey = _secretsService.GetSecret("JwtKey");
             var issuer = _secretsService.GetSecret("JwtIssuer");
             var audience = _secretsService.GetSecret("JwtAudience");

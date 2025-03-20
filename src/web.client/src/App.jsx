@@ -5,9 +5,10 @@ import PongGame from "./components/PongGame/PongGame";
 import Leaderboard from "./components/UI/Leaderboard";
 import ConnectOverlay from "./components/UI/ConnectOverlay";
 import axios from "axios"; // Import Axios
-import API_BASE_URL from "./config/apiConfig"; // Import API Base URL"
+import API_BASE_URL from "./config/apiConfig"; // Import API Base URL
 import { QRCodeCanvas } from "qrcode.react";
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const playersData = [
     { id: 1, rank: 1, name: "Arnold swh", score: 8179872 },
@@ -21,194 +22,234 @@ const playersData = [
     { id: 9, rank: 9, name: "Clint East", score: 2804 },
     { id: 10, rank: 10, name: "Sylvester Stall", score: 2804 },
 ];
+
 console.log("App component is rendering!");
+
 const App = () => {
-    const [serverMessage, setServerMessage] = useState("Loading....");
-    const [user, setUser] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [username, setUsername] = useState(""); // Input for Register
-    const [email, setEmail] = useState(""); // Input for Register & Login
+  const [serverMessage, setServerMessage] = useState("Loading....");
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [username, setUsername] = useState(""); // Input for Register
+  const [email, setEmail] = useState(""); // Input for Register & Login
+  const [qrCode, setQrCode] = useState(""); // To store scanned QR Code
 
-    // 🔹 NEW: Create connection state for SignalR
-    const [connection, setConnection] = useState(null);
+  // 🔹 QR Code Scan Handler
+  const handleQrScan = async (qrCode) => {
+    setQrCode(qrCode);
+    try {
+      // Make an API request to fetch user by the scanned QR code
+      const response = await axios.get(`${API_BASE_URL}/user/qr/${qrCode}`);
+      console.log("User Data from QR:", response.data);
+      setProfile(response.data); // Update profile with the fetched user data
+    } catch (error) {
+      console.error("Error fetching user by QR Code:", error);
+      setProfile(null); // Clear profile if user is not found
+    }
+  };
 
-    // 1️⃣ On Mount: Start the SignalR connection
-    useEffect(() => {
-      const newConnection = new HubConnectionBuilder()
-        .withUrl(`${API_BASE_URL}/leaderboardhub`, {
-          withCredentials: true, // Required for sending cookies!
-        })
-        .configureLogging(LogLevel.Information) // optional
-        .build();
+  // Initialize the QR code scanner when the component mounts
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner("qr-scanner", {
+      fps: 10, // Frames per second for the scanner
+      qrbox: 250, // Size of the scanning box
+    });
 
-      newConnection.start()
-        .then(() => {
-          console.log("Connected to SignalR!");
-          setConnection(newConnection);
-        })
-        .catch((err) => console.error("SignalR Connection Error:", err));
-    }, []);
+    scanner.render(handleQrScan); // Start scanning and pass the handler to handle the QR scan
 
-    // 2️⃣ Listen for SignalR events (once `connection` is established)
-    useEffect(() => {
-      if (connection) {
-        // When the Leaderboard is updated on the server
-        connection.on("ReceiveLeaderboardUpdate", () => {
-          console.log("Leaderboard updated via SignalR. Let's fetch new data!");
-          // You can either update local state or re-fetch your leaderboard or profile
-          fetchProfile(); 
-        });
-      }
-    }, [connection]);
-
-    // 🔹 Ping Backend to Test Connection
-    useEffect(() => {
-        axios
-            .get(`${API_BASE_URL}/ping`)
-            .then((response) => setServerMessage(response.data.message))
-            .catch((error) => {
-                console.error("Error fetching API:", error);
-                setServerMessage("Failed to connect to server");
-            });
-    }, []);
-
-    // 🔹 Register User
-    const register = async () => {
-        if (!username || !email) {
-            alert("Please enter both username and email.");
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/register`, {
-                username,
-                email,
-            });
-            console.log("Register Success:", response.data);
-            setUser(response.data);
-            fetchProfile(); // Fetch profile after registration
-        } catch (error) {
-            console.error("Register Error:", error.response?.data || error.message);
-        }
+    return () => {
+      scanner.clear().catch((error) => console.error("Failed to clear QR scanner.", error));
     };
+  }, []);
 
-    // 🔹 Login User
-    const login = async () => {
-        if (!email) {
-            alert("Please enter an email.");
-            return;
-        }
+  // 🔹 NEW: Create connection state for SignalR
+  const [connection, setConnection] = useState(null);
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-                email,
-            });
-            console.log("Login Success:", response.data);
-            setUser(response.data);
-            fetchProfile(); // Fetch profile after login
-        } catch (error) {
-            console.error("Login Error:", error.response?.data || error.message);
-        }
-    };
+  // 1️⃣ On Mount: Start the SignalR connection
+  useEffect(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl(`${API_BASE_URL}/leaderboardhub`, {
+        withCredentials: true, // Required for sending cookies!
+      })
+      .configureLogging(LogLevel.Information) // optional
+      .build();
 
-    // 🔹 Logout User
-    const logout = async () => {
-        try {
-            await axios.post(`${API_BASE_URL}/auth/logout`);
-            console.log("Logout Successful");
-            setUser(null);
-            setProfile(null); // Clear profile on logout
-        } catch (error) {
-            console.error("Logout Error:", error.response?.data || error.message);
-        }
-    };
+    newConnection.start()
+      .then(() => {
+        console.log("Connected to SignalR!");
+        setConnection(newConnection);
+      })
+      .catch((err) => console.error("SignalR Connection Error:", err));
+  }, []);
 
-    // 🔹 Fetch User Profile (After Login)
-    const fetchProfile = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/user/profile`, {
-                withCredentials: true, // Required for sending cookies!
-            });
-            console.log("Profile Data:", response.data);
-            setProfile(response.data);
-        } catch (error) {
-            console.error("Profile Fetch Error:", error.response?.data || error.message);
-        }
-    };
+  // 2️⃣ Listen for SignalR events (once `connection` is established)
+  useEffect(() => {
+    if (connection) {
+      // When the Leaderboard is updated on the server
+      connection.on("ReceiveLeaderboardUpdate", () => {
+        console.log("Leaderboard updated via SignalR. Let's fetch new data!");
+        fetchProfile(); 
+      });
+    }
+  }, [connection]);
 
-    return (
-        <>
-            <ConnectOverlay />
-            <Router>
-                <div className="App">
-                    <h2>Backend Response:</h2>
-                    <p>{serverMessage}</p>
+  // 🔹 Ping Backend to Test Connection
+  useEffect(() => {
+    axios
+      .get(`${API_BASE_URL}/ping`)
+      .then((response) => setServerMessage(response.data.message))
+      .catch((error) => {
+        console.error("Error fetching API:", error);
+        setServerMessage("Failed to connect to server");
+      });
+  }, []);
 
-                    {/* 🔹 Input Fields for Register/Login */}
-                    <div>
-                        <h3>Register</h3>
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <button onClick={register}>Register</button>
-                    </div>
+  // 🔹 Register User
+  const register = async () => {
+    if (!username || !email) {
+      alert("Please enter both username and email.");
+      return;
+    }
 
-                    <div>
-                        <h3>Login</h3>
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <button onClick={login}>Login</button>
-                    </div>
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+        username,
+        email,
+      });
+      console.log("Register Success:", response.data);
+      setUser(response.data);
+      fetchProfile(); // Fetch profile after registration
+    } catch (error) {
+      console.error("Register Error:", error.response?.data || error.message);
+    }
+  };
 
-                    <button onClick={logout}>Logout</button>
+  // 🔹 Login User
+  const login = async () => {
+    if (!email) {
+      alert("Please enter an email.");
+      return;
+    }
 
-                    {/* 🔹 Display User Profile */}
-                    {profile && (
-                        <div>
-                            <h3>User Profile:</h3>
-                            <p>Username: {profile.username}</p>
-                            <p>Email: {profile.email}</p>
-                            <h4>QR Code:</h4>
-                            {profile.qrCodeIdentifier ? (
-                                <QRCodeCanvas value={profile.qrCodeIdentifier} size={150} />
-                            ) : (
-                                <p>No QR Code Available</p>
-                            )}
-                            <h4>Game Stats:</h4>
-                            <ul>
-                                {profile.gameStats.map((stat, index) => (
-                                    <li key={index}>
-                                        {stat.gameMode} - Rank: {stat.rank}, Best Score: {stat.bestScore}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, { email });
+      console.log("Login Success:", response.data);
+      setUser(response.data);
+      fetchProfile(); // Fetch profile after login
+    } catch (error) {
+      console.error("Login Error:", error.response?.data || error.message);
+    }
+  };
 
-                    <Routes>
-                        <Route path="/" element={<StartScreen />} />
-                        <Route path="/pong" element={<PongGame />} />
-                        <Route path="/arcade" element={<div>Arcade Mode</div>} />
-                        <Route path="/party" element={<div>Party Mode</div>} />
-                        <Route path="/leaderboard" element={<Leaderboard players={playersData} />} />
-                    </Routes>
-                </div>
-            </Router>
-        </>
-    );
+  // 🔹 Logout User
+  const logout = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/auth/logout`);
+      console.log("Logout Successful");
+      setUser(null);
+      setProfile(null); // Clear profile on logout
+    } catch (error) {
+      console.error("Logout Error:", error.response?.data || error.message);
+    }
+  };
+
+  // 🔹 Fetch User Profile (After Login)
+  const fetchProfile = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/user/profile`, {
+        withCredentials: true, // Required for sending cookies!
+      });
+      console.log("Profile Data:", response.data);
+      setProfile(response.data);
+    } catch (error) {
+      console.error("Profile Fetch Error:", error.response?.data || error.message);
+    }
+  };
+
+  return (
+    <>
+      <ConnectOverlay />
+      <Router>
+        <div className="App">
+          <h2>Backend Response:</h2>
+          <p>{serverMessage}</p>
+
+          {/* QR Code Scanner */}
+          <div id="qr-scanner" style={{ margin: "20px auto", width: "100%", height: "400px" }}>
+            {/* QR Scanner will render here */}
+          </div>
+          {qrCode && <p>Scanned QR Code: {qrCode}</p>}
+
+          {/* 🔹 Input Fields for Register/Login */}
+          <div>
+            <h3>Register</h3>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button onClick={register}>Register</button>
+          </div>
+
+          <div>
+            <h3>Login</h3>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button onClick={login}>Login</button>
+          </div>
+
+          <button onClick={logout}>Logout</button>
+
+          {/* 🔹 Display User Profile */}
+          {profile && (
+            <div style={{ margin: "20px 0", border: "1px solid #ccc", padding: "10px" }}>
+              <h3>User Profile:</h3>
+              <p><strong>User ID:</strong> {profile.userId}</p>
+              <p><strong>Username:</strong> {profile.username}</p>
+              <p><strong>Email:</strong> {profile.email}</p>
+              <p><strong>Is Admin:</strong> {profile.isAdmin ? "Yes" : "No"}</p>
+              <h4>QR Code:</h4>
+              {profile.qrCodeIdentifier ? (
+                <QRCodeCanvas value={profile.qrCodeIdentifier} size={150} />
+              ) : (
+                <p>No QR Code Available</p>
+              )}
+              {profile.gameStats && profile.gameStats.length > 0 && (
+                <>
+                  <h4>Game Stats:</h4>
+                  <ul>
+                    {profile.gameStats.map((stat, index) => (
+                      <li key={index}>
+                        {stat.gameMode} - Rank: {stat.rank}, Best Score: {stat.bestScore}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
+
+          <Routes>
+            <Route path="/" element={<StartScreen />} />
+            <Route path="/pong" element={<PongGame />} />
+            <Route path="/arcade" element={<div>Arcade Mode</div>} />
+            <Route path="/party" element={<div>Party Mode</div>} />
+            <Route path="/leaderboard" element={<Leaderboard players={playersData} />} />
+          </Routes>
+        </div>
+      </Router>
+    </>
+  );
 };
 
 export default App;

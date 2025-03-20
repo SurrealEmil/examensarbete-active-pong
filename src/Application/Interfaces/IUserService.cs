@@ -17,8 +17,5 @@ namespace Application.Interfaces
         Task<UserDto> GetUserByEmail(string email);
         Task<UserDto?> UpdateUser(string userId, string username, string email);
         Task<UserDto> GetUserByQrCode(string qrCode);
-
-        // Add this to the interface
-        void RemoveUserFromActiveList(string userId);
     }
 }
