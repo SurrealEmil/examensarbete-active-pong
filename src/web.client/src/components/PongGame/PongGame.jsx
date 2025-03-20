@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Matter from 'matter-js';
 import audioManager from '../../utils/audioManager';
@@ -9,7 +9,7 @@ import useInitializeMatter from '../../hooks/useInitializeMatter';
 import useGameLoop from '../../hooks/useGameLoop';
 import WinnerOverlay from '../UI/WinnerOverlay';
 import PauseOverlay from '../UI/PauseOverlay';
-import StartOverlay from '../UI/StartOverlay';
+/* import StartOverlay from '../UI/StartOverlay'; */
 import FpsOverlay from '../UI/FpsOverlay';
 import TopBar from '../UI/TopBar';
 import ScoreDisplay from '../UI/ScoreDisplay';
@@ -537,9 +537,10 @@ const { fps, isLagSpike } = useGameLoop({
       const connected = await joyConConnectorRef.current.connect();
       if (!connected) {
         alert('Cannot start game without Joy-Cons.');
-        return;
+        
       }
     }
+
     // Start game and musique!
     setGameStarted(true);
     setAudioEnabled(true);
@@ -572,6 +573,11 @@ const { fps, isLagSpike } = useGameLoop({
       playMusicSound()
     }
   }, [gamePaused, gameStarted])
+
+  useEffect(() => {
+    handleStartGame()
+  }, [])
+
 
   // ──────────────────────────────────────────────────────────────────────────
   // OPTIONAL: Toggle control modes
@@ -627,7 +633,7 @@ const { fps, isLagSpike } = useGameLoop({
         />
         </div>
         {/* START OVERLAY */}
-        {!gameStarted && <StartOverlay onStart={handleStartGame}/>}
+       {/*  {!gameStarted && <StartOverlay onStart={handleStartGame}/>} */}
 
       {/* PAUSE OVERLAY (only shows if game is paused and not game over) */}
       {gamePaused && gameStarted && !gameOver && (

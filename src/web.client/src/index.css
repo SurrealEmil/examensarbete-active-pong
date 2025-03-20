@@ -3,6 +3,7 @@
     --lightblue: rgb(105, 167, 203);
     --orange: rgb(245, 128, 29);
     --white: rgb(249, 249, 249);
+    --black: rgb(0, 0, 0);
     background-color: var(--blue);
 }
 

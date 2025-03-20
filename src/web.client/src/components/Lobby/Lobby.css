@@ -1,0 +1,110 @@
+.connection-status{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    position: absolute;
+    font-size: 1.2rem;
+    padding: 1rem;
+    width: 100%;
+    gap: 2rem;
+    box-sizing: border-box;
+    /* border: 2px solid pink; */
+}
+
+.player-1{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5rem;
+    /* border: 2px solid pink; */
+    color: var(--white);
+    margin-top: 10rem;
+    margin-right: 6rem;
+    height: 4rem;
+    width: 20rem;
+    padding: 2rem;
+    /* text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black; */
+}
+
+.player-2{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5rem;
+    /* border: 2px solid pink; */
+    color: var(--white);
+    margin-top: 10rem;
+    margin-left: 6rem;
+    height: 4rem;
+    width: 20rem;
+    padding: 2rem;
+    /* text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black; */
+}
+
+.countdown {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    color: var(--white);
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.431);
+    font-size: 4rem;
+    font-weight: bold;
+    letter-spacing: 1rem;
+    text-align: center;
+    z-index: 1000;
+
+    animation: pulse 1.1s ease-in-out infinite alternate;
+}
+
+
+
+.ready-msg-1 {
+    font-size: 0.9em;
+    margin-top: 4px;
+    animation: pulsate 0.9s infinite;
+  }
+
+.ready-msg-2 {
+    font-size: 0.9em;
+    margin-top: 4px;
+    animation: pulsate 1.1s infinite;
+  }
+  
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+
+@keyframes pulsate {
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  .pulsate {
+    animation: pulsate 1s infinite;
+  }
+  

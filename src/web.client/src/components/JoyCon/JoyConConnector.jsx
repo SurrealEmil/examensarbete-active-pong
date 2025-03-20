@@ -25,6 +25,12 @@ import DebugPanel from '../JoyConVisuals/DebugPanel';
 import DebugToggle from '../JoyConVisuals/DebugToggle';
 
 
+
+// Call this function in a loop
+/* setInterval(getJoyConData, 100); */
+
+
+
 /**
  * JoyConConnector
  *

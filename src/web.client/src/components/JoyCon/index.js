@@ -178,6 +178,14 @@ const connectDevice = async (device) => {
   await joyCon.enableIMUMode();
   /* await new Promise(resolve => setTimeout(resolve, 500)); */
 
+  let retries = 3;
+  while (retries > 0) {
+    await joyCon.enableIMUMode();
+    await new Promise((resolve) => setTimeout(resolve, 500)); // wait a bit
+    if (joyCon.device.opened) break; // Check if the connection was successful
+    retries--;
+  }
+
   return joyCon;
 };
 

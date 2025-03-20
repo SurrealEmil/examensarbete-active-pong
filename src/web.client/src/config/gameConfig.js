@@ -2,7 +2,7 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // PONG GAMELOOP SETTINGS (useGameLoop.js)
     // ─────────────────────────────────────────────────────────────────────────
-    BALL_SPEED: 15, // Initial ball speed when the game starts
+    BALL_SPEED: 10, // Initial ball speed when the game starts
     MAX_BALL_SPEED: 20, // Maximum speed the ball can reach
     SPEED_INCREMENT: 1, // How much the ball speed increases over time
     MIN_BALL_SPEED_THRESHOLD: 0.001, // Minimum speed before ball is considered stopped
@@ -22,7 +22,7 @@ const GAME_CONFIG = {
     // INITIALIZE MATTER SETTINGS (useInitializeMatter.js)
     // ─────────────────────────────────────────────────────────────────────────
     GRAVITY_X: 0, // Horizontal gravity (default: 0, no horizontal force)
-    GRAVITY_Y: -0.2, // Vertical gravity (negative = upward pull, for slight floaty effect)
+    GRAVITY_Y: 0, // Vertical gravity (negative = upward pull, for slight floaty effect)
     BALL_DIAMETER: 20, // Diameter of the ball
     PADDLE_WIDTH: 20, // Width of the paddles
     PADDLE_HEIGHT: 200, // Height of the paddles

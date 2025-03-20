@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StartScreen.css';
 import PongBackground from './PongBackground';
@@ -90,7 +90,7 @@ const StartScreen = () => {
       } else {
         // If admin is NOT open, pressing Enter starts the game
         if (e.key === 'Enter' && selectedMode) {
-          navigate(selectedMode.route);
+          navigate('/lobby');
         }
       }
     };

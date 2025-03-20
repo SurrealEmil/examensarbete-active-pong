@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { connectedJoyCons, JoyConLeft, JoyConRight } from '../components/JoyCon/index';
+import { connectJoyCon, connectedJoyCons, JoyConLeft, JoyConRight, GeneralController } from '../components/JoyCon/index';
 
 import Matter from 'matter-js';
 

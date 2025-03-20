@@ -86,7 +86,7 @@
      1px -1px 0 black,
     -1px  1px 0 black,
      1px  1px 0 black;
-  animation: pulsate 1.4s step-end infinite;
+  animation: pulsate 1s infinite;
 }
 
 

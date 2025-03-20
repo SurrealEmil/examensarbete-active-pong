@@ -2,6 +2,9 @@ import React from 'react';
 import './Leaderboard.css';
 
 
+
+
+
 const getOrdinalSuffix = (rank) => {
   if (rank % 100 >= 11 && rank % 100 <= 13) {
     return `{rank}th`;
