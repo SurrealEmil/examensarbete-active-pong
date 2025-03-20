@@ -40,7 +40,7 @@ const Lobby = () => {
 
   useEffect(() => {
     if (scannedPlayers.player1 && scannedPlayers.player2) {
-      console.log("Both players scanned. Hiding overlay in 500ms...");
+      console.log("Both players scanned. Hiding overlay in 500ms....");
       const timer = setTimeout(() => {
         setOverlayVisible(false);
         console.log("Overlay hidden");
