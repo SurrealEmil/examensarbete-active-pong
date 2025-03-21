@@ -61,10 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173")
-                          .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials());
+        builder => builder.WithOrigins(
+                        "http://localhost:5173",
+                        "http://localhost:5174",
+                        "http://localhost:5175",
+                        "http://localhost:5176"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials());
 });
 
 // Add Controllers & Swagger
