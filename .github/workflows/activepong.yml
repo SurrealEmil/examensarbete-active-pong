@@ -1,6 +1,7 @@
 name: Build and deploy .NET Core application to Web App activepong
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - test-deploy
