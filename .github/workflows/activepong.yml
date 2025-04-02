@@ -1,51 +1,85 @@
 name: Build and deploy .NET Core application to Web App activepong
+
 on:
   push:
     branches:
-    - test-deploy
+      - test-deploy
+      - main
 env:
   AZURE_WEBAPP_NAME: activepong
   AZURE_WEBAPP_PACKAGE_PATH: src/Web.Server/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
   WORKING_DIRECTORY: src/Web.Server
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
-    - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+
+      # Install Node.js for frontend
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Install and build frontend
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src/web.client
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: src/web.client
+
+      # Copy frontend dist to backend wwwroot
+      - name: Copy frontend to wwwroot
+        run: |
+          rm -rf ${{ env.WORKING_DIRECTORY }}/wwwroot
+          mkdir -p ${{ env.WORKING_DIRECTORY }}/wwwroot
+          cp -r src/web.client/dist/* ${{ env.WORKING_DIRECTORY }}/wwwroot/
+
+      - name: Restore
+        run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+
+      - name: Build
+        run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test
+        run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+
+      - name: Publish
+        run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v4
-      with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.activepong_SPN }}
-    - name: Deploy to Azure WebApp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.activepong_SPN }}
+
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
