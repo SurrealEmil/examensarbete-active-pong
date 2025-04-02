@@ -2,14 +2,14 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // PONG GAMELOOP SETTINGS (useGameLoop.js)
     // ─────────────────────────────────────────────────────────────────────────
-    BALL_SPEED: 10, // Initial ball speed when the game starts
-    MAX_BALL_SPEED: 20, // Maximum speed the ball can reach
+    BALL_SPEED: 9, // Initial ball speed when the game starts
+    MAX_BALL_SPEED: 15, // Maximum speed the ball can reach
     SPEED_INCREMENT: 1, // How much the ball speed increases over time
     MIN_BALL_SPEED_THRESHOLD: 0.001, // Minimum speed before ball is considered stopped
     BALL_RANDOM_ANGLE_RANGE: Math.PI / 2, // Random variation in ball launch angles
     MAX_BOUNCE_ANGLE: Math.PI / 3, // Maximum angle at which the ball can bounce off paddles
     BALL_RESET_DELAY: 400, // Time (ms) before ball resets after scoring
-    WINNING_SCORE: 10, // Score required to win the game
+    WINNING_SCORE: 1000000, // Score required to win the game
     RANDOM_SIDE_THRESHOLD: 0.5, // 50% chance of ball launching to the left or right
     
     // PERFORMANCE & DEBUG SETTINGS
@@ -22,7 +22,7 @@ const GAME_CONFIG = {
     // INITIALIZE MATTER SETTINGS (useInitializeMatter.js)
     // ─────────────────────────────────────────────────────────────────────────
     GRAVITY_X: 0, // Horizontal gravity (default: 0, no horizontal force)
-    GRAVITY_Y: 0, // Vertical gravity (negative = upward pull, for slight floaty effect)
+    GRAVITY_Y: -0.1, // Vertical gravity (negative = upward pull, for slight floaty effect)
     BALL_DIAMETER: 20, // Diameter of the ball
     PADDLE_WIDTH: 20, // Width of the paddles
     PADDLE_HEIGHT: 200, // Height of the paddles

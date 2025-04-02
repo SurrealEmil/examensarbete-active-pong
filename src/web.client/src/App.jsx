@@ -1,8 +1,8 @@
-import React from 'react';
 /* import { useEffect } from 'react' */
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StartScreen from './components/StartScreen/StartScreen';
 import PongGame from './components/PongGame/PongGame';
+import PongGameTournament from './components/PongGame/PongGame-Tournament'
 import Leaderboard from './components/UI/Leaderboard'
 import ConnectOverlay from './components/UI/ConnectOverlay';
 import Lobby from './components/Lobby/Lobby'
@@ -51,6 +51,7 @@ const App = () => {
           <Route path="/" element={<StartScreen />} />
           <Route path="/lobby" element={<Lobby />}/>
           <Route path="/pong" element={<PongGame />} />
+          <Route path="/tournament" element={<PongGameTournament />}/>
           <Route path="/arcade" element={<div>Arcade Mode</div>} />
           <Route path="/party" element={<div>Party Mode</div>} />
           <Route path="/leaderboard" element={<Leaderboard players={playersData} />} />

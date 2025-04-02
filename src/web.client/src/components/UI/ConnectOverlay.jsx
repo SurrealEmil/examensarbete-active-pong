@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { connectNewJoyCons } from "../JoyCon/index"
 import '../UI/ConnectOverlay.css'
 
@@ -7,7 +7,7 @@ const ConnectOverlay = () => {
 
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === "c") {
+      if (event.key === "€") {
         setIsOpen((prevOpen) => !prevOpen)// Open modal when "C" is pressed
         if (setGamePaused) {}
       }

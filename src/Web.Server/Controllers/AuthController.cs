@@ -17,7 +17,7 @@ namespace Web.Server.Controllers
             _jwtService = jwtService;
         }
 
-        // 🔹 Register and Get JWT Token
+        // Register and Get JWT Token
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
@@ -39,7 +39,7 @@ namespace Web.Server.Controllers
             });
         }
 
-        // 🔹 Login and Get JWT Token
+        // Login and Get JWT Token
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
@@ -53,7 +53,7 @@ namespace Web.Server.Controllers
             return Ok(new { message = "Login successful", token });
         }
 
-        // 🔹 Logout (Expire Token)
+        // Logout (Expire Token)
         [HttpPost("logout")]
         public IActionResult Logout()
         {
@@ -61,14 +61,14 @@ namespace Web.Server.Controllers
             return Ok(new { message = "User logged out successfully" });
         }
 
-        // 🔹 Helper Methods for Managing Auth Token Cookies
+        // Helper Methods for Managing Auth Token Cookies
         private void SetAuthTokenCookie(string token)
         {
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,                        // Prevents JavaScript access
                 Secure = true,                          // Requires HTTPS
-                SameSite = SameSiteMode.Strict,         // Prevents CSRF attacks
+                SameSite = SameSiteMode.None,         // Prevents CSRF attacks
                 Expires = DateTime.UtcNow.AddHours(1)   // Token expiration
             };
 
@@ -81,7 +81,7 @@ namespace Web.Server.Controllers
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(-1) // Expire immediately
             };
 

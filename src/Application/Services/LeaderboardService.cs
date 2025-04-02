@@ -45,5 +45,10 @@ namespace Application.Services
         {
             return await _leaderboardRepository.GetPlayerBestScoreAcrossModes(userId);
         }
+
+        public async Task DeleteEntry(string userId, string gameMode)
+        {
+            await _leaderboardRepository.DeleteEntry(userId, gameMode);
+        }
     }
 }

@@ -1,22 +1,25 @@
-import 'react';
+import react from 'react'
 import PropTypes from 'prop-types';
 import './TopBar.css';
 
 
+
 const TopBar = ({ leftJoyConConnected, rightJoyConConnected, player1Name, player2Name }) => {
+  
+ 
   return (
     <div className="top-bar">
       <h3 className="player-1-container">
         {leftJoyConConnected && (
           <img className="joycon-icon-left" src="./img/joy-con-red.png" alt="Left Joy-Con" />
         )}
-        {player1Name}
+        <span>{player1Name}</span>
       </h3>
       <h2>
-        <a href="/lobby" style={{ textDecoration: 'none', color: 'inherit' }}>PONG</a>
+        <a href="/lobby" style={{ textDecoration: 'none', color: 'inherit' }}>{/* PONG */}</a>
       </h2>
       <h3 className="player-2-container">
-        {player2Name}
+        <span>{player2Name}</span>
         {rightJoyConConnected && (
           <img className="joycon-icon-right" src="./img/joy-con-blue.png" alt="Right Joy-Con" />
         )}

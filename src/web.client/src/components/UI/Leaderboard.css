@@ -83,6 +83,21 @@
 }
 
 
+.fade-in {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+    transition: opacity 2s ease, filter 2s ease, transform 2s ease;
+  }
+  
+  .fade-out {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.05);
+    transition: opacity 2s ease, filter 2s ease, transform 2s ease;
+  }
+
+
 
 /* @media (max-width: 768px) {
     .leaderboard-table th, .leaderboard-table td {

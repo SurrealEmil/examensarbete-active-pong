@@ -13,5 +13,6 @@ namespace Domain.DbInterfaces
         Task<List<LeaderboardEntry>> GetTopPlayers(string gameMode);
         Task<List<LeaderboardEntry>> GetAllPlayers(string gameMode);
         Task<LeaderboardEntry?> GetPlayerBestScoreAcrossModes(string userId);
+        Task DeleteEntry(string userId, string gameMode);
     }
 }

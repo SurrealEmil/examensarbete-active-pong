@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 const PongBackground = () => {
   const containerRef = useRef(null);
@@ -11,8 +11,8 @@ const PongBackground = () => {
 
     // Set the canvas size to match the container's dimensions
     const setCanvasSize = () => {
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+      canvas.width = container.clientWidth
+      canvas.height = container.clientHeight
     };
     setCanvasSize();
 
@@ -84,8 +84,17 @@ const PongBackground = () => {
 
     let animationFrameId;
 
+    let lastTime = 0
+    const fpsInterval = 1000 / 60;
+
     // Update function to animate game elements
-    const update = () => {
+    const update = (timestamp) => {
+      if(!lastTime) lastTime = timestamp
+      const elapsed = timestamp - lastTime
+
+      if (elapsed > fpsInterval){
+        lastTime = timestamp
+      
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -178,9 +187,9 @@ const PongBackground = () => {
         ball.y = canvas.height / 2;
         ball.dx = -ball.dx; // Reverse horizontal direction for variety
       }
-
+    }
       animationFrameId = requestAnimationFrame(update);
-    };
+    }
 
     // Start the animation loop
     update();

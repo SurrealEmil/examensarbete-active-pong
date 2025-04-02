@@ -63,13 +63,19 @@
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.431);
-    font-size: 4rem;
-    font-weight: bold;
+
+    font-family: 'arcade';
+    
     letter-spacing: 1rem;
     text-align: center;
     z-index: 1000;
 
     animation: pulse 1.1s ease-in-out infinite alternate;
+}
+
+.countdown h3{
+    font-size: 4rem;
+    line-height: 1.5;
 }
 
 

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Matter from 'matter-js';
 import audioManager from '../../utils/audioManager';
 import PongCanvas from './PongCanvas';
@@ -14,6 +14,7 @@ import FpsOverlay from '../UI/FpsOverlay';
 import TopBar from '../UI/TopBar';
 import ScoreDisplay from '../UI/ScoreDisplay';
 import GAME_CONFIG from '../../config/gameConfig';
+
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -116,6 +117,7 @@ const {
 
 
 const PongGame = () => {
+  const location = useLocation()
   const navigate = useNavigate();
 
   // 2) For dynamic screen sizing
@@ -124,6 +126,19 @@ const PongGame = () => {
 
   const [leftJoyConConnected, setLeftJoyConConnected] = useState(false);
   const [rightJoyConConnected, setRightJoyConConnected] = useState(false);
+
+  const { player1Name = 'Default', player2Name = 'Default' } = location.state || {}
+
+  /* const [player1Name, setPlayer1Name] = useState('')
+  const [player2Name, setPlayer2Name] = useState('') */
+
+  const handlePlayer1NameChange = (name) => {
+    setPlayer1Name(name)
+  }
+
+  const handlePlayer2NameChange = (name) => {
+    setPlayer2Name(name)
+  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
@@ -607,8 +622,16 @@ const { fps, isLagSpike } = useGameLoop({
   return (
     <div className="pong-game-wrapper">
       {/* Top Bar */}
-     <TopBar leftJoyConConnected={leftJoyConConnected} rightJoyConConnected={rightJoyConConnected}/>
-
+      <TopBar 
+        leftJoyConConnected={leftJoyConConnected} 
+        rightJoyConConnected={rightJoyConConnected}
+        player1Name={player1Name}
+        player2Name={player2Name}
+      />
+     {/*  <Lobby
+        onPlayer1NameChange={handlePlayer1NameChange}
+        onPlayer2NameChange={handlePlayer2NameChange}
+      /> */}
       {/* Winner Overlay (if a player reaches 5) */}
       {gameOver && (
         <WinnerOverlay

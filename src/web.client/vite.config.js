@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+cdimport { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/

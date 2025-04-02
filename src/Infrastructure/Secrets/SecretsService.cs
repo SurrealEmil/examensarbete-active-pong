@@ -18,7 +18,7 @@ namespace Infrastructure.Secrets
             _configuration = configuration;
             _secrets = new Dictionary<string, string>();
 
-            // Read from appsettings.json whether to use Key Vault
+            // Read from appsettings.json whether to use Key Vault.
             _useKeyVault = _configuration.GetValue<bool>("UseAzureKeyVault");
 
             if (_useKeyVault)

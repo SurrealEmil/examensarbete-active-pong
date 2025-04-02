@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+/*import { QRCode } from "qrcode.react";*/
 import './StartScreen.css';
 import PongBackground from './PongBackground';
 
@@ -16,9 +17,7 @@ const gameModes = [
     label: 'TOURNAMENT',
     route: '/pong',
     description: [
-      'Welcome, Register and scan your QR code to jump into the action.',
-      'Rack up points through thrilling challenges.',
-      'Win your way to the next round and dominate the competition.',
+      'Welcome, Register and scan your QR code to jump into the action Rack up points through thrilling challenges. Win your way to the next round and dominate the competition.',
       'Follow on-screen instructions for match rules'
     ]
   },
@@ -41,8 +40,34 @@ const adminMenus = {
   modes: ['QUICK GAME', 'TOURNAMENT', 'PARTY', 'Back']
 };
 
+
+
+
+
+
+
+
 const StartScreen = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  const [fadeClass, setFadeClass] = useState('fade-in');
+
+
+  //useEffect(() => {
+  //  const fadeOutTimer = setTimeout(() => {
+  //    setFadeClass('fade-out');
+  
+  //    const navTimer = setTimeout(() => {
+  //      navigate('/leaderboard');
+  //    }, 500); // match fade-out CSS duration
+  
+  //    return () => clearTimeout(navTimer);
+  //  }, 10000); // wait 2s before fading
+  
+  //  return () => clearTimeout(fadeOutTimer);
+  //}, [navigate]);
+  
+
 
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminActiveSection, setAdminActiveSection] = useState('main');
@@ -246,7 +271,7 @@ const StartScreen = () => {
   };
 
   return (
-    <div className="start-screen-container">
+    <div className={`start-screen-container ${fadeClass}`}>
       {/* ADMIN Button */}
       <div className='pong-background'>
         <PongBackground/> 
@@ -272,11 +297,13 @@ const StartScreen = () => {
         <span className="active">ACTIVE</span>
         <span className="pong">PONG</span>
       </h1>
-
+      <div>
+      <h2 className="selected-mode">{selectedMode?.label}</h2>
+      </div>
       {/* Selected Mode (Display as rules) */}
       {selectedMode ? (
         <div className="mode-info-container">
-          <h2>{selectedMode.label}</h2>
+          
           <div className="rules">
             <ul>
               {selectedMode.description.map((rule, idx) => (
@@ -288,15 +315,16 @@ const StartScreen = () => {
             <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>
             <div className="qr-code"><img src="./img/qr-code.png" alt="" /></div>
           </div>
-          <div className="enter-text">Press ENTER to play</div>
+          
         </div>
       ) : (
+        
         <div className="mode-info">
           <h2>No mode selected</h2>
           <p>Please open ADMIN to choose a game mode.</p>
         </div>
       )}
-
+      <div className="enter-text">Press ENTER to play</div>
       {/* Footer */}
       <div className="footer">
         <img src="./img/logo4.png" alt="Logo" />

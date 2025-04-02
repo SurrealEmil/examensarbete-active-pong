@@ -96,5 +96,13 @@ namespace Web.Server.Controllers
 
             return Ok(playerEntry);
         }
+
+        // Delete a player's leaderboard entry for a specific game mode
+        [HttpDelete("{gameMode}/{userId}")]
+        public async Task<IActionResult> DeleteLeaderboardEntry(string gameMode, string userId)
+        {
+            await _leaderboardService.DeleteEntry(userId, gameMode);
+            return Ok(new { message = $"Deleted leaderboard entry for user '{userId}' in game mode '{gameMode}'." });
+        }
     }
 }

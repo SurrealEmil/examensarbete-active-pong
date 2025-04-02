@@ -30,17 +30,16 @@ const ORIENTATION_BOOST = 50;
 
 
 
-const Lobby = () => {
+const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   
-  const [leftReady, setLeftReady] = useState(false);
-  const [rightReady, setRightReady] = useState(false);
-  const [scannedPlayers, setScannedPlayers] = useState({ player1: '', player2: ''})
-
+  // States for QR scanning
+  const [scannedPlayers, setScannedPlayers] = useState({ player1: null, player2: null})
   const [overlayVisible, setOverlayVisible] = useState(true)
 
+  // This effect hides the overlay once both players are scanned.
   useEffect(() => {
     if (scannedPlayers.player1 && scannedPlayers.player2) {
-      console.log("Both players scanned. Hiding overlay in 500ms....");
+      console.log("Both players scanned. Hiding overlay in 500ms...");
       const timer = setTimeout(() => {
         setOverlayVisible(false);
         console.log("Overlay hidden");
@@ -48,85 +47,73 @@ const Lobby = () => {
       return () => clearTimeout(timer);
     }
   }, [scannedPlayers]);
-  
 
+  // Function to fetch user data from QR code
   const handleScanComplete = async (qrCodeIdentifier) => {
     if(!qrCodeIdentifier || qrCodeIdentifier.trim() === ""){
       console.warn("Empty QR code identifier recieved.")
       return
     }
+
+    // Prevent processing further scans if both are already scanned.
+    if(scannedPlayers.player1 && scannedPlayers.player2) return
+
     try{
-      const response = await axios.get(`${API_BASE_URL}/user/qr/${qrCodeIdentifier}`
-        /* {withCredentials: true,} */
-      )
+      const response = await axios.get(`${API_BASE_URL}/user/qr/${qrCodeIdentifier}`)
       console.log("API response: ", response)
+      
       const playerData = response.data
+      console.log("Player data :", response.data)
+      
       setScannedPlayers((prevPlayers) => {
-        if (!prevPlayers.player1) {
-          return {...prevPlayers, player1: playerData.username}
-        }
-        if (!prevPlayers.player2){
-          return {...prevPlayers, player2: playerData.username}
-        }
-        return prevPlayers
-       })
+        if(!prevPlayers.player1){
+          const updated = {...prevPlayers, player1: playerData}
+          onPlayer1NameChange && onPlayer1NameChange (playerData.username) 
+          return updated
+      }   else if (!prevPlayers.players2) {
+          const updated = { ...prevPlayers, player2: playerData}
+          onPlayer2NameChange && onPlayer2NameChange (playerData.username)
+          return updated  
+      }
+      return prevPlayers
+    })
     } catch (error){
       console.log("Error fetching player data:", error.response || error)
     }
-  };
+  }
 
- // Define the "ready" callbacks. These will be triggered when JoyConConnector
-  // detects the left/right stick press.
+  // JoyCon ready callbacks
   const handleLeftReady = () => {
-    //console.log("Left ready!");
-    setLeftReady(true);
-  };
+    console.log("Left ready confirmed!")  
+    setLeftReady(true);};
 
   const handleRightReady = () => {
-    //console.log("Right ready!");
-    setRightReady(true);
-  };
+    console.log("Right ready confirmed!") 
+    setRightReady(true);};
 
-  // For example, you may already have a function to toggle control mode.
-  // Instead, you can combine both behaviors if desired:
-  const handleToggleControlModeLeft = () => {
-    // If you want to do more than just mark as ready, you could do that here.
-    handleLeftReady();
-    // ... plus any additional logic if needed.
-  };
+  const handleToggleControlModeLeft = () => {handleLeftReady();};
+  const handleToggleControlModeRight = () => {handleRightReady();};
 
-  const handleToggleControlModeRight = () => {
-    handleRightReady();
-    // ... additional logic if necessary.
-  };
-  
-
- 
- 
+  // States for JoyCon connection and game
+  const [leftReady, setLeftReady] = useState(false);
+  const [rightReady, setRightReady] = useState(false);
+  const [leftConnected, setLeftConnected] = useState(false);
+  const [rightConnected, setRightConnected] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  /* const [attemptCount, setAttemptCount] = useState(0) */
 
   const navigate = useNavigate();
   const joyConConnectorRef = useRef(null);
 
-  const [attemptCount, setAttemptCount] = useState(0)
-
-  const [leftConnected, setLeftConnected] = useState(false);
-  const [rightConnected, setRightConnected] = useState(false);
-  const [countdown, setCountdown] = useState(null);
-
   const canvasWidth = window.innerWidth;
   const canvasHeight = window.innerHeight;
-
-  // Constants for paddle dimensions
   const paddleWidth = 10;
   const paddleHeight = 100;
   const wallThickness = 20;
 
-  
-
-  // State variables for paddle Y positions
+  // Paddle positions and control mode state
   const [leftPaddleY, setLeftPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
   const [rightPaddleY, setRightPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
-
   const [controlModeLeft, setControlModeLeft] = useState('accelerometer')
   const [controlModeRight, setControlModeRight] = useState('accelerometer')
 
@@ -171,10 +158,6 @@ const Lobby = () => {
     rightHorizontal: 0,
     rightVertical: 0,
   });
-
- /*  useEffect(() => {
-    //console.log("Updated motionDataLeft:", motionDataLeft);
-  }, [motionDataLeft]); */
 
   // Define INITIAL_GAME_STATE before using it in the hook and state initialization
   const INITIAL_GAME_STATE = {
@@ -427,11 +410,11 @@ const Lobby = () => {
     }
   };
 
-  useEffect(() => {
+ /*  useEffect(() => {
     checkGamepads();
     const interval = setInterval(checkGamepads, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, []); */
 
   // Listen for custom JoyCon events
   useEffect(() => {
@@ -462,11 +445,7 @@ const Lobby = () => {
 
   // Start countdown when both Joy-Cons are connected
   useEffect(() => {
-    if (leftConnected && 
-      rightConnected && 
-      leftReady && 
-      rightReady && 
-      countdown === null) {
+    if (leftConnected && rightConnected && leftReady && rightReady && countdown === null) {
       setCountdown(3);
     }
   }, [leftConnected, rightConnected, leftReady, rightReady, countdown]);
@@ -478,13 +457,18 @@ const Lobby = () => {
       return () => clearTimeout(timer)
     }
     if (countdown === 0){
-    const timer = setTimeout(() => navigate('/pong'), 1100);
+    const timer = setTimeout(() => navigate('/tournament', {
+      state: {
+        player1: scannedPlayers.player1,
+        player2: scannedPlayers.player2,
+      }
+    }), 1100);
     return () => clearTimeout(timer);
-}}, [countdown, navigate]);
+}}, [countdown, navigate]);              
 
 
-  // Connect JoyCons on mount
-  useEffect(() => {
+  // Connect JoyCons on mount (but we'll render the connector only after QR scanning)
+ /*  useEffect(() => {
     if (joyConConnectorRef.current) {
       joyConConnectorRef.current.connect().then((connected) => {
         if (!connected) {
@@ -520,7 +504,36 @@ const Lobby = () => {
 }, 500000)
 
 return () => clearInterval(interval)
-}, [leftConnected, rightConnected])
+}, [leftConnected, rightConnected]) */
+
+const handleConnectJoyCons = async () => {
+  try {
+    if (joyConConnectorRef.current) {
+      const connected = await joyConConnectorRef.current.connect();
+      if (!connected) {
+        console.warn("Could not connect JoyCons. Make sure they're paired via Bluetooth and accessible.");
+      } else {
+        console.log("JoyCons connected successfully!");
+      }
+    }
+  } catch (error) {
+    console.error("Error connecting JoyCons:", error);
+  }
+};
+
+// (4) Add a keydown listener that calls handleConnectJoyCons if the user hits space bar.
+useEffect(() => {
+  const onKeyDown = (e) => {
+    if (e.code === 'Space') {
+      console.log("Space bar pressed. Attempting JoyCon connection.");
+      handleConnectJoyCons();
+    }
+  };
+
+  window.addEventListener('keydown', onKeyDown);
+  return () => window.removeEventListener('keydown', onKeyDown);
+}, []);
+
 
 const DelayedLobbyCameraOverlay = (props) => {
   const [show, setShow] = useState(false)
@@ -533,89 +546,71 @@ const DelayedLobbyCameraOverlay = (props) => {
 
   return show ? <LobbyCameraOverlay {...props} /> : null;
 }
-  
+  // A simple flag to check if both QR codes are scanned.
+  const isQRScanned = scannedPlayers.player1 && scannedPlayers.player2
 
   
   return (
     <div className="pong-game-wrapper">
-      
+      {/* Always render the main UI */}
       <TopBar
-        
-     
-//----------------------------------------------
-//-----------CONNECTION ICONS-------------------
-//----------------------------------------------
         leftJoyConConnected={leftConnected}
         rightJoyConConnected={rightConnected}
-        player1Name={scannedPlayers.player1 || 'Waiting for player 1'}
-        player2Name={scannedPlayers.player2 || 'Waiting for player 2'}
-
+        player1Name={scannedPlayers.player1?.username || 'Waiting for player 1'}
+        player2Name={scannedPlayers.player2?.username || 'Waiting for player 2'}
       />
-      {overlayVisible && (
-        <DelayedLobbyCameraOverlay 
-        key={`${scannedPlayers.player1}-${scannedPlayers.player2}`}
-        onComplete={handleScanComplete}
-        searchingText={
-          !scannedPlayers.player1
-            ?"Searching for player 1"
-            :"Searching for player 2"
-        }
-        />
-      )}
-      
       <div className="pong-game-container">
-      
-      <div className="connection-status">
-        <div className="player-1">
-          <p className={!leftConnected ? "pulsate" : ""}>
-          {leftConnected ? "Connected" : "Searching for JoyCon"}
-          </p>
-          {leftConnected && (
-            <p className="ready-msg-1">
-              {leftReady ? "Ready" : "Press button when ready"}
-
+        <div className="connection-status">
+          <div className="player-1">
+            <p className={!leftConnected ? "pulsate" : ""}>
+              {leftConnected ? "Connected" : "Searching for JoyCon"}
             </p>
-          )}
-        </div>
-        <div className="player-2">
-          <p className={!rightConnected ? "pulsate" : ""}>
-          {rightConnected ? "Connected" : "Searching for JoyCon"}  
-          </p>
-          {rightConnected &&(
-            <p className="ready-msg-2">
-              {rightReady ? "Ready" : "Press button when ready"}
+            {leftConnected && (
+              <p className="ready-msg-1">
+                {leftReady ? "Ready" : "Press button when ready"}
+              </p>
+            )}
+          </div>
+          <div className="player-2">
+            <p className={!rightConnected ? "pulsate" : ""}>
+              {rightConnected ? "Connected" : "Searching for JoyCon"}
             </p>
-          )}
-          
+            {rightConnected && (
+              <p className="ready-msg-2">
+                {rightReady ? "Ready" : "Press button when ready"}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-       
         <PongCanvas
-        
           gameState={gameState}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
           wallThickness={wallThickness}
         />
-        
       </div>
-      
-    
       {countdown !== null && (
         <div className="countdown">
           <h3>
-            {countdown > 0
-              ? `Game starting in ${countdown}`
-              : "GO!!!!!..."}
+            {countdown > 0 ? `Game starting in ${countdown}` : "GO!!!!!..."}
           </h3>
         </div>
       )}
-      {/* Paddle testing controls */}
-      <div className="paddle-controls">
       
-        
-      </div>
-      {/* JoyConConnector for JoyCon input */}
+  
+      {/* Conditionally render the QR scanning overlay on top */}
+      {overlayVisible && !isQRScanned && (
+        <DelayedLobbyCameraOverlay
+          key={`${scannedPlayers.player1}-${scannedPlayers.player2}`}
+          onComplete={handleScanComplete}
+          searchingText={
+            !scannedPlayers.player1
+              ? "Scanning QR code for player 1"
+              : "Scanning QR code for player 2"
+          }
+        />
+      )}
+    {isQRScanned && (
       <JoyConConnector
         ref={joyConConnectorRef}
         onMotionDataLeft={(data) => setMotionDataLeft(data)}
@@ -625,8 +620,10 @@ const DelayedLobbyCameraOverlay = (props) => {
         onToggleControlModeLeft={handleToggleControlModeLeft}
         onToggleControlModeRight={handleToggleControlModeRight}
       />
+    )}
     </div>
   );
+  
 };
 
 export default Lobby;

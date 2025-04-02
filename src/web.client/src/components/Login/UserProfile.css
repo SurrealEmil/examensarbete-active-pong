@@ -14,14 +14,14 @@
     border: 8px solid #333;
     border-radius: 10px;
     box-shadow: 0 0 0 4px #000, 0 0 0 8px #555;
-    background-color: var(--black);
+    background-color: var(--blue);
     padding: 2rem 1rem;
     color: var(--white);
     text-align: center;
     
     
   }
-
+  
   .profile-content {
     display: flex;
     flex-direction: column;
@@ -39,7 +39,7 @@ h3 {
 
 h4 {
   color: var(--orange);
-  text-shadow: 1px 1px #000;
+  text-shadow: 2px 2px #000;
   width: 100%;
   text-align: center;
   font-size: 1rem;
@@ -48,6 +48,11 @@ h4 {
 
 p, li {
     margin: 0.5rem 0;
+    text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black;
     width: 100%;
     text-align: center;
     font-size: 0.9rem;
@@ -81,7 +86,7 @@ ul {
 li {
   margin: 0.3rem 0;
   padding: 0.3rem;
-  border-bottom: 1px dashed #555;
+  /* border-bottom: 1px dashed #000000; */
 }
 
 

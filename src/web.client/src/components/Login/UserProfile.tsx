@@ -61,7 +61,7 @@ return (
                 <ul>
                     {profile.gameStats && profile.gameStats.length > 0 ? profile.gameStats.map((stat, index) => (
                         <li key={index}>
-                            {stat.gameMode} - Rank: {stat.rank}, Best Score: {stat.bestScore}
+                            {stat.gameMode}
                         </li>
                     )) : (
                         <li>NO GAME STATS AVAILABLE</li>

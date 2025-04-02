@@ -109,5 +109,47 @@ namespace Infrastructure.Persistence
 
             return null;
         }
+        public async Task DeleteEntry(string userId, string gameMode)
+        {
+            // Fetch the leaderboard document for the given gameMode
+            var leaderboard = await GetLeaderboardByGameMode(gameMode);
+            if (leaderboard == null)
+            {
+                // No leaderboard found, nothing to delete
+                return;
+            }
+
+            // Find the existing entry
+            var existingEntry = leaderboard.Entries.FirstOrDefault(e => e.UserId == userId);
+            if (existingEntry == null)
+            {
+                // The user doesn't exist in this leaderboard
+                return;
+            }
+
+            // Remove the user’s entry
+            leaderboard.Entries.Remove(existingEntry);
+
+            // Re-sort the entries by score and update ranks
+            var sortedEntries = leaderboard.Entries
+                .OrderByDescending(e => e.BestScore)
+                .Select((entry, index) =>
+                {
+                    // index is zero-based; rank is one-based
+                    entry.UpdateRank(index + 1);
+                    return entry;
+                })
+                .ToList();
+
+            // Replace the old list with the newly sorted list
+            leaderboard.Entries.Clear();
+            leaderboard.Entries.AddRange(sortedEntries);
+
+            // Upsert the updated leaderboard back into Cosmos DB
+            await _container.UpsertItemAsync(leaderboard, new PartitionKey(leaderboard.GameMode));
+
+            // Notify all SignalR clients that the leaderboard changed
+            await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate");
+        }
     }
 }
