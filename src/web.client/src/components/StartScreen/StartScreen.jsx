@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-/*import { QRCode } from "qrcode.react";*/
+import { QRCode } from "react-qrcode-logo";
 import './StartScreen.css';
 import PongBackground from './PongBackground';
 
@@ -313,7 +313,9 @@ const StartScreen = () => {
           </div>
           <div className="qr-container">
             <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>
-            <div className="qr-code"><img src="./img/qr-code.png" alt="" /></div>
+            <div className="qr-code">
+                <QRCode value="https://activepong.azurewebsites.net/login" size={128} />
+            </div>
           </div>
           
         </div>
