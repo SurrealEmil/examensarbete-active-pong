@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QRCode } from "react-qrcode-logo";
+import QRCode from "react-qr-code";
 import './StartScreen.css';
 import PongBackground from './PongBackground';
 
