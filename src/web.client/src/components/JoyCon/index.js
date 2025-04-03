@@ -1,5 +1,3 @@
-// src/components/JoyCon/index.js
-
 import { JoyConLeft, JoyConRight, GeneralController } from './joycon utils/joycon';
 
 const connectedJoyCons = new Map();

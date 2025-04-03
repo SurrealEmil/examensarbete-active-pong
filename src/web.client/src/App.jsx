@@ -1,5 +1,6 @@
 /* import { useEffect } from 'react' */
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react'
 import StartScreen from './components/StartScreen/StartScreen';
 import PongGame from './components/PongGame/PongGame';
 import PongGameTournament from './components/PongGame/PongGame-Tournament'
@@ -10,7 +11,7 @@ import Login from './components/Login/Login'
 import SignUp from './components/Login/SignUp'
 import UserProfile from './components/Login/UserProfile'
 
-const playersData = [
+/* const playersData = [
   { id: 1, rank: 1, name: 'Arnold swh', score: 8179872 },
   { id: 2, rank: 2, name: 'Betty White', score: 7924943},
   { id: 3, rank: 3, name: 'Lara Croft', score: 2804},
@@ -21,31 +22,33 @@ const playersData = [
   { id: 8, rank: 8, name: 'Pamela Andersson', score: 7924943},
   { id: 9, rank: 9, name: 'Clint East', score: 2804},
   { id: 10, rank: 10, name: 'Sylvester Stall', score: 2804},
-]
+] */
 
 
-const App = () => {
-  
-/*   useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === "c") {  // Change "c" to any key you prefer
-        console.log("🔄 Keyboard shortcut pressed! Connecting new Joy-Cons...");
-        connectNewJoyCons();
-      }
-    };
 
-    window.addEventListener("keydown", handleKeyPress);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []); */
+const AppContent = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    const noCrtRoutes = ['/login', '/signup', '/userprofile']
+
+    const shouldDisableCrt = noCrtRoutes.some(route =>
+      location.pathname.startsWith(route)
+    )
+
+    if (shouldDisableCrt){
+      document.body.classList.add('no-crt')
+    } else {
+      document.body.classList.remove('no-crt')
+    }
+  }, [location])
 
 
   return (
     <>
       <ConnectOverlay/>
-    <Router>
+    
       <div className="App">
         <Routes>
           <Route path="/" element={<StartScreen />} />
@@ -54,14 +57,21 @@ const App = () => {
           <Route path="/tournament" element={<PongGameTournament />}/>
           <Route path="/arcade" element={<div>Arcade Mode</div>} />
           <Route path="/party" element={<div>Party Mode</div>} />
-          <Route path="/leaderboard" element={<Leaderboard players={playersData} />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/login" element={<Login/>}/>
           <Route path="/signup" element={<SignUp/>}/>
           <Route path="/userprofile" element={<UserProfile/>}/>
         </Routes>
       </div>
-    </Router>
     </>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 };
 

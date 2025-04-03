@@ -128,6 +128,7 @@ const PongGameTournament = () => {
   const [leftJoyConConnected, setLeftJoyConConnected] = useState(false);
   const [rightJoyConConnected, setRightJoyConConnected] = useState(false);
 
+  const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const { player1, player2 } = location.state || {}
 
   const player1Name = player1?.username || 'Default'
@@ -539,32 +540,29 @@ const { fps, isLagSpike } = useGameLoop({
     // Get the paddle's center (vertical position) and ball's center.
     const paddleCenterY = paddleBody.position.y;
     const ballCenterY = ballBodyRef.current.position.y;
-  
-    // Calculate the vertical offset. (A negative value means the ball hit above the center,
-    // and a positive value means below the center.)
-    const offset = ballCenterY - paddleCenterY;
-  
-    // Get the paddle's effective height using its bounds.
+    const offset = ballCenterY - paddleCenterY; 
     const paddleHeightEffective = paddleBody.bounds.max.y - paddleBody.bounds.min.y;
-  
-    // Normalize the offset so that 0 is at center and 1 is at the extreme edge.
-    // We assume the maximum effective offset is half the paddle's height.
     const normalizedOffset = Math.min(Math.abs(offset) / (paddleHeightEffective / 2), 1);
+    const basePoints = Math.round(100 + 900 * normalizedOffset);
   
-    // Calculate the points:
-    //  - At the center (normalizedOffset = 0): 100 points.
-    //  - At the edge (normalizedOffset = 1): 1000 points.
-    //  - Linearly interpolate in between.
-    const points = Math.round(100 + 900 * normalizedOffset);
-  
-    console.log(`Score for ${playerKey}: ${points} (offset: ${offset.toFixed(2)}, normalized: ${normalizedOffset.toFixed(2)})`);
+     // Update hit streak and calculate multiplier:
+    setHitStreaks((prevStreaks) => {
+    const newStreak = (prevStreaks[playerKey] || 0) + 1;
+    // Example: if hit streak is 3 or more, use a multiplier of 2.
+    const multiplier = newStreak >= 3 ? 2 : 1;
+    const totalPoints = basePoints * multiplier;
+
+    console.log(`Score for ${playerKey}: ${totalPoints} (streak: ${newStreak}, multiplier})`);
   
     // Update the game state by adding these points to the appropriate player's score.
     setGameState((prevState) => {
       const newScores = { ...prevState.scores };
-      newScores[playerKey] += points;
+      newScores[playerKey] += totalPoints;
       return { ...prevState, scores: newScores };
     });
+
+    return { ...prevStreaks, [playerKey]: newStreak };
+  })
   } 
   
 

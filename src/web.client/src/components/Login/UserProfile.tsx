@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeCanvas } from 'qrcode.react'
@@ -42,6 +42,7 @@ useEffect(() => {
 
 
 return (
+    <div className="black-wrapper">
     <div className="user-profile-wrapper">
         {profile ? (
             <div className="profile-contet">
@@ -61,7 +62,7 @@ return (
                 <ul>
                     {profile.gameStats && profile.gameStats.length > 0 ? profile.gameStats.map((stat, index) => (
                         <li key={index}>
-                            {stat.gameMode}
+                            {stat.gameMode} - Rank: {stat.rank}, Best Score: {stat.bestScore}
                         </li>
                     )) : (
                         <li>NO GAME STATS AVAILABLE</li>
@@ -78,6 +79,7 @@ return (
         ) : (
             <p>{serverMessage}</p>
         )}
+    </div>
     </div>
     );
 };

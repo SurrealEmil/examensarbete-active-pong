@@ -1,21 +1,33 @@
- .start-screen-container {
+body, html{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+ 
+.start-screen-container {
     position: relative;
    /*  height: 100vh; */
    /*  height: calc(var(--vh, 1vh) * 100); */
-    min-height: 100vh;
-    max-height: 100vh;
-    min-width: 100vw;
-    max-width: 100vw;
-    width: 100vw;
+    min-height: 98vh;
+    /* max-height: 90vh; */
+    /* min-width: 90vw; */
+    max-width: 1920px;
+    width: 95vw;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     overflow: hidden;
     color: var(--white);
     font-family: 'Arcade';
     text-align: center;    
-    box-sizing: border-box;
+    /* padding: 3vh 2vw; */
+    /* box-sizing: border-box; */
+    margin: 0 auto;
+
+    /* border: 2px solid pink; */
 }
 
 
@@ -31,14 +43,14 @@
   /* height: 25%;  */                 
   text-shadow: black 10px 10px 1px;
 
-  margin-top: 1rem;
+  margin-top: 7vh;
+  margin-bottom: 6vh;
   
- /*  border: 2px solid pink; */
+  /* border: 2px solid pink; */
 }
 
 .selected-mode {
-  margin-top: -3vh;
-  margin-bottom: 3vh;
+  font-size: 2rem;
  
   text-shadow:
       -1px -1px 0 black,
@@ -60,12 +72,12 @@
   max-width: 60rem;
   width: 90%;
   gap: 2rem;
-  max-height: 17rem;
- 
- 
- 
+  max-height: 28vh;
+  
   margin: 3vh 0;
   position: relative;
+  
+
   
   /* Text improvements */
   font-weight: 500;
@@ -73,8 +85,25 @@
   line-height: 1.6;
   color: var(--white);
   text-shadow: 0 0 10px rgba(var(--orange), 0.5);  
+  text-align: left;
+  padding: 8rem;
+
 
   /* border: 2px solid pink; */
+}
+
+.mode-info-container,
+.mode-info-container p,
+.mode-info-container h1,
+.mode-info-container h2,
+.mode-info-container h3,
+.mode-info-container h4,
+.mode-info-container h5,
+.mode-info-container h6,
+.mode-info-container li,
+.mode-info-container span,
+.mode-info-container div {
+  text-align: left !important;
 }
 
 /* Yellow marker for text lines */
@@ -155,7 +184,7 @@
   
 .enter-text {
   font-size: clamp(1.2rem, 3vw, 1.8rem);
-    margin-top: 2rem;
+   /*  margin-top: 2rem; */
     color: var(--orange);
     text-shadow:
         -2px -2px 0 black,
@@ -164,8 +193,8 @@
         2px 2px 0 black;
 
   animation: pulsate 1s infinite;
-
- /*  border: 2px solid pink; */
+  margin-top: 2vh;
+  /* border: 2px solid pink; */
 }
 
 
@@ -292,7 +321,7 @@
   
   /* Footer */
   .footer {
-    margin-top: auto;
+    margin-top: 6vh;
     margin-bottom: 2vh;
     display: flex;
     flex-direction: row;
@@ -311,17 +340,55 @@
 }
   
 
-.fade-in {
-  opacity: 1;
-  filter: blur(0px);
-  transform: scale(1);
-  transition: opacity 2s ease, filter 2s ease, transform 2s ease;
-}
 
-.fade-out {
-  opacity: 0;
-  filter: blur(10px);
-  transform: scale(1.05);
-  transition: opacity 2s ease, filter 2s ease, transform 2s ease;
-}
+/* Media query for iPhone and smaller devices */
+@media only screen and (max-width: 767px) {
+  .start-screen-container {
+    min-height: 100vh;
+    min-width: 100vw;
+    max-width: 100vw;
+    padding: 1rem;
+  }
 
+  .title {
+    font-size: 2rem;
+    margin-top: 15rem;
+    gap: 1rem;
+  }
+
+  .mode-info-container {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    max-height: none;
+    margin: 1vh 0;
+    font-size: 1rem;
+  }
+
+  .rules {
+    width: 100%;
+  }
+
+  .qr-container {
+    flex-direction: column;
+  }
+
+  .qr-code img {
+    width: clamp(100px, 25vw, 150px);
+  }
+
+  .qr-scan img {
+    width: 10rem;
+    height: 10rem;
+  }
+
+  .enter-text {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    margin-top: 1rem;
+  }
+
+  .admin-dropdown {
+    width: 200px;
+    height: 180px;
+  }
+}

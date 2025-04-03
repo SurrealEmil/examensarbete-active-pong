@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import QRCode from "react-qr-code";
 import './StartScreen.css';
+import QRCode from "react-qr-code";
 import PongBackground from './PongBackground';
+/* import TransitionOverlay from '../UI/TransitionOverlay'; */
+import { motion, AnimatePresence } from 'framer-motion'
 
 const gameModes = [
   {
@@ -15,10 +17,11 @@ const gameModes = [
   },
   {
     label: 'TOURNAMENT',
-    route: '/pong',
+    route: '/tournament',
     description: [
-      'Welcome, Register and scan your QR code to jump into the action Rack up points through thrilling challenges. Win your way to the next round and dominate the competition.',
-      'Follow on-screen instructions for match rules'
+      'Welcome!',
+      'Register and scan your QR code to jump into the action! Rack up points through thrilling challenges.'
+      
     ]
   },
   {
@@ -49,27 +52,26 @@ const adminMenus = {
 
 const StartScreen = () => {
   const navigate = useNavigate()
-
-  const [fadeClass, setFadeClass] = useState('fade-in');
-
-
-  //useEffect(() => {
-  //  const fadeOutTimer = setTimeout(() => {
-  //    setFadeClass('fade-out');
-  
-  //    const navTimer = setTimeout(() => {
-  //      navigate('/leaderboard');
-  //    }, 500); // match fade-out CSS duration
-  
-  //    return () => clearTimeout(navTimer);
-  //  }, 10000); // wait 2s before fading
-  
-  //  return () => clearTimeout(fadeOutTimer);
-  //}, [navigate]);
-  
-
-
   const [adminOpen, setAdminOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+ 
+  
+  useEffect(() => {
+    if (!adminOpen) {
+    const timer = setTimeout(() => {
+      setIsExiting(true)
+
+    }, 10000)
+    return () => clearTimeout(timer)
+  }
+  }, [adminOpen])
+
+  
+
+ 
+
+
+  
   const [adminActiveSection, setAdminActiveSection] = useState('main');
   const [adminSelectedIndex, setAdminSelectedIndex] = useState(0);
 
@@ -271,10 +273,20 @@ const StartScreen = () => {
   };
 
   return (
-    <div className={`start-screen-container ${fadeClass}`}>
+    <AnimatePresence mode="wait" onExitComplete={() => navigate('/leaderboard')}>
+      {!isExiting && (
+        <motion.div
+          className="start-screen-container"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1 }}
+          
+        >
+    
       {/* ADMIN Button */}
       <div className='pong-background'>
-        <PongBackground/> 
+        {/* <PongBackground/>  */}
         </div>
       <div className="admin-button" onClick={toggleAdminDropdown}>
         {/* <div className="hamburger-icon">
@@ -314,7 +326,7 @@ const StartScreen = () => {
           <div className="qr-container">
             <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>
             <div className="qr-code">
-                <QRCode value="https://activepong.azurewebsites.net/login" size={128} />
+              <QRCode value="https://activepong.azurewebsites.net/login" size={128} />
             </div>
           </div>
           
@@ -332,8 +344,11 @@ const StartScreen = () => {
         <img src="./img/logo4.png" alt="Logo" />
         <p>2025 ACTIVE SOLUTION</p>
       </div>
-    </div>
-  );
-};
+    
+    </motion.div>
+  )}
+</AnimatePresence>
+);
+}
 
 export default StartScreen;

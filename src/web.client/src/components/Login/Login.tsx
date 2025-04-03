@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import "./Login.css"
@@ -46,7 +46,12 @@ const login = async (e: React.FormEvent<HTMLFormElement>) => {
     } finally {
         setLoading(false)
     }
+
+  
 };
+
+
+
 
 // 🔹 Fetch User Profile (After Login)
 const fetchProfile = async () => {
@@ -78,9 +83,9 @@ const fetchProfile = async () => {
 <div>
     <div className="login-wrapper">
     <div>
-        <img className="logo" src="/img/logo2.png" alt="" />
+        <img className="logo" /* style={{width: '220px'}} */src="/img/logo2.png" alt="" />
     </div>
-    <div className="text">
+    <div className="login-text">
         Login to get started
     </div>
       

@@ -3,6 +3,8 @@ import './Leaderboard.css';
 import { useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import API_BASE_URL from '../../config/apiConfig';
+import { motion, AnimatePresence } from 'framer-motion'
+import useAutoReturnToStart from '../../utils/useAutoReturnToStart';
 
 
  
@@ -31,31 +33,24 @@ const getOrdinalSuffix = (rank) => {
 
 const Leaderboard = () => {
   
+  useAutoReturnToStart('/')
   const location = useLocation()
   const navigate = useNavigate()
+  const [isExiting, setIsExiting] = useState(false);
 
-  const [fadeClass, setFadeClass] = useState('fade-in');
-
+  
 
   const [players, setPlayers] = useState(location.state?.players || []);
 
-    // Automatically navigate back to the lobby after 10 seconds
-    useEffect(() => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsExiting(true)
+
+    }, 10000)
+    return () => clearTimeout(timer)
+  }, [])
 
 
-      
-      const fadeTimer = setTimeout(() => {
-        setFadeClass('fade-out');
-    
-        const navTimer = setTimeout(() => {
-          navigate('/');
-        }, 2000); // match your CSS fade duration
-    
-        return () => clearTimeout(navTimer);
-      }, 8000); // wait 8s before fade-out
-    
-      return () => clearTimeout(fadeTimer);
-    }, [navigate]);
     
     useEffect(() => {
       const fetchLeaderboard = async () => {
@@ -102,7 +97,15 @@ const Leaderboard = () => {
     
   // players is expected to be an array of objects with keys: rank, name, and score
   return (
-    <div className={`leaderboard-container ${fadeClass}`}>
+    <AnimatePresence mode="wait" onExitComplete={() => navigate('/')}>
+      {!isExiting && (
+        <motion.div className="leaderboard-container"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1 }}
+      >
+     
       <h2>HIGH SCORES</h2>
       <div className="table-wrapper">
       <table className="leaderboard-table">
@@ -130,7 +133,9 @@ const Leaderboard = () => {
         </tbody>
       </table>
       </div>
-    </div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
