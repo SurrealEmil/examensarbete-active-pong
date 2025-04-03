@@ -17,7 +17,7 @@ builder.Services.AddInfrastructure();
 
 builder.Services.AddSignalR();
 
-// Register Authentication & Authorization (Uses Secrets)
+// Register Authentication & Authorization (Uses Secrets.)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
