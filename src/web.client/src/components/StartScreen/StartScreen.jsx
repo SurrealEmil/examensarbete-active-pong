@@ -145,7 +145,7 @@ const StartScreen = () => {
           navigate('/register/admin');
           break;
         case 1:
-          console.log('Leaderboard clicked');
+          navigate('/leaderboard/admin');
           break;
         case 2:
           console.log('Blank clicked');
