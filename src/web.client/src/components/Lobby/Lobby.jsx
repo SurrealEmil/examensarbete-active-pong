@@ -35,7 +35,55 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   // States for QR scanning
   const [scannedPlayers, setScannedPlayers] = useState({ player1: null, player2: null})
   const [overlayVisible, setOverlayVisible] = useState(true)
+ /*  const [scanLock, setScanLock] = useState(false)
 
+  const [lastScanned, setLastScanned] = useState(null);
+
+ */
+
+  const scannedQrCodesRef = useRef(new Set())
+
+  // Function to fetch user data from QR code
+  const handleScanComplete = async (qrCodeIdentifier) => {
+    const trimmedCode = qrCodeIdentifier.trim();
+    if (!trimmedCode) {
+      console.warn("Empty QR code identifier received.");
+      return;
+    }
+  
+    // Stop scanning if both players are set.
+    if (scannedPlayers.player1 && scannedPlayers.player2) return;
+  
+    try {
+      const response = await axios.get(`${API_BASE_URL}/user/qr/${trimmedCode}`);
+      console.log("API response: ", response);
+      const playerData = response.data; // e.g., { userId: 'fe56f90b-...', username: 'nixon', ... }
+      console.log("Player data: ", playerData);
+  
+      setScannedPlayers((prevPlayers) => {
+        // Check if player1 exists and if the new scanned player's userId matches player1's userId.
+        if (prevPlayers.player1 && playerData.userId === prevPlayers.player1.userId) {
+          console.warn("Scanned player matches player 1. Continuing scanning.");
+          return prevPlayers;
+        }
+        
+        // If player1 is not yet assigned, assign new scan to player1.
+        if (!prevPlayers.player1) {
+          onPlayer1NameChange && onPlayer1NameChange(playerData.username);
+          return { ...prevPlayers, player1: playerData };
+        }
+        
+        // Otherwise, if player2 is not assigned and the new scan is different from player1, assign to player2.
+        if (!prevPlayers.player2) {
+          onPlayer2NameChange && onPlayer2NameChange(playerData.username);
+          return { ...prevPlayers, player2: playerData };
+        }
+        return prevPlayers;
+      });
+    } catch (error) {
+      console.log("Error fetching player data:", error.response || error);
+    }
+  };
   // This effect hides the overlay once both players are scanned.
   useEffect(() => {
     if (scannedPlayers.player1 && scannedPlayers.player2) {
@@ -48,39 +96,19 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
     }
   }, [scannedPlayers]);
 
-  // Function to fetch user data from QR code
-  const handleScanComplete = async (qrCodeIdentifier) => {
-    if(!qrCodeIdentifier || qrCodeIdentifier.trim() === ""){
-      console.warn("Empty QR code identifier recieved.")
-      return
-    }
 
-    // Prevent processing further scans if both are already scanned.
-    if(scannedPlayers.player1 && scannedPlayers.player2) return
 
-    try{
-      const response = await axios.get(`${API_BASE_URL}/user/qr/${qrCodeIdentifier}`)
-      console.log("API response: ", response)
-      
-      const playerData = response.data
-      console.log("Player data :", response.data)
-      
-      setScannedPlayers((prevPlayers) => {
-        if(!prevPlayers.player1){
-          const updated = {...prevPlayers, player1: playerData}
-          onPlayer1NameChange && onPlayer1NameChange (playerData.username) 
-          return updated
-      }   else if (!prevPlayers.players2) {
-          const updated = { ...prevPlayers, player2: playerData}
-          onPlayer2NameChange && onPlayer2NameChange (playerData.username)
-          return updated  
+ 
+      // If the same QR code is scanned repeatedly, ignore subsequent scans.
+/*       if (qrCodeIdentifier === lastScanned) {
+        console.log("Same QR code processed recently. Ignoring duplicate scan.");
+        return;
       }
-      return prevPlayers
-    })
-    } catch (error){
-      console.log("Error fetching player data:", error.response || error)
-    }
-  }
+      setLastScanned(qrCodeIdentifier); */
+
+
+
+
 
   // JoyCon ready callbacks
   const handleLeftReady = () => {
@@ -599,7 +627,7 @@ const DelayedLobbyCameraOverlay = (props) => {
       
   
       {/* Conditionally render the QR scanning overlay on top */}
-      {overlayVisible && !isQRScanned && (
+      {overlayVisible && !(scannedPlayers.player1 && scannedPlayers.player2) && (
         <DelayedLobbyCameraOverlay
           key={`${scannedPlayers.player1}-${scannedPlayers.player2}`}
           onComplete={handleScanComplete}

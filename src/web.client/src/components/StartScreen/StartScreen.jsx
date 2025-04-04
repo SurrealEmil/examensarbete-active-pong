@@ -43,13 +43,6 @@ const adminMenus = {
   modes: ['QUICK GAME', 'TOURNAMENT', 'PARTY', 'Back']
 };
 
-
-
-
-
-
-
-
 const StartScreen = () => {
   const navigate = useNavigate()
   const [adminOpen, setAdminOpen] = useState(false);
@@ -65,12 +58,6 @@ const StartScreen = () => {
     return () => clearTimeout(timer)
   }
   }, [adminOpen])
-
-  
-
- 
-
-
   
   const [adminActiveSection, setAdminActiveSection] = useState('main');
   const [adminSelectedIndex, setAdminSelectedIndex] = useState(0);
@@ -102,9 +89,9 @@ const StartScreen = () => {
   // Keydown for arrow selection & Enter
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'a' || e.key === 'A') {
-        toggleAdminDropdown(); // Open/close Admin menu with "A"
-      }
+      // if (e.key === 'a' || e.key === 'A') {
+      //   toggleAdminDropdown(); // Open/close Admin menu with "A"
+      // }
 
       if (adminOpen) {
         if (e.key === 'ArrowUp' || e.key === 'w') {
@@ -155,7 +142,7 @@ const StartScreen = () => {
     } else if (adminActiveSection === 'users') {
       switch (adminSelectedIndex) {
         case 0:
-          console.log('Registry clicked');
+          navigate('/register/admin');
           break;
         case 1:
           console.log('Leaderboard clicked');
@@ -225,12 +212,11 @@ const StartScreen = () => {
     }
   };
 
-  // We separate top 3 items from 4th
   const renderAdminMenuItems = () => {
     const items = adminMenus[adminActiveSection];
     const topItems = items.slice(0, 3);
     const bottomItem = items[3];
-
+  
     return (
       <div className="menu-list">
         <div className="menu-top">
@@ -240,6 +226,11 @@ const StartScreen = () => {
               <div
                 key={item}
                 className={`menu-item ${selected ? 'selected' : ''}`}
+                onMouseEnter={() => setAdminSelectedIndex(i)}
+                onClick={() => {
+                  setAdminSelectedIndex(i);
+                  handleAdminEnter();
+                }}
               >
                 <div
                   className="pong-ball"
@@ -258,6 +249,11 @@ const StartScreen = () => {
               <div
                 key={bottomItem}
                 className={`menu-item ${selected ? 'selected' : ''}`}
+                onMouseEnter={() => setAdminSelectedIndex(i)}
+                onClick={() => {
+                  setAdminSelectedIndex(i);
+                  handleAdminEnter();
+                }}
               >
                 <div
                   className="pong-ball"
@@ -271,6 +267,7 @@ const StartScreen = () => {
       </div>
     );
   };
+  
 
   return (
     <AnimatePresence mode="wait" onExitComplete={() => navigate('/leaderboard')}>

@@ -1,0 +1,129 @@
+.admin-user-table {
+    width: 100%;
+    min-width: 600px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+    color: #333;
+    font-family: Arial, sans-serif;
+    table-layout: fixed;
+}
+
+.user-search {
+    padding: 8px;
+    margin: 1rem 0;
+    font-size: 14px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+/* Add these column width definitions */
+.admin-user-table th:nth-child(1),
+.admin-user-table td:nth-child(1) {
+    width: 20%;  /* Username column */
+}
+
+.admin-user-table th:nth-child(2),
+.admin-user-table td:nth-child(2) {
+    width: 70%;  /* Email column */
+}
+
+.admin-user-table th:nth-child(3),
+.admin-user-table td:nth-child(3) {
+    width: 10%;  /* Action column */
+}
+  
+.admin-user-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* Increased z-index */
+    background-color: #f5f5f5; /* Add background color to thead */
+}
+
+.admin-user-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+.admin-user-table td {
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+    font-size: 14px;
+    background-color: white;  /* Added to ensure opacity */
+}
+  
+  .admin-user-table tbody tr:hover {
+    background-color: #f0f7ff;
+  }
+  
+  .delete-button {
+    padding: 6px 12px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+  }
+  
+  .delete-button:hover {
+    background-color: #d93636;
+  }
+  
+  .login-wrapper {
+    width: 100%;
+    max-width: 1000px; /* or larger if you want */
+    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .logo {
+    width: 200px;
+    margin-bottom: 1rem;
+  }
+  
+  .login-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .table-container {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+  .table-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%;
+    border-top: none;
+}
+  
+  /* Optional: Scrollbar styling (nice look) */
+  .table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  .table-scroll-container::-webkit-scrollbar-thumb {
+    background-color: #cccccc;
+    border-radius: 4px;
+  }
+  .table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: #999999;
+  }
+  
