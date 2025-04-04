@@ -1,6 +1,6 @@
 .top-bar {
   width: 100%;
-  height: 7vh; 
+  height: 10vh; 
   color: white;
   text-align: center;
   font-size: 2rem;
@@ -11,26 +11,52 @@
   border: 2px solid var(--white);
   border-bottom: none;
   flex-shrink: 0; 
+
+  
 }
   
 .player-1-container{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 4rem;
-  /* border: 2px solid pink; */
-  width: 23rem;  
+  height: auto;
+  gap: 1.5vh;
+  width: 21vw;
+  margin-top: 1vh;
+
+ /*  border: 2px solid pink; */
 }
 
 .player-2-container{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 4rem;
-  /* border: 2px solid pink; */
-  width: 23rem;  
+  height: auto;
+  gap: 1.5vh;
+  
+  width: 21vw;
+  margin-top: 1vh;
+/* 
+  border: 2px solid pink; */
+}
+
+.player1-name{
+  font-size: 2rem;
+
+}
+
+.player2-name{
+  font-size: 2rem;
+}
+
+.player1-score {
+  font-size: 2rem;
+}
+
+.player2-score {
+  font-size: 2rem;
 }
 
 
@@ -50,4 +76,9 @@
   font-size: 1.2em;
   width: 3rem;  
   /* border: 2px solid pink;  */
+}
+
+.timer-display h3{
+  color: var(--white);
+  font-size:  3rem;
 }
