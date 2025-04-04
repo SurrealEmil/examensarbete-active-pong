@@ -293,6 +293,7 @@
     padding-left: 2rem; /* space for the pong ball on the left */
     text-align: left; /* left align the text */
     color: white;
+    cursor: pointer;
   }
   
   /* highlight if selected */
