@@ -1,22 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
 import './AdminRegister.css';
 
 const AdminRegister = () => {
-  const [users, setUsers] = useState([]);
+  const [rawUsers, setRawUsers] = useState([]); // original data
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
-
-  // Sorting function
-  const sortUsers = (users, order) => {
-    return [...users].sort((a, b) =>
-      order === 'asc'
-        ? a.username.localeCompare(b.username)
-        : b.username.localeCompare(a.username)
-    );
-  };
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch all users
   useEffect(() => {
@@ -24,8 +16,7 @@ const AdminRegister = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/user/all`);
-        const sortedUsers = sortUsers(response.data, sortOrder);
-        setUsers(sortedUsers);
+        setRawUsers(response.data);
       } catch (err) {
         setError(err.response?.data || 'Failed to fetch users');
       } finally {
@@ -34,7 +25,7 @@ const AdminRegister = () => {
     };
 
     fetchUsers();
-  }, [sortOrder]); // re-sort on sortOrder change
+  }, []);
 
   // Delete user by ID
   const handleDelete = async (userId) => {
@@ -42,11 +33,31 @@ const AdminRegister = () => {
 
     try {
       await axios.delete(`${API_BASE_URL}/user/${userId}`);
-      setUsers((prev) => prev.filter((user) => user.userId !== userId));
+      setRawUsers((prev) => prev.filter((user) => user.userId !== userId));
     } catch (err) {
       alert(err.response?.data || 'Failed to delete user');
     }
   };
+
+  // Filter and sort users based on search and order
+  const filteredAndSortedUsers = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
+  
+    const matching = rawUsers.filter((user) =>
+      user.username.toLowerCase().includes(lowerSearch)
+    );
+  
+    const nonMatching = rawUsers.filter(
+      (user) => !user.username.toLowerCase().includes(lowerSearch)
+    );
+  
+    const sortFn = (a, b) =>
+      sortOrder === 'asc'
+        ? a.username.localeCompare(b.username)
+        : b.username.localeCompare(a.username);
+  
+    return [...matching.sort(sortFn), ...nonMatching.sort(sortFn)];
+  }, [rawUsers, searchTerm, sortOrder]);
 
   return (
     <div className="login-wrapper">
@@ -56,34 +67,44 @@ const AdminRegister = () => {
 
       <div className="login-text">Registered Users</div>
 
+      {/* Search bar */}
+      <input
+        type="text"
+        placeholder="Search by username..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="user-search"
+      />
+
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
         <p style={{ color: 'red' }}>{error}</p>
-      ) : users.length === 0 ? (
+      ) : filteredAndSortedUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
         <div className="table-container">
           <table className="admin-user-table">
-          <thead>
-            <tr>
+            <thead>
+              <tr>
                 <th
-                onClick={() =>
+                  onClick={() =>
                     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-                }
-                style={{ cursor: 'pointer', userSelect: 'none' }}
+                  }
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
                 >
-                Username {sortOrder === 'asc' ? '▲' : '▼'}
+                  Username {sortOrder === 'asc' ? '▲' : '▼'}
                 </th>
                 <th>Email</th>
                 <th>Action</th>
-            </tr>
+              </tr>
             </thead>
           </table>
+
           <div className="table-scroll-container">
             <table className="admin-user-table">
               <tbody>
-                {users.map((user) => (
+                {filteredAndSortedUsers.map((user) => (
                   <tr key={user.userId}>
                     <td>{user.username || 'Unnamed'}</td>
                     <td>{user.email}</td>
