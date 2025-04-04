@@ -830,7 +830,7 @@ useEffect(() => {
        {/*  {!gameStarted && <StartOverlay onStart={handleStartGame}/>} */}
 
       {/* PAUSE OVERLAY (only shows if game is paused and not game over) */}
-    /*   {gamePaused && gameStarted && !gameOver && (
+       {gamePaused && gameStarted && !gameOver && (
         <PauseOverlay 
         onResume={handleResume}
         onQuit={handleQuit}
