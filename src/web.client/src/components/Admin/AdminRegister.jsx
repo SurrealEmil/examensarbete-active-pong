@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
-import './AdminRegister.css'; // create this to match Login.css styling
+import './AdminRegister.css';
 
 const AdminRegister = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
+
+  // Sorting function
+  const sortUsers = (users, order) => {
+    return [...users].sort((a, b) =>
+      order === 'asc'
+        ? a.username.localeCompare(b.username)
+        : b.username.localeCompare(a.username)
+    );
+  };
 
   // Fetch all users
   useEffect(() => {
@@ -14,7 +24,8 @@ const AdminRegister = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/user/all`);
-        setUsers(response.data);
+        const sortedUsers = sortUsers(response.data, sortOrder);
+        setUsers(sortedUsers);
       } catch (err) {
         setError(err.response?.data || 'Failed to fetch users');
       } finally {
@@ -23,7 +34,7 @@ const AdminRegister = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [sortOrder]); // re-sort on sortOrder change
 
   // Delete user by ID
   const handleDelete = async (userId) => {
@@ -31,7 +42,7 @@ const AdminRegister = () => {
 
     try {
       await axios.delete(`${API_BASE_URL}/user/${userId}`);
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
+      setUsers((prev) => prev.filter((user) => user.userId !== userId));
     } catch (err) {
       alert(err.response?.data || 'Failed to delete user');
     }
@@ -52,33 +63,44 @@ const AdminRegister = () => {
       ) : users.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <table className="admin-user-table">
+        <div className="table-container">
+          <table className="admin-user-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Score</th>
-              <th>Action</th>
+                <th
+                onClick={() =>
+                    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+                }
+                style={{ cursor: 'pointer', userSelect: 'none' }}
+                >
+                Username {sortOrder === 'asc' ? '▲' : '▼'}
+                </th>
+                <th>Email</th>
+                <th>Action</th>
             </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name || 'Unnamed'}</td>
-                <td>{user.email}</td>
-                <td>{user.score}</td>
-                <td>
-                  <button
-                    className="delete-button"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+          </table>
+          <div className="table-scroll-container">
+            <table className="admin-user-table">
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.userId}>
+                    <td>{user.username || 'Unnamed'}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(user.userId)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );
