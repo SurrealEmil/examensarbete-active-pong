@@ -54,7 +54,7 @@ namespace Web.Server.Controllers
             return user != null ? Ok(user) : NotFound("User not found.");
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         // Get All Users
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
