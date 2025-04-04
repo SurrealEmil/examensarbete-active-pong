@@ -1,11 +1,20 @@
-import react from 'react'
+import React from 'react'
 import PropTypes from 'prop-types';
 import './TopBar.css';
 
 
 
-const TopBar = ({ leftJoyConConnected, rightJoyConConnected, player1Name, player2Name }) => {
-  
+const TopBar = ({ 
+  leftJoyConConnected, 
+  rightJoyConConnected, 
+  player1Name, 
+  player2Name,
+  player1Score,
+  player2Score,
+  timer,
+
+}) => {
+
  
   return (
     <div className="top-bar">
@@ -13,13 +22,19 @@ const TopBar = ({ leftJoyConConnected, rightJoyConConnected, player1Name, player
         {leftJoyConConnected && (
           <img className="joycon-icon-left" src="./img/joy-con-red.png" alt="Left Joy-Con" />
         )}
-        <span>{player1Name}</span>
+        <span className="player1-name">{player1Name}</span>
+        <span className="player1-score">{player1Score}</span>
       </h3>
       <h2>
         <a href="/lobby" style={{ textDecoration: 'none', color: 'inherit' }}>{/* PONG */}</a>
+        <div className="timer-display">
+        <h3>{timer} </h3>
+      </div>
+
       </h2>
       <h3 className="player-2-container">
-        <span>{player2Name}</span>
+        <span className="player2-name">{player2Name}</span>
+        <span className="player2-score">{player2Score}</span>
         {rightJoyConConnected && (
           <img className="joycon-icon-right" src="./img/joy-con-blue.png" alt="Right Joy-Con" />
         )}
@@ -33,6 +48,8 @@ TopBar.propTypes = {
   rightJoyConConnected: PropTypes.bool.isRequired,
   player1Name: PropTypes.string,
   player2Name: PropTypes.string,
+  player1Score: PropTypes.number.isRequired,
+  player2Score: PropTypes.number.isRequired,
 };
 
 TopBar.defaultProps = {

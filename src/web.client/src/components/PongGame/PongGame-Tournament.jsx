@@ -16,6 +16,7 @@ import ScoreDisplay from '../UI/ScoreDisplay';
 import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
+// import './PongGame-Tournament.css'
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -591,6 +592,7 @@ useEffect(() => {
 // When timer reaches 0, show the leaderboard
 useEffect(() => {
   if (timer === 0) {
+    stopMusicSound()
     const player1Payload = {
       userId: player1Id,
       username: player1Name,
@@ -783,20 +785,27 @@ useEffect(() => {
   // ──────────────────────────────────────────────────────────────────────────
   return (
     <div className="pong-game-wrapper">
-      {/* Top Bar */}
+     
       <TopBar 
         leftJoyConConnected={leftJoyConConnected} 
         rightJoyConConnected={rightJoyConConnected}
         player1Name={player1Name}
         player2Name={player2Name}
+        player1Score={gameState.scores.player1}
+        player2Score={gameState.scores.player2}
+        timer={timer}
       />
+     {/*  <ScoreDisplay
+        player1Score={gameState.scores.player1}
+        player2Score={gameState.scores.player2}
+      /> */}
      {/*  <Lobby
         onPlayer1NameChange={handlePlayer1NameChange}
         onPlayer2NameChange={handlePlayer2NameChange}
       /> */}
-      <div className="timer-display">
+     {/*  <div className="timer-display">
         <h2>{timer} sec</h2>
-      </div>
+      </div> */}
 
       {/* Winner Overlay (if a player reaches 5) */}
       {gameOver && (
@@ -808,11 +817,7 @@ useEffect(() => {
       )}
 
       <div className="pong-game-container">
-          {/* SCORES */}
-          <ScoreDisplay
-            player1Score={gameState.scores.player1}
-            player2Score={gameState.scores.player2}
-          />
+        
            {/* CANVAS */}
           <PongCanvas
           gameState={gameState}
