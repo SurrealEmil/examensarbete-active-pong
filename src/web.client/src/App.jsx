@@ -10,6 +10,8 @@ import Lobby from './components/Lobby/Lobby'
 import Login from './components/Login/Login'
 import SignUp from './components/Login/SignUp'
 import UserProfile from './components/Login/UserProfile'
+import AdminRegister from './components/Admin/AdminRegister';
+
 
 /* const playersData = [
   { id: 1, rank: 1, name: 'Arnold swh', score: 8179872 },
@@ -31,7 +33,7 @@ const AppContent = () => {
   const location = useLocation()
 
   useEffect(() => {
-    const noCrtRoutes = ['/login', '/signup', '/userprofile']
+    const noCrtRoutes = ['/login', '/signup', '/userprofile', '/register/admin']
 
     const shouldDisableCrt = noCrtRoutes.some(route =>
       location.pathname.startsWith(route)
@@ -61,6 +63,7 @@ const AppContent = () => {
           <Route path="/login" element={<Login/>}/>
           <Route path="/signup" element={<SignUp/>}/>
           <Route path="/userprofile" element={<UserProfile/>}/>
+          <Route path="/register/admin" element={<AdminRegister />} />
         </Routes>
       </div>
     </>
