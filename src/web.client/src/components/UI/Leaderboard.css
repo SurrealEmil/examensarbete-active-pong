@@ -118,6 +118,17 @@
 
 
 
+  .recently-played,
+  .recently-played td {
+    background-color: var(--orange);
+    font-weight: bold;
+    color: #fff;
+  }
+
+  :root {
+    --orange: #FFA500;
+    --blue: #001f3f;
+  }
 
 
 /* @media (max-width: 768px) {

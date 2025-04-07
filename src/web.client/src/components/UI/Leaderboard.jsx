@@ -37,50 +37,58 @@ const Leaderboard = () => {
   }, []);
 
   useEffect(() => {
-    // If recentIds are provided in location.state, use them:
-    const recentIds = location.state?.recentIds || [];
-
+    // Fallback to these two if neither recentIds nor entries is provided
+    const fallbackRecentIds = ["gunde", "grindslanten"];
+    const recentIds =
+      location.state?.recentIds ||
+      (location.state?.entries
+        ? location.state.entries.map(entry => entry.userId)
+        : fallbackRecentIds);
+    console.log("recentIds:", recentIds);
+  
     const fetchLeaderboard = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/leaderboard/Pong/all-players`);
         const playersData = response.data;
-
+  
         // Sort by score and assign ranks
         playersData.sort((a, b) => b.bestScore - a.bestScore);
         const top10 = playersData.slice(0, 10);
         top10.forEach((player, index) => {
           player.rank = index + 1;
         });
-
-        // Convert to format used in the table and mark recently played (but skip first-place)
+  
+        const normalizedRecentIds = recentIds.map(id => id.toString().toLowerCase());
+        // Mark players as recently played if their userId is in recentIds
         const leaderboardReady = top10.map((p, index) => ({
           id: p.userId,
           name: p.username,
           score: p.bestScore,
           rank: p.rank,
-          recentlyPlayed: (p.recentlyPlayed === true || recentIds.includes(p.userId)) && index !== 0,
+          recentlyPlayed: normalizedRecentIds.includes(String(p.userId).toLowerCase()),
         }));
-
+  
         setPlayers(leaderboardReady);
       } catch (error) {
-        console.error('Failed to fetch leaderboard:', error.response?.data || error.message);
+        console.error("Failed to fetch leaderboard:", error.response?.data || error.message);
       }
     };
-
-    // If player data is passed via location.state, use it (and check recentIds)
+  
+    // Use player data passed via location.state, if available
     if (location.state?.players && location.state.players.length) {
       const leaderboardReady = location.state.players.map((p, index) => ({
         id: p.userId || index,
-        name: p.username || p.name || 'Unknown',
+        name: p.username || p.name || "Unknown",
         score: p.bestScore || p.score || 0,
         rank: p.rank || index + 1,
-        recentlyPlayed: recentIds.includes(p.userId) && index !== 0,
+        recentlyPlayed: recentIds.includes(p.userId),
       }));
       setPlayers(leaderboardReady);
     } else {
       fetchLeaderboard();
     }
   }, [location.state]);
+  
 
   return (
     <AnimatePresence mode="wait" onExitComplete={() => navigate('/')}>
@@ -103,22 +111,19 @@ const Leaderboard = () => {
               </thead>
               <tbody>
                 {players && players.length ? (
-                  players.map((player, index) => (
+                  players.map((player, index) => {
+                    console.log(player.name, player.recentlyPlayed)
+                    return (
                     <tr
-                      key={player.id || index}
-                      style={player.recentlyPlayed ? { color: 'var(--orange)', fontWeight: 'bold' } : {}}
-                    >
-                      <td className="rank-column">
-                        {getOrdinalSuffix(player.rank)}
-                      </td>
-                      <td className="name-column">
-                        {player.name}
-                      </td>
-                      <td className="score-column">
-                        {player.score}
-                      </td>
-                    </tr>
-                  ))
+                    key={player.id || index}
+                    className={player.recentlyPlayed ? 'recently-played' : ''}
+                  >
+                    <td className="rank-column">{getOrdinalSuffix(player.rank)}</td>
+                    <td className="name-column">{player.name}</td>
+                    <td className="score-column">{player.score}</td>
+                  </tr>
+                  )
+                })
                 ) : (
                   <tr>
                     <td colSpan="3">Loading players...</td>
