@@ -27,7 +27,7 @@ const AdminUsers = () => {
       await axios.post(`${API_BASE_URL}/auth/login`, { email }, { withCredentials: true });
       
     } catch (err) {
-      setLoginError(err.response?.data || 'Login failed.');
+      setLoginError(err.response?.data || 'Login failed');
     }
   };
 
