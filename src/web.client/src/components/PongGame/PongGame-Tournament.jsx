@@ -12,7 +12,7 @@ import PauseOverlay from '../UI/PauseOverlay';
 /* import StartOverlay from '../UI/StartOverlay'; */
 import FpsOverlay from '../UI/FpsOverlay';
 import TopBar from '../UI/TopBar';
-import ScoreDisplay from '../UI/ScoreDisplay';
+/* import ScoreDisplay from '../UI/ScoreDisplay'; */
 import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
@@ -794,20 +794,7 @@ useEffect(() => {
         player1Score={gameState.scores.player1}
         player2Score={gameState.scores.player2}
         timer={timer}
-      />
-     {/*  <ScoreDisplay
-        player1Score={gameState.scores.player1}
-        player2Score={gameState.scores.player2}
-      /> */}
-     {/*  <Lobby
-        onPlayer1NameChange={handlePlayer1NameChange}
-        onPlayer2NameChange={handlePlayer2NameChange}
-      /> */}
-     {/*  <div className="timer-display">
-        <h2>{timer} sec</h2>
-      </div> */}
-
-      {/* Winner Overlay (if a player reaches 5) */}
+      />  
       {gameOver && (
         <WinnerOverlay
           winner={gameState.scores.player1 >= WINNING_SCORE ? 'Player 1' : 'Player 2'}
@@ -849,26 +836,6 @@ useEffect(() => {
 
     {/* FPS Display Overlay */}
     <FpsOverlay fps={fps} isLagSpike={isLagSpike} />
-
-    {/* Joy-Con Controls
-    <div className="controls-container">
-      <div className="control-toggle">
-        <button onClick={toggleControlModeLeft}>
-          {controlModeLeft === 'accelerometer' ? 'Joystick' : 'Accelerometer'}
-        </button>
-        <button onClick={toggleControlModeRight}>
-          {controlModeRight === 'accelerometer' ? 'Joystick' : 'Accelerometer'}
-        </button>
-      </div>
-      <div className="control-mode-indicator">
-        <p>
-          Control Mode:{' '}{controlModeLeft.charAt(0).toUpperCase() + controlModeLeft.slice(1)}
-        </p>
-        <p>
-          Control Mode:{' '}{controlModeRight.charAt(0).toUpperCase() + controlModeRight.slice(1)}
-        </p>
-      </div>
-    </div> */}
 
     {/* Joy-Con Connector */}
     <JoyConConnector

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import "./SignUp.css"
@@ -76,17 +76,19 @@ const SignUp: React.FC<SignUpProps> = () => {
 
 return(
     <div>
-        <div className="sign-up-wrapper">
-        <div>
-            <img className="logo" src="/img/logo2.png" alt="" />
-        </div>
-        <div className="text">
-            Sign up to get started
-        </div>
+    <div className="signup-parent">
+        <div className="signup-sign-up-wrapper">
+            <div>
+                <img className="signup-logo" src="/img/logo2.png" alt="" />
+            </div>
+            <div className="signup-text">
+                Sign up to get started
+            </div>
           
-        <form onSubmit={handleSignUp}>
-            <div className="nickname">
-                <label></label>
+            <form onSubmit={handleSignUp}>
+
+            <div className="signup-nickname">
+                
                 <input  
                     type="nickname"
                     value={username}
@@ -95,8 +97,8 @@ return(
                     required
                 />
             </div>
-            <div className='e-mail'>
-                <label></label>
+            <div className='signup-e-mail'>
+                
                 <input 
                     type="email" 
                     value={email}
@@ -105,14 +107,26 @@ return(
                     required
                 />
             </div>
-            <div className="signup-button-container">
-                <button className="signup-button"
+            <div className="signup-signup-button-container">
+                <button className="signup-signup-button"
                     type="submit">Sign up
                 </button>
             </div>
+            <div className="signup-login-container">
+            <p>Already have an account</p>
+            <a href="#" 
+               className="signup-login-link" 
+               onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/login');
+               }}>
+               Log in
+            </a>
+        </div>
             
         </form>
         </div>
+    </div>
     </div>
 )
 }

@@ -131,7 +131,7 @@ export default function usePaddleControls({
         } else {
           // Increase up to joystickMaxAcceleration
           joystickAccelerationRefLeft.current = Math.min(
-            joystickAccelerationRefLeft.current + 0.1,
+            joystickAccelerationRefLeft.current + 0.03,
             joystickMaxAcceleration
           );
         }
@@ -152,7 +152,11 @@ export default function usePaddleControls({
         if (Math.abs(motionDataLeft.gyroDpsX || 0) > joystickSwingThreshold) {
           velocity *= 2;
         }
-        leftPaddleVelocityRef.current = velocity;
+
+        const smoothingFactor = 0.8
+        leftPaddleVelocityRef.current = 
+          leftPaddleVelocityRef.current * (1 - smoothingFactor) +
+          velocity * smoothingFactor;
       } else {
         // Below dead zone → reset
         joystickAccelerationRefLeft.current = 1;
@@ -160,6 +164,10 @@ export default function usePaddleControls({
       }
     } else {
       // Left Paddle Orientation
+      // Instead of immediately zeroing velocity, apply a glide (decay) factor
+      const glideFactor = 0.009; // The lower this value, the slower the deceleration
+      leftPaddleVelocityRef.current *= (1 - glideFactor);
+
       let rawPitchLeft = motionDataLeft.orientationBeta || 0;
       let adjustedPitchLeft = rawPitchLeft - neutralBetaLeft;
 
@@ -226,7 +234,7 @@ export default function usePaddleControls({
           joystickAccelerationRefRight.current = 1;
         } else {
           joystickAccelerationRefRight.current = Math.min(
-            joystickAccelerationRefRight.current + 0.1,
+            joystickAccelerationRefRight.current + 0.03,
             joystickMaxAcceleration
           );
         }
@@ -244,7 +252,11 @@ export default function usePaddleControls({
         if (Math.abs(motionDataRight.gyroDpsX || 0) > joystickSwingThreshold) {
           velocity *= 2;
         }
-        rightPaddleVelocityRef.current = velocity;
+
+        const smoothingFactor = 0.8
+        rightPaddleVelocityRef.current = 
+          rightPaddleVelocityRef.current * (1 - smoothingFactor) +
+          velocity * smoothingFactor;
       } else {
         joystickAccelerationRefRight.current = 1;
         rightPaddleVelocityRef.current = 0;
