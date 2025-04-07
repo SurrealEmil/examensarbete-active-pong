@@ -1,16 +1,162 @@
-.admin-user-table {
+/* === Layout Wrapper === */
+.register-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+    margin: auto;
+    padding: 2rem 1rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* === Logo & Title === */
+  .register-users-logo-img {
+    display: block;
+    width: 58vw !important;
+    height: 16vh !important;
+    object-fit: contain;
+    image-rendering: pixelated;
+    border-radius: 0.8rem;
+    background-color: var(--blue);
+    padding: 1rem;
+    margin: 1rem 0 0;
+  }
+
+  .register-users-logo-img:hover {
+    cursor: pointer;
+  }
+  
+  .register-users-title {
+    color: var(--orange);
+    font-size: 24px;
+    line-height: 1.3;
+    text-align: center;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0;
+  }
+  
+  /* === Table Container === */
+  .register-users-table-container {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow-y: auto;
+  }
+  
+  .register-users-scroll {
+    max-height: 400px;
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  .register-users-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+  
+  /* === Table Styling === */
+  .register-users-table {
     width: 100%;
     min-width: 600px;
-    margin: 0;
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
     background-color: white;
     color: #333;
     font-family: Arial, sans-serif;
-    table-layout: fixed;
-}
+  }
+  
+  .register-users-table th,
+  .register-users-table td {
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+    background-color: white;
+    font-size: 15px;
+  }
+  
+  .register-users-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  /* Column widths */
+  .register-users-table th:nth-child(1),
+  .register-users-table td:nth-child(1) { width: 20%; }
+  .register-users-table th:nth-child(2),
+  .register-users-table td:nth-child(2) { width: 60%; }
+  .register-users-table th:nth-child(3),
+  .register-users-table td:nth-child(3) { width: 20%; }
+  
+  .register-users-table tbody tr:hover {
+    background-color: #f0f7ff;
+  }
+  
+  /* === Buttons === */
+  .register-users-delete,
+  .register-users-toggle-top button,
+  .register-users-home-top button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    border: 1px solid #e0e0e0;
+    background-color: #f5f5f5;
+    transition: background-color 0.2s ease;
+  }
 
-.user-search {
+  .register-users-delete {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    width: 100%;           /* Make it fill the cell */
+    height: 100%;          /* Optional: fills vertical space if needed */
+    padding: 10px 0;       /* Adjust padding to keep it centered */
+    box-sizing: border-box;
+  }
+  
+  .register-users-delete {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+  }
+  
+  .register-users-delete:hover {
+    background-color: #d93636;
+  }
+  
+  .register-users-toggle-top button:hover,
+  .register-users-home-top button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  /* === Top Button Positions === */
+  .register-users-toggle-top {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  .register-users-home-top {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+  }
+  
+  /* === Search Field === */
+  .register-users-search {
     padding: 8px;
     margin: 1rem 0;
     font-size: 14px;
@@ -19,87 +165,27 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-
-/* Add these column width definitions */
-.admin-user-table th:nth-child(1),
-.admin-user-table td:nth-child(1) {
-    width: 20%;  /* Username column */
-}
-
-.admin-user-table th:nth-child(2),
-.admin-user-table td:nth-child(2) {
-    width: 70%;  /* Email column */
-}
-
-.admin-user-table th:nth-child(3),
-.admin-user-table td:nth-child(3) {
-    width: 10%;  /* Action column */
-}
-
-.admin-user-table th {
-    background-color: #f5f5f5;
-    font-weight: 600;
-    padding: 12px 16px;
-    border: 1px solid #e0e0e0;
-    text-align: left;
-    position: sticky;
-    top: 0;
-}
-
-.admin-user-table td {
-    padding: 12px 16px;
-    border: 1px solid #e0e0e0;
-    text-align: left;
-    font-size: 14px;
-    background-color: white;  /* Added to ensure opacity */
-}
-
-  /* Look on colour alternatives */
-  .delete-button {
-    padding: 6px 12px;
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
+  
+  /* === Responsive === */
+  @media (min-width: 1024px) {
+    .register-users-logo-img {
+      width: 17vw !important;
+      height: 14vh !important;
+      padding: 2rem;
+      margin-top: 0;
+    }
   }
-
-  .delete-button:hover {
-    background-color: #d93636;
+  
+  @media (max-width: 470px) {
+    .register-wrapper {
+      padding: 2rem;
+    }
+  
+    .register-users-logo-img {
+      width: 60vw;
+      height: 10rem;
+      padding: 1rem;
+      margin-top: 0.5rem;
+    }
   }
-
-  .login-wrapper {
-    width: 100%;
-    max-width: 1000px; /* or larger if you want */
-    margin: 0 auto;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .logo {
-    width: 200px;
-    margin-bottom: 1rem;
-  }
-
-  .login-text {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-  }
-
-  .table-container {
-    width: 100%;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-}
-
-  .table-scroll-container {
-    max-height: 400px;
-    overflow-y: auto;
-    width: 100%;
-    border-top: none;
-}
+  

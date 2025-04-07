@@ -1,30 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
 import './AdminLeaderboard.css';
+import { useNavigate } from 'react-router-dom';
 
-const AdminLeaderboard = () => {
-  const [rawUsers, setRawUsers] = useState([]); // original leaderboard data
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const AdminLeaderboard = ({ users, setUsers, onSwitch }) => {
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Fetch leaderboard
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/leaderboard/Pong/all-players`);
-        setRawUsers(response.data);
-      } catch (err) {
-        setError(err.response?.data || 'Failed to fetch leaderboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-  }, []);
+  const navigate = useNavigate();
 
   // Delete user by ID
   const handleDelete = async (userId) => {
@@ -32,7 +14,7 @@ const AdminLeaderboard = () => {
 
     try {
       await axios.delete(`${API_BASE_URL}/leaderboard/Pong/${userId}`);
-      setRawUsers((prev) => prev.filter((user) => user.userId !== userId));
+      setUsers((prev) => prev.filter((user) => user.userId !== userId));
     } catch (err) {
       alert(err.response?.data || 'Failed to delete score');
     }
@@ -42,42 +24,48 @@ const AdminLeaderboard = () => {
   const filteredAndRankedUsers = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
 
-    const matching = rawUsers.filter((user) =>
+    const matching = users.filter((user) =>
       user.username.toLowerCase().includes(lowerSearch)
     );
 
-    const nonMatching = rawUsers.filter(
+    const nonMatching = users.filter(
       (user) => !user.username.toLowerCase().includes(lowerSearch)
     );
 
     return [...matching, ...nonMatching];
-  }, [rawUsers, searchTerm]);
+  }, [users, searchTerm]);
 
   return (
-    <div className="login-wrapper">
-      <div>
-        <img className="logo" src="/img/logo2.png" alt="Logo" />
-      </div>
+    <div className="leaderboard-wrapper">
+        <div className="leaderboard-users-toggle-top">
+            <button onClick={onSwitch}>Registry</button>
+        </div>
 
-      <div className="login-text">Pong Leaderboard</div>
+        <div className="leaderboard-users-home-top">
+            <button onClick={() => navigate('/')}>Home</button>
+        </div>
+
+        <div className="leaderboard-users-logo" onClick={() => navigate('/')}>
+            <img className="leaderboard-users-logo-img" src="/img/logo2.png" alt="Logo" />
+        </div>
+
+        <div className="leaderboard-users-title">
+            Pong Leaderboard
+        </div>
 
       <input
         type="text"
         placeholder="Search by username..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="user-search"
+        className="leaderboard-users-search"
       />
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : filteredAndRankedUsers.length === 0 ? (
+      {filteredAndRankedUsers.length === 0 ? (
         <p>No players found.</p>
       ) : (
-        <div className="table-container">
-          <table className="admin-user-table">
+        <div className="leaderboard-users-table-container">
+          <table className="leaderboard-users-table">
             <thead>
               <tr>
                 <th>Rank</th>
@@ -88,8 +76,8 @@ const AdminLeaderboard = () => {
             </thead>
           </table>
 
-          <div className="table-scroll-container">
-            <table className="admin-user-table">
+          <div className="leaderboard-users-scroll">
+            <table className="leaderboard-users-table">
               <tbody>
                 {filteredAndRankedUsers.map((user) => (
                   <tr key={user.userId}>
@@ -98,7 +86,7 @@ const AdminLeaderboard = () => {
                     <td>{user.bestScore}</td>
                     <td>
                       <button
-                        className="delete-button"
+                        className="leaderboard-users-delete"
                         onClick={() => handleDelete(user.userId)}
                       >
                         Delete

@@ -26,7 +26,8 @@ namespace Application.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+                new Claim("isAdmin", user.IsAdmin.ToString().ToLower())
             };
 
             // Retrieve secrets from ISecretsService

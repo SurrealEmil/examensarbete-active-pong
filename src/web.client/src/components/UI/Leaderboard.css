@@ -115,7 +115,11 @@
     color: var(--orange);
 }
 
-
+.recently-played {
+    background-color: var(--orange);
+    font-weight: bold;
+    color: #fff; /* Ensures text is visible on the orange background */
+  }
 
 
 
