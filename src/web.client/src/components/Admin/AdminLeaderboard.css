@@ -1,5 +1,5 @@
 /* === Layout Wrapper === */
-.register-wrapper {
+.leaderboard-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,7 +17,7 @@
   }
   
   /* === Logo & Title === */
-  .register-users-logo-img {
+  .leaderboard-users-logo-img {
     display: block;
     width: 58vw !important;
     height: 16vh !important;
@@ -29,11 +29,11 @@
     margin: 1rem 0 0;
   }
 
-  .register-users-logo-img:hover {
+  .leaderboard-users-logo-img:hover {
     cursor: pointer;
   }
   
-  .register-users-title {
+  .leaderboard-users-title {
     color: var(--orange);
     font-size: 24px;
     line-height: 1.3;
@@ -46,25 +46,25 @@
   }
   
   /* === Table Container === */
-  .register-users-table-container {
+  .leaderboard-users-table-container {
     width: 100%;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     overflow-y: auto;
   }
-  
-  .register-users-scroll {
+
+  .leaderboard-users-scroll {
     max-height: 400px;
     overflow-y: scroll;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
   }
-  .register-users-scroll::-webkit-scrollbar {
+  .leaderboard-users-scroll::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
   }
   
   /* === Table Styling === */
-  .register-users-table {
+  .leaderboard-users-table {
     width: 100%;
     min-width: 600px;
     table-layout: fixed;
@@ -75,8 +75,8 @@
     font-family: Arial, sans-serif;
   }
   
-  .register-users-table th,
-  .register-users-table td {
+  .leaderboard-users-table th,
+  .leaderboard-users-table td {
     padding: 12px 16px;
     border: 1px solid #e0e0e0;
     text-align: left;
@@ -84,7 +84,7 @@
     font-size: 15px;
   }
   
-  .register-users-table th {
+  .leaderboard-users-table th {
     background-color: #f5f5f5;
     font-weight: 600;
     position: sticky;
@@ -93,21 +93,26 @@
   }
   
   /* Column widths */
-  .register-users-table th:nth-child(1),
-  .register-users-table td:nth-child(1) { width: 20%; }
-  .register-users-table th:nth-child(2),
-  .register-users-table td:nth-child(2) { width: 60%; }
-  .register-users-table th:nth-child(3),
-  .register-users-table td:nth-child(3) { width: 20%; }
+  .leaderboard-users-table th:nth-child(1),
+  .leaderboard-users-table td:nth-child(1) { width: 10%; }  /* Rank */
   
-  .register-users-table tbody tr:hover {
+  .leaderboard-users-table th:nth-child(2),
+  .leaderboard-users-table td:nth-child(2) { width: 50%; }  /* Username */
+  
+  .leaderboard-users-table th:nth-child(3),
+  .leaderboard-users-table td:nth-child(3) { width: 20%; }  /* Score */
+  
+  .leaderboard-users-table th:nth-child(4),
+  .leaderboard-users-table td:nth-child(4) { width: 20%; }  /* Action */
+  
+  .leaderboard-users-table tbody tr:hover {
     background-color: #f0f7ff;
   }
   
   /* === Buttons === */
-  .register-users-delete,
-  .register-users-toggle-top button,
-  .register-users-home-top button {
+  .leaderboard-users-delete,
+  .leaderboard-users-toggle-top button,
+  .leaderboard-users-home-top button {
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -117,7 +122,7 @@
     transition: background-color 0.2s ease;
   }
 
-  .register-users-delete {
+  .leaderboard-users-delete {
     background-color: #ff4d4d;
     color: white;
     border: none;
@@ -127,36 +132,36 @@
     box-sizing: border-box;
   }
   
-  .register-users-delete {
+  .leaderboard-users-delete {
     background-color: #ff4d4d;
     color: white;
     border: none;
   }
   
-  .register-users-delete:hover {
+  .leaderboard-users-delete:hover {
     background-color: #d93636;
   }
   
-  .register-users-toggle-top button:hover,
-  .register-users-home-top button:hover {
+  .leaderboard-users-toggle-top button:hover,
+  .leaderboard-users-home-top button:hover {
     background-color: #e0e0e0;
   }
   
   /* === Top Button Positions === */
-  .register-users-toggle-top {
+  .leaderboard-users-toggle-top {
     position: absolute;
     top: 1rem;
     right: 1rem;
   }
   
-  .register-users-home-top {
+  .leaderboard-users-home-top {
     position: absolute;
     top: 1rem;
     left: 1rem;
   }
   
   /* === Search Field === */
-  .register-users-search {
+  .leaderboard-users-search {
     padding: 8px;
     margin: 1rem 0;
     font-size: 14px;
@@ -168,7 +173,7 @@
   
   /* === Responsive === */
   @media (min-width: 1024px) {
-    .register-users-logo-img {
+    .leaderboard-users-logo-img {
       width: 17vw !important;
       height: 14vh !important;
       padding: 2rem;
@@ -177,11 +182,11 @@
   }
   
   @media (max-width: 470px) {
-    .register-wrapper {
+    .leaderboard-wrapper {
       padding: 2rem;
     }
   
-    .register-users-logo-img {
+    .leaderboard-users-logo-img {
       width: 60vw;
       height: 10rem;
       padding: 1rem;

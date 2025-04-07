@@ -1,90 +1,83 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
 import './AdminRegister.css';
+import { useNavigate } from 'react-router-dom';
 
-const AdminRegister = () => {
-  const [rawUsers, setRawUsers] = useState([]); // original data
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
+const AdminRegister = ({ users, setUsers, onSwitch }) => {
+  const [sortOrder, setSortOrder] = useState('asc');
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Fetch all users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/user/all`);
-        setRawUsers(response.data);
-      } catch (err) {
-        setError(err.response?.data || 'Failed to fetch users');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
+  const navigate = useNavigate();
 
   // Delete user by ID
   const handleDelete = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
-
+    if (!window.confirm('Are you sure you want to delete this user and their high score?')) return;
+  
     try {
+      // Delete user
       await axios.delete(`${API_BASE_URL}/user/${userId}`);
-      setRawUsers((prev) => prev.filter((user) => user.userId !== userId));
+  
+      // Delete leaderboard score (if any)
+      await axios.delete(`${API_BASE_URL}/leaderboard/Pong/${userId}`);
+  
+      // Update local users state
+      setUsers((prev) => prev.filter((user) => user.userId !== userId));
     } catch (err) {
-      alert(err.response?.data || 'Failed to delete user');
+      alert(err.response?.data || 'Failed to delete user or score');
     }
   };
 
   // Filter and sort users based on search and order
   const filteredAndSortedUsers = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-  
-    const matching = rawUsers.filter((user) =>
+
+    const matching = users.filter((user) =>
       user.username.toLowerCase().includes(lowerSearch)
     );
-  
-    const nonMatching = rawUsers.filter(
+
+    const nonMatching = users.filter(
       (user) => !user.username.toLowerCase().includes(lowerSearch)
     );
-  
+
     const sortFn = (a, b) =>
       sortOrder === 'asc'
         ? a.username.localeCompare(b.username)
         : b.username.localeCompare(a.username);
-  
+
     return [...matching.sort(sortFn), ...nonMatching.sort(sortFn)];
-  }, [rawUsers, searchTerm, sortOrder]);
+  }, [users, searchTerm, sortOrder]);
 
   return (
-    <div className="login-wrapper">
-      <div>
-        <img className="logo" src="/img/logo2.png" alt="Logo" />
-      </div>
+    <div className="register-wrapper">
+        <div className="register-users-toggle-top">
+            <button onClick={onSwitch}>Leaderboard</button>
+        </div>
+        
+        <div className="register-users-home-top">
+            <button onClick={() => navigate('/')}>Home</button>
+        </div>
 
-      <div className="login-text">Registered Users</div>
+        <div className="register-users-logo" onClick={() => navigate('/')}>
+            <img className="register-users-logo-img" src="/img/logo2.png" alt="Logo" />
+        </div>
 
-      {/* Search bar */}
+        <div className="register-users-title">
+            Registered Users
+        </div>
+
       <input
         type="text"
         placeholder="Search by username..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="user-search"
+        className="register-users-search"
       />
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : filteredAndSortedUsers.length === 0 ? (
+      {filteredAndSortedUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <div className="table-container">
-          <table className="admin-user-table">
+        <div className="register-users-table-container">
+          <table className="register-users-table">
             <thead>
               <tr>
                 <th
@@ -101,20 +94,24 @@ const AdminRegister = () => {
             </thead>
           </table>
 
-          <div className="table-scroll-container">
-            <table className="admin-user-table">
+          <div className="register-users-scroll">
+            <table className="register-users-table">
               <tbody>
                 {filteredAndSortedUsers.map((user) => (
                   <tr key={user.userId}>
                     <td>{user.username || 'Unnamed'}</td>
                     <td>{user.email}</td>
                     <td>
-                      <button
-                        className="delete-button"
+                    {!user.isAdmin ? (
+                        <button
+                        className="register-users-delete"
                         onClick={() => handleDelete(user.userId)}
-                      >
+                        >
                         Delete
-                      </button>
+                        </button>
+                    ) : (
+                        <span style={{ color: '#aaa', fontStyle: 'italic' }}>Admin</span>
+                    )}
                     </td>
                   </tr>
                 ))}

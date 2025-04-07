@@ -120,8 +120,7 @@ const StartScreen = () => {
     if (adminActiveSection === 'main') {
       switch (adminSelectedIndex) {
         case 0: // "Users"
-          setAdminActiveSection('users');
-          setAdminSelectedIndex(0);
+          navigate('/admin/users');
           break;
         case 1: // "Settings"
           setAdminActiveSection('settings');
@@ -145,7 +144,7 @@ const StartScreen = () => {
           navigate('/register/admin');
           break;
         case 1:
-          console.log('Leaderboard clicked');
+          navigate('/leaderboard/admin');
           break;
         case 2:
           console.log('Blank clicked');

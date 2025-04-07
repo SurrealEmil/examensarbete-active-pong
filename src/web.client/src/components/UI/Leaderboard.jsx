@@ -3,7 +3,7 @@ import './Leaderboard.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, color } from 'framer-motion';
 import useAutoReturnToStart from '../../utils/useAutoReturnToStart';
 
 const getOrdinalSuffix = (rank) => {
@@ -105,19 +105,13 @@ const Leaderboard = () => {
                 {players && players.length ? (
                   players.map((player, index) => (
                     <tr
-                      key={player.id || index}
-                      style={player.recentlyPlayed ? { color: 'var(--orange)', fontWeight: 'bold' } : {}}
-                    >
-                      <td className="rank-column">
-                        {getOrdinalSuffix(player.rank)}
-                      </td>
-                      <td className="name-column">
-                        {player.name}
-                      </td>
-                      <td className="score-column">
-                        {player.score}
-                      </td>
-                    </tr>
+                    key={player.id || index}
+                    className={player.recentlyPlayed ? 'recently-played' : ''}
+                  >
+                    <td className="rank-column">{getOrdinalSuffix(player.rank)}</td>
+                    <td className="name-column">{player.name}</td>
+                    <td className="score-column">{player.score}</td>
+                  </tr>
                   ))
                 ) : (
                   <tr>
