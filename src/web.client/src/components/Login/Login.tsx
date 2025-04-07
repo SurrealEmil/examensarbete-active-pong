@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import "./Login.css"
@@ -9,7 +9,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = () => {
-    const [username, setUsername] = useState<string>('')
+    /* const [username, setUsername] = useState<string>('') */
     const [email, setEmail] = useState<string>('')
     const [profile, setProfile] = useState<string>('')
     const [user, setUser] = useState<string>('')
@@ -17,8 +17,9 @@ const Login: React.FC<LoginProps> = () => {
     const [error, setError] = useState<string>('')
     const navigate = useNavigate() // For navigation after login
 
+
 /////////////////////////////////////////////////////
-//////////////////REGISTER USER//////////////////////
+//////////////////LOGIN USER//////////////////////
 /////////////////////////////////////////////////////
 
 
@@ -80,28 +81,19 @@ const fetchProfile = async () => {
  
 
     return(
-<div>
-    <div className="login-wrapper">
-    <div>
-        <img className="logo" /* style={{width: '220px'}} */src="/img/logo2.png" alt="" />
-    </div>
-    <div className="login-text">
-        Login to get started
-    </div>
+<div className="login-parent">
+    <div className="login-login-wrapper">
+        <div>
+            <img className="login-logo" src="/img/logo2.png" alt="" />
+        </div>
+        <div className="login-login-text">
+            Login to get started
+        </div>
       
-    <form onSubmit={login}>
- {/*        <div className="nickname">
-            <label></label>
-            <input  
-                type="nickname"
-                value={username}
-                placeholder='Nickname'
-                onChange={(e) => setUsername(e.target.value)}
-                required
-            />
-        </div> */}
-        <div className='e-mail'>
-            <label></label>
+        <form onSubmit={login}>
+
+        <div className='login-e-mail'>
+            
             <input 
                 type="email" 
                 value={email}
@@ -110,15 +102,15 @@ const fetchProfile = async () => {
                 required
             />
         </div>
-        <div className="continue-button-container">
-            <button className="continue-button"
+        <div className="login-continue-button-container">
+            <button className="login-continue-button"
                 type="submit">Continue
             </button>
         </div>
-        <div className="sign-up-container">
+        <div className="login-sign-up-container">
             <p>Don't have an account</p>
             <a href="#" 
-               className="sign-up-link" 
+               className="login-sign-up-link" 
                onClick={(e) => {
                   e.preventDefault();
                   navigate('/signup');

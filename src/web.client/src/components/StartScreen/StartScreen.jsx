@@ -323,7 +323,7 @@ const StartScreen = () => {
           <div className="qr-container">
             <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>
             <div className="qr-code">
-              <QRCode value="https://activepong.azurewebsites.net/login" size={128} />
+              <QRCode value="https://activepong.azurewebsites.net/signup" size={128} />
             </div>
           </div>
           
