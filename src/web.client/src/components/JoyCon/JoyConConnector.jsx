@@ -87,37 +87,37 @@ const JoyConConnector = forwardRef(
       const isRightJoyCon = joyCon instanceof JoyConRight;
     
       // ---------------------------------------
-      // If this is the LEFT Joy-Con, handle only its leftStick
+      // If this is the LEFT Joy-Con, handle only its minus
       // ---------------------------------------
       if (isLeftJoyCon) {
-        if (buttons.leftStick && !leftJoyConLeftStickPressedRef.current) {
+        if (buttons.minus && !leftJoyConLeftStickPressedRef.current) {
           leftJoyConLeftStickPressedRef.current = true;
-          console.log("LEFT Joy-Con: YOU PRESSED LEFT STICK!");
+          console.log("LEFT Joy-Con: YOU PRESSED LEFT MINUS!");
           joyCon.rumble(120, 10, 0.7);
             setTimeout(() => {
               joyCon.rumble(0, 0, 0); // Stop rumble after 100ms
           }, 400);
           onToggleControlModeLeft();
         } 
-        else if (!buttons.leftStick && leftJoyConLeftStickPressedRef.current) {
+        else if (!buttons.minus && leftJoyConLeftStickPressedRef.current) {
           leftJoyConLeftStickPressedRef.current = false;
         }
       }
     
       // ----------------------------------------
-      // If this is the RIGHT Joy-Con, handle only its rightStick
+      // If this is the RIGHT Joy-Con, handle only its plus
       // ----------------------------------------
       if (isRightJoyCon) {
-        if (buttons.rightStick && !rightJoyConRightStickPressedRef.current) {
+        if (buttons.plus && !rightJoyConRightStickPressedRef.current) {
           rightJoyConRightStickPressedRef.current = true;
-          console.log("RIGHT Joy-Con: YOU PRESSED RIGHT STICK!");
+          console.log("RIGHT Joy-Con: YOU PRESSED RIGHT PLUS!");
           joyCon.rumble(120, 10, 0.7);
             setTimeout(() => {
               joyCon.rumble(0, 0, 0); // Stop rumble after 100ms
           }, 400);
           onToggleControlModeRight();
         } 
-        else if (!buttons.rightStick && rightJoyConRightStickPressedRef.current) {
+        else if (!buttons.plus && rightJoyConRightStickPressedRef.current) {
           rightJoyConRightStickPressedRef.current = false;
         }
       }
@@ -131,13 +131,13 @@ const JoyConConnector = forwardRef(
       }
       if (buttons.x || buttons.right) {
         joyCon.resetLED(0);
-        joyCon.rumble(400, 200, 0.1);
+        // joyCon.rumble(400, 200, 0.1);
       }
       if (buttons.y || buttons.left) {
-        joyCon.rumble(150, 50, 0.5);
-          setTimeout(() => {
-            joyCon.rumble(30, 0, 0); // Stop rumble after 100ms
-        }, 1000);
+        // joyCon.rumble(150, 50, 0.5);
+        //   setTimeout(() => {
+        //     joyCon.rumble(30, 0, 0); // Stop rumble after 100ms
+        // }, 1000);
       }
     }, [onToggleControlModeLeft, onToggleControlModeRight]);
     
