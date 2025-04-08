@@ -142,8 +142,8 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   // Paddle positions and control mode state
   const [leftPaddleY, setLeftPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
   const [rightPaddleY, setRightPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
-  const [controlModeLeft, setControlModeLeft] = useState('accelerometer')
-  const [controlModeRight, setControlModeRight] = useState('accelerometer')
+  const [controlModeLeft, setControlModeLeft] = useState('joystick')
+  const [controlModeRight, setControlModeRight] = useState('joystick')
 
   // States for motion and joystick data
   const [motionDataLeft, setMotionDataLeft] = useState({
