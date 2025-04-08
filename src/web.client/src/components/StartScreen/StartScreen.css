@@ -190,7 +190,7 @@
 
   
 .enter-text {
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-size: clamp(2rem, 3vw, 1.8rem);
    /*  margin-top: 2rem; */
     color: var(--orange);
     text-shadow:

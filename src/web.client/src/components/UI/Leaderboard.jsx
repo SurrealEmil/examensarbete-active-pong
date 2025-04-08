@@ -37,8 +37,11 @@ const Leaderboard = () => {
   }, []);
 
   useEffect(() => {
-    // Fallback to these two if neither recentIds nor entries is provided
-    const fallbackRecentIds = ["gunde", "grindslanten"];
+      // Fallback to these two if neither recentIds nor entries is provided
+    const storedRecentIds = localStorage.getItem('recentPlayerIds')
+    let localStorageRecentIds = storedRecentIds ? JSON.parse(storedRecentIds) : []
+
+    const fallbackRecentIds = localStorageRecentIds.length > 0 ? localStorageRecentIds : ["gunde", "grindslanten"];
     const recentIds =
       location.state?.recentIds ||
       (location.state?.entries
