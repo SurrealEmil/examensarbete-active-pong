@@ -70,9 +70,15 @@ const JoyConConnector = forwardRef(
         joystickData: {},
       },
     });
-    const [visualData, setVisualData] = useState({
+    const visualDataRef = useRef({
       left: null,
       right: null,
+    });
+
+    const THROTTLE_INTERVAL = 16; // ~60FPS
+    const lastPacketTimeRef = useRef({
+      left: 0,
+      right: 0,
     });
 
     /**
@@ -160,9 +166,26 @@ const JoyConConnector = forwardRef(
      */
     /** THE JOY-CON API FETCH */
 
- const visualize = useCallback(
-  (joyCon, packet) => {
-    if (!packet) return;
+    const visualize = useCallback(
+      (joyCon, packet) => {
+        if (!packet) return;
+    
+        
+        const joyConType =
+          joyCon instanceof JoyConLeft
+            ? 'left'
+            : joyCon instanceof JoyConRight
+            ? 'right'
+            : 'general';
+
+        const now = performance.now();
+
+        // Throttle processing
+        if (joyConType !== 'general') {
+          const lastTime = lastPacketTimeRef.current[joyConType];
+          if (now - lastTime < THROTTLE_INTERVAL) return;
+          lastPacketTimeRef.current[joyConType] = now;
+        }
 
     
 
@@ -234,48 +257,48 @@ const JoyConConnector = forwardRef(
     }
 
     // Determine Joy-Con type
-    const joyConType =
-      joyCon instanceof JoyConLeft
-        ? 'left'
-        : joyCon instanceof JoyConRight
-        ? 'right'
-        : 'general';
+    // const joyConType =
+    //   joyCon instanceof JoyConLeft
+    //     ? 'left'
+    //     : joyCon instanceof JoyConRight
+    //     ? 'right'
+    //     : 'general';
 
     // Update visualization and callbacks based on Joy-Con type
     if (joyConType === 'left') {
-      setVisualData((prev) => ({
-        ...prev,
-        left: { buttons: buttons ?? {}, analogStick: analogStickLeft },
-      }));
+      visualDataRef.current.left = {
+        buttons: buttons ?? {},
+        analogStick: analogStickLeft,
+      };
       if (motionData) onMotionDataLeft(motionData);
       if (joystickData) onJoystickDataLeft(joystickData);
-      if (showDebug) {
-        setDebugData((prev) => ({
-          ...prev,
-          left: {
-            packet: packet || {},
-            motionData: motionData || {},
-            joystickData: joystickData || {},
-          },
-        }));
-      }
+      // if (showDebug) {
+      //   setDebugData((prev) => ({
+      //     ...prev,
+      //     left: {
+      //       packet: packet || {},
+      //       motionData: motionData || {},
+      //       joystickData: joystickData || {},
+      //     },
+      //   }));
+      // }
     } else if (joyConType === 'right') {
-      setVisualData((prev) => ({
-        ...prev,
-        right: { buttons: buttons ?? {}, analogStick: analogStickRight },
-      }));
+      visualDataRef.current.right = {
+        buttons: buttons ?? {},
+        analogStick: analogStickRight,
+      };
       if (motionData) onMotionDataRight(motionData);
       if (joystickData) onJoystickDataRight(joystickData);
-      if (showDebug) {
-        setDebugData((prev) => ({
-          ...prev,
-          right: {
-            packet: packet || {},
-            motionData: motionData || {},
-            joystickData: joystickData || {},
-          },
-        }));
-      }
+      // if (showDebug) {
+      //   setDebugData((prev) => ({
+      //     ...prev,
+      //     right: {
+      //       packet: packet || {},
+      //       motionData: motionData || {},
+      //       joystickData: joystickData || {},
+      //     },
+      //   }));
+      // }
     }
   },
   [

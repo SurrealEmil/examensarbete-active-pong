@@ -187,8 +187,8 @@ const PongGameTournament = () => {
   const [gamePaused, setGamePaused] = useState(false);
 
   // Control modes for each Joy-Con
-  const [controlModeLeft, setControlModeLeft] = useState('accelerometer');
-  const [controlModeRight, setControlModeRight] = useState('accelerometer');
+  const [controlModeLeft, setControlModeLeft] = useState('joystick');
+  const [controlModeRight, setControlModeRight] = useState('joystick');
 
   // ──────────────────────────────────────────────────────────────────────────
   // JOY-CON DATA
@@ -569,7 +569,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(40);
+const [timer, setTimer] = useState(150);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
@@ -763,7 +763,7 @@ useEffect(() => {
   // ──────────────────────────────────────────────────────────────────────────
   const toggleControlModeLeft = () => {
     setControlModeLeft((prev) => {
-      const newMode = prev === 'accelerometer' ? 'joystick' : 'accelerometer';
+      const newMode = prev === 'joystick' ? 'accelerometer' : 'joystick';
       //console.log('Switched Left Joy-Con mode to:', newMode);
       leftPaddleVelocityRef.current = 0; // reset
       return newMode;
@@ -773,7 +773,7 @@ useEffect(() => {
   const toggleControlModeRight = () => {
     setControlModeRight((prev) => {
       const newMode =
-        prev === 'accelerometer' ? 'joystick' : 'accelerometer';
+        prev === 'joystick' ? 'accelerometer' : 'joystick';
       //console.log('Switched Right Joy-Con mode to:', newMode);
       rightPaddleVelocityRef.current = 0; // reset
       return newMode;
