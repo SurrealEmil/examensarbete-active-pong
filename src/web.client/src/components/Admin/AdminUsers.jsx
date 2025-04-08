@@ -5,6 +5,7 @@ import AdminLeaderboard from './AdminLeaderboard';
 import API_BASE_URL from '../../config/apiConfig';
 import useAdminAuth from '../../hooks/useAdminAuth';
 import { useNavigate } from 'react-router-dom';
+import './AdminUsers.css';
 
 const AdminUsers = () => {
   const { isAdmin, authChecked } = useAdminAuth();
@@ -31,7 +32,7 @@ const AdminUsers = () => {
       });
   
       if (profileRes.data.isAdmin !== true) {
-        setLoginError('Access denied. You are not an admin.');
+        setLoginError('Access denied.');
         return;
       }
   
@@ -67,11 +68,11 @@ const AdminUsers = () => {
 
   if (!isAdmin) {
     return (
-      <div className="login-wrapper">
-        <img className="logo" src="/img/logo2.png" alt="Logo" />
-        <div className="login-text">Admin Login Required</div>
+      <div className="admin-login-wrapper">
+        <img className="admin-logo" src="/img/logo2.png" alt="Logo" />
+        <div className="admin-login-text">Admin Login Required</div>
         <form onSubmit={handleLogin}>
-          <div className="e-mail">
+          <div className="admin-e-mail">
             <input
               type="email"
               value={email}
@@ -80,8 +81,8 @@ const AdminUsers = () => {
               required
             />
           </div>
-          <div className="continue-button-container">
-            <button className="continue-button" type="submit">
+          <div className="admin-continue-button-container">
+            <button className="admin-continue-button" type="submit">
               Login
             </button>
           </div>
