@@ -1,7 +1,7 @@
-:root {
+/* :root {
     background-color: var(--blue);
     
-  }
+  } */
 
 .leaderboard-container {
     display: flex;
@@ -118,17 +118,21 @@
 
 
 
-  .recently-played,
+  .recently-played{
+    color: var(--orange);
+  }
+
+
   .recently-played td {
-    background-color: var(--orange);
+    color: var(--orange);
     font-weight: bold;
     color: #fff;
   }
 
-  :root {
+/*   :root {
     --orange: #FFA500;
     --blue: #001f3f;
-  }
+  } */
 
 
 /* @media (max-width: 768px) {

@@ -104,9 +104,9 @@ const Leaderboard = () => {
             <table className="leaderboard-table">
               <thead>
                 <tr>
-                  <th className="rank-column">Rank</th>
-                  <th className="name-column">Name</th>
-                  <th className="score-column">Score</th>
+                  <th className="rank-column" style={{ color: 'var(--orange)' }}>Rank</th>
+                  <th className="name-column" style={{ color: 'var(--orange)'}}>Name</th>
+                  <th className="score-column" style={{ color : 'var(--orange)'}}>Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,15 +115,18 @@ const Leaderboard = () => {
                     console.log(player.name, player.recentlyPlayed)
                     return (
                     <tr
-                    key={player.id || index}
-                    className={player.recentlyPlayed ? 'recently-played' : ''}
-                  >
-                    <td className="rank-column">{getOrdinalSuffix(player.rank)}</td>
-                    <td className="name-column">{player.name}</td>
-                    <td className="score-column">{player.score}</td>
-                  </tr>
-                  )
-                })
+                      key={player.id || index}
+                      className={player.recentlyPlayed ? 'recently-played' : ''}
+                    >
+                      <td className="rank-column" style={player.recentlyPlayed ? { color: 'var(--orange)' } : {}}>
+                        {getOrdinalSuffix(player.rank)}</td>
+                      <td className="name-column" style={player.recentlyPlayed ? { color: 'var(--orange)' } : {}}>
+                        {player.name}</td>
+                      <td className="score-column" style={player.recentlyPlayed ? { color: 'var(--orange)' } : {}}>
+                        {player.score}</td>
+                    </tr>
+                    )
+                  })
                 ) : (
                   <tr>
                     <td colSpan="3">Loading players...</td>

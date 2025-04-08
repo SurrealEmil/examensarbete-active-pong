@@ -629,7 +629,7 @@ useEffect(() => {
         console.log('Scores submitted:', response.data);
 
         // Navigate to leaderboard with state
-        navigate('/leaderboard');
+        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id]}});
 
       } catch (error) {
         console.error('Error submitting scores:', error.response?.data || error.message);
