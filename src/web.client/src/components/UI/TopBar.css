@@ -114,7 +114,7 @@
   color: var(--white);
   font-size: 3rem;
   left: 50%;
-  top: 1ch;
+  top: 0.5rem;
   transform: translateX(-50%);
   text-align: center;
   
