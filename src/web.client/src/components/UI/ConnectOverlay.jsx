@@ -7,7 +7,7 @@ const ConnectOverlay = () => {
 
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if (event.key === "€") {
+      if (event.key === "Q") {
         setIsOpen((prevOpen) => !prevOpen)// Open modal when "C" is pressed
         if (setGamePaused) {}
       }
