@@ -12,6 +12,7 @@ namespace Domain.Entities
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string QrCodeIdentifier { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
 
         public List<GameStats> GameStats { get; set; } = new();
     }

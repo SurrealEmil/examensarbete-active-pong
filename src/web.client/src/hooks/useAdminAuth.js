@@ -1,36 +1,30 @@
 import { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
+import API_BASE_URL from '../config/apiConfig';
 
 const useAdminAuth = () => {
-  const [isAdmin, setIsAdmin] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('AuthToken='))
-      ?.split('=')[1];
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/user/profile`, {
+          withCredentials: true, // <- includes the HttpOnly cookie
+        });
 
-    if (!token) {
-      setIsAdmin(false);
-      setAuthChecked(true);
-      return;
-    }
+        console.log("Profile response:", response.data);
 
-    try {
-      const decoded = jwtDecode(token);
-      const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-      const role = decoded[roleClaim];
+        setIsAdmin(response.data.isAdmin === true);
+      } catch (err) {
+        console.error("Auth check failed", err.response?.data || err.message);
+        setIsAdmin(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
 
-      console.log("Decoded Role:", role);
-
-      setIsAdmin(role === "Admin");
-    } catch (e) {
-      console.error("Token decode error", e);
-      setIsAdmin(false);
-    } finally {
-      setAuthChecked(true);
-    }
+    checkAuth();
   }, []);
 
   return { isAdmin, authChecked };

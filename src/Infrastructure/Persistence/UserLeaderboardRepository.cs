@@ -22,7 +22,7 @@ namespace Infrastructure.Persistence
         public async Task<UserLeaderboard?> GetUserLeaderboardInfo(string userId)
         {
             // Query Users Container
-            var queryUser = new QueryDefinition("SELECT c.Username, c.Email, c.QrCodeIdentifier FROM c WHERE c.UserId = @userId")
+            var queryUser = new QueryDefinition("SELECT c.Username, c.Email, c.QrCodeIdentifier, c.IsAdmin FROM c WHERE c.UserId = @userId")
                             .WithParameter("@userId", userId);
             var userIterator = _usersContainer.GetItemQueryIterator<dynamic>(queryUser);
             var userResult = await userIterator.ReadNextAsync();
@@ -68,6 +68,7 @@ namespace Infrastructure.Persistence
                 Username = user.Username,
                 Email = user.Email,
                 QrCodeIdentifier = user.QrCodeIdentifier,
+                IsAdmin = user.IsAdmin,
                 GameStats = gameStats
             };
         }

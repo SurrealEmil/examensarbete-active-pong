@@ -12,6 +12,7 @@ namespace Application.DTOs.UserLeaderboardDTOs
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string QrCodeIdentifier { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
         public List<GameStatsDto> GameStats { get; set; } = new();
 
         // Constructor for automatic mapping
@@ -20,6 +21,7 @@ namespace Application.DTOs.UserLeaderboardDTOs
             Username = userLeaderboard.Username;
             Email = userLeaderboard.Email;
             QrCodeIdentifier = userLeaderboard.QrCodeIdentifier;
+            IsAdmin = userLeaderboard.IsAdmin;
             GameStats = userLeaderboard.GameStats
                 .Select(e => new GameStatsDto(e))
                 .ToList();
