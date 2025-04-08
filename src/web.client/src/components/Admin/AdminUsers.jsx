@@ -22,14 +22,25 @@ const AdminUsers = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
-
+  
     try {
       await axios.post(`${API_BASE_URL}/auth/login`, { email }, { withCredentials: true });
-      window.location.reload();
+  
+      const profileRes = await axios.get(`${API_BASE_URL}/user/profile`, {
+        withCredentials: true,
+      });
+  
+      if (profileRes.data.isAdmin !== true) {
+        setLoginError('Access denied. You are not an admin.');
+        return;
+      }
+  
+      window.location.reload(); // Only reload if user is actually an admin
     } catch (err) {
       setLoginError(err.response?.data || 'Login failed');
     }
   };
+  
 
   useEffect(() => {
     if (!authChecked || !isAdmin) return;
