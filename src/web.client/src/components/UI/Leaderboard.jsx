@@ -32,7 +32,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsExiting(true);
-    }, 20000);
+    }, 2000000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -51,7 +51,7 @@ const Leaderboard = () => {
   
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/leaderboard/Pong/all-players`);
+        const response = await axios.get(`${API_BASE_URL}/leaderboard/Pong/top-players`);
         const playersData = response.data;
   
         // Sort by score and assign ranks

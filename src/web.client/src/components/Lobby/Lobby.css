@@ -10,6 +10,8 @@
     gap: 2rem;
     box-sizing: border-box;
     /* border: 2px solid pink; */
+
+    z-index: 9999;
 }
 
 .player-1{
@@ -68,7 +70,8 @@
     
     letter-spacing: 1rem;
     text-align: center;
-    z-index: 1000;
+    
+    z-index: 9999;
 
     animation: pulse 1.1s ease-in-out infinite alternate;
 }
