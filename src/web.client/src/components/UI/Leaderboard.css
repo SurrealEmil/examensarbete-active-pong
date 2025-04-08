@@ -130,23 +130,6 @@
     color: var(--orange);
 }
 
-.recently-played {
-    background-color: var(--orange);
-    font-weight: bold;
-    color: #fff; /* Ensures text is visible on the orange background */
-  }
-
-
-  .recently-played{
-    color: var(--orange);
-  }
-
-
-  .recently-played td {
-    color: var(--orange);
-    font-weight: bold;
-    color: #fff;
-  }
 
 /*   :root {
     --orange: #FFA500;
