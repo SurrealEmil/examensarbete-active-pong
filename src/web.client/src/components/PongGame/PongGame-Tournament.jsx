@@ -569,7 +569,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90);
+const [timer, setTimer] = useState(40);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
@@ -629,7 +629,7 @@ useEffect(() => {
         console.log('Scores submitted:', response.data);
 
         // Navigate to leaderboard with state
-        navigate('/leaderboard');
+        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id]}});
 
       } catch (error) {
         console.error('Error submitting scores:', error.response?.data || error.message);

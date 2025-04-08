@@ -19,8 +19,8 @@ const gameModes = [
     label: 'TOURNAMENT',
     route: '/tournament',
     description: [
-      'Welcome!',
-      'Register and scan your QR code to jump into the action! Rack up points through thrilling challenges.'
+      'Welcome',
+      'Register and scan your QR code to jump into the action Rack up points through thrilling challenges'
       
     ]
   },
@@ -282,7 +282,7 @@ const StartScreen = () => {
     
       {/* ADMIN Button */}
       <div className='pong-background'>
-        {/* <PongBackground/>  */}
+       {/*  <PongBackground/>  */}
         </div>
       <div className="admin-button" onClick={toggleAdminDropdown}>
         {/* <div className="hamburger-icon">
