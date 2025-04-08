@@ -29,7 +29,7 @@
 .leaderboard-container h2{
     font-size: 6rem;
     margin-top: 0vh;
-    margin-bottom: 1vh;
+    margin-bottom: 0vh;
     line-height: 1.2;
     /* text-align: center; */
     text-shadow:
@@ -49,10 +49,10 @@
     height: 100%;
     flex-grow: 1;  
     
-    overflow-x: auto;
-    padding: 0 0.5rem;
+   
     margin-bottom: 0.1vh;
-    
+    padding-top: 3rem;
+
     /* border: 2px solid pink; */
 }
 
