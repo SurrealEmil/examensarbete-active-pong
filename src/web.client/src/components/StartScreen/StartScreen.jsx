@@ -282,7 +282,7 @@ const StartScreen = () => {
     
       {/* ADMIN Button */}
       <div className='pong-background'>
-       {/*  <PongBackground/>  */}
+        <PongBackground/> 
         </div>
       <div className="admin-button" onClick={toggleAdminDropdown}>
         {/* <div className="hamburger-icon">
