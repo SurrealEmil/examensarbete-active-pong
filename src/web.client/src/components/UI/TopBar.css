@@ -12,37 +12,64 @@
   border-bottom: none;
   flex-shrink: 0; 
 
+  /* border: 2px solid pink; */
 
+
+}
+
+.topbar-name-wrapper-left{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  height: 10vh;
+  padding-bottom: 1rem;
+
+  /* border: 2px solid pink; */
+}
+
+.topbar-name-wrapper-right{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  height: 10vh;
+  padding-bottom: 1rem;
+
+  /* border: 2px solid pink; */
 }
 
 .player-1-container{
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: auto;
+  
+  
+  height: 4rem;
   gap: 1.5vh;
-  width: 21vw;
-  margin-top: 1vh;
+  width: auto;
+ 
+  margin-left: 3vw;
+  
 
-  /* border: 2px solid pink; / */
+  /* border: 2px solid pink;  */
 }
 
 .player-2-container{
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: auto;
+  
+  
+  height: 4rem;
   gap: 1.5vh;
-
-  width: 21vw;
-  margin-top: 1vh;
-  /* border: 2px solid pink; / */
+  width: auto;
+ 
+  margin-right: 3vw;
+ /*  border: 2px solid pink;  */
 }
 
 .player1-name{
   font-size: 2rem;
+  
 
 }
 
@@ -52,32 +79,44 @@
 
 .player1-score {
   font-size: 2rem;
+  text-align: left;
+ 
 }
 
 .player2-score {
   font-size: 2rem;
+  text-align: right;
 }
 
 
 .joycon-icon-left {
   position: fixed;
-  margin-right: 21rem;
-  margin-bottom: 0.2rem;
+  
   font-size: 1.2em;
-  width: 3rem;
-  /* / border: 2px solid pink;  / */
+  width: 4rem;
+  height: 4rem;
+
+  /* border: 2px solid pink;  */
 }
 
 .joycon-icon-right{
   position: fixed;
-  margin-left: 21rem;
-  margin-bottom: 0.2rem;
+  
   font-size: 1.2em;
-  width: 3rem;
+  width: 4rem;
+  height: 4rem;     
   /* / border: 2px solid pink;  */
 }
 
-.timer-display h3{
+
+.timer-display h3 {
+  position: absolute;
   color: var(--white);
-  font-size:  3rem;
+  font-size: 3rem;
+  left: 50%;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  text-align: center;
+  
+  /* border: 2px solid pink; */
 }

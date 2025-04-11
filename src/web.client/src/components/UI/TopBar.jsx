@@ -18,27 +18,32 @@ const TopBar = ({
  
   return (
     <div className="top-bar">
-      <h3 className="player-1-container">
-        {leftJoyConConnected && (
+      <div className="topbar-name-wrapper-left">
+      {leftJoyConConnected && (
           <img className="joycon-icon-left" src="./img/joy-con-red.png" alt="Left Joy-Con" />
         )}
+      <h3 className="player-1-container">
+       
         <span className="player1-name">{player1Name}</span>
         <span className="player1-score">{player1Score}</span>
       </h3>
+      </div>
       <h2>
         <a href="/lobby" style={{ textDecoration: 'none', color: 'inherit' }}>{/* PONG */}</a>
-        <div className="timer-display">
-        <h3>{timer} </h3>
-      </div>
-
+          <div className="timer-display">
+            <h3>{timer} </h3>
+          </div>
       </h2>
-      <h3 className="player-2-container">
-        <span className="player2-name">{player2Name}</span>
-        <span className="player2-score">{player2Score}</span>
+      <div className="topbar-name-wrapper-right">
         {rightJoyConConnected && (
           <img className="joycon-icon-right" src="./img/joy-con-blue.png" alt="Right Joy-Con" />
         )}
+      <h3 className="player-2-container">
+        <span className="player2-name">{player2Name}</span>
+        <span className="player2-score">{player2Score}</span>
+        
       </h3>
+    </div>
     </div>
   );
 };
