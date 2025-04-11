@@ -17,7 +17,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background-color: var(--white);
     padding: 2rem;
@@ -29,8 +29,8 @@
 
 .signup-logo{
     display: block;
-    width: 58vw !important;
-    height: 16vh !important;
+    width: 66vw;
+    height: 16vh;
     max-height: 10rem;
     max-width: 20rem;
     object-fit: contain;
@@ -38,7 +38,7 @@
     image-rendering: pixelated;
     border-radius: 0.8rem;
     background-color: var(--blue);
-    margin-bottom: 0rem !important;
+    margin-bottom: 0rem;
     margin-top: 0.5rem;
 
     /* border: 2px solid pink; */
@@ -54,7 +54,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 0vh !important;   
+    margin-bottom: 0vh;   
 }
 
 input::placeholder {
@@ -109,6 +109,7 @@ input::placeholder {
     padding: 1rem;
     width: 17rem;
     height: auto;
+    max-height: 3rem;
     min-height: 1.5rem;
     cursor: pointer;
     /* margin: 1rem auto; */
@@ -161,37 +162,20 @@ input::placeholder {
 // LARGE PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
 
-@media (max-width: 416px) {
-    .signup-sign-up-wrapper {
-        width: 93%;   
-    }
-    
-    .signup-logo {
-        max-width: 30rem;
-    }
-
-    .signup-nickname input, .signup-e-mail input{
-        height: 3rem;
-        font-size: 12px;  
-    }
-
-} 
+@media (max-width: 576px) {} 
 
 /* ──────────────────────────────────────────────────────────────────────────
 // MEDIUM PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
 
-@media (max-width: 382px) {}
+@media (max-width: 435px) {}
 
 /* ──────────────────────────────────────────────────────────────────────────
 // SMALL PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
 
-@media (max-width: 321px) {
-    .signup-sign-up-wrapper {
-        width: 90%;    
-    }
-    
+@media (max-width: 320px) {
+ 
     .signup-logo {
         max-width: 15rem;
     }
@@ -214,8 +198,21 @@ input::placeholder {
 // VERY SMALL PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
 
-@media (max-width: 220px) {
+@media (max-width: 248px) {
     .signup-text{
-        font-size: 1rem;
+        font-size: 0.8rem;
+    }
+
+    .signup-signup-button{
+        font-size: 0.6rem;
+        line-height: 1.4;
+    }
+
+    .signup-nickname input, .signup-e-mail input{
+        font-size: 0.6rem;
+    }
+
+    .signup-login-link{
+        font-size: 0.7rem;
     }
 }
