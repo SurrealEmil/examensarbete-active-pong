@@ -56,7 +56,7 @@ return (
 
                 <div className="qr-code-container"> 
                     {profile.qrCodeIdentifier ? (
-                        <QRCodeCanvas className="qr-code" value={profile.qrCodeIdentifier} size={400}/>
+                        <QRCodeCanvas className="profile-qr-code" value={profile.qrCodeIdentifier} size={400}/>
                     ) : (
                         <p>No QR Code Available</p>
                     )}
