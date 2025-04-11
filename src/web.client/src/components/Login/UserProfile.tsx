@@ -67,7 +67,7 @@ return (
                         profile.gameStats.map((stat, index) => (
                         <li key={index}>
                             {stat.rank === 0 && stat.bestScore === 0 ? (
-                            // Zero matches played => show only game mode
+                            // Zero matches played => show only game mode.
                             <span>{stat.gameMode}</span>
                             ) : (
                             // At least one match => show rank/best score
