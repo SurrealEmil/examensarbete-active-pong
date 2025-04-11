@@ -89,6 +89,10 @@ p, li {
     height: auto;
     max-width: 200px;
     max-height: 200px;
+    border: 4px solid black;
+    border-radius: 8px;
+    background-color: white;
+    padding: 8px;
 }
 
 ul {

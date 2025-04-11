@@ -13,8 +13,8 @@ import axios from 'axios'
 
 const LEFT_JOYSTICK_DEAD_ZONE = 0.3;
 const LEFT_JOYSTICK_CALIBRATION_OFFSET = 0.1;
-const RIGHT_JOYSTICK_DEAD_ZONE = 0.3;
-const RIGHT_JOYSTICK_CALIBRATION_OFFSET = 0.3;
+const RIGHT_JOYSTICK_DEAD_ZONE = 0.4;
+const RIGHT_JOYSTICK_CALIBRATION_OFFSET = 0.4;
 const JOYSTICK_SWING_THRESHOLD = 20;
 const ORIENTATION_SWING_THRESHOLD = 5;
 const ORIENTATION_SCALE_UP = 1.5;
@@ -315,6 +315,7 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
       return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20))
       
     })}
+    console.log("Left vertical raw:", joystickValueRefLeft.current);
     animationFrameId = requestAnimationFrame(updatePaddle)
   }
 
@@ -379,6 +380,7 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
         const newY = prev + joystickValueRefRight.current * speed
         return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20))
       })}
+      console.log("Right vertical raw:", joystickValueRefRight.current);
       animationFrameId = requestAnimationFrame(updatePaddle)
     }
     updatePaddle()

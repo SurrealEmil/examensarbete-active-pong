@@ -46,11 +46,14 @@ return (
     <div className="user-profile-wrapper">
         {profile ? (
             <div className="profile-contet">
-                <h3>User Profile:</h3>
+                {/* <h3>User Profile:</h3>
                 <p>Username: {profile.username}</p>
-                <p>Email: {profile.email}</p>
+                <p>Email: {profile.email}</p> */}
+                <h3>User </h3>
+                <p>{profile.username}</p>
 
-                <h4>QR Code:</h4>
+
+
                 <div className="qr-code-container"> 
                     {profile.qrCodeIdentifier ? (
                         <QRCodeCanvas className="qr-code" value={profile.qrCodeIdentifier} size={400}/>
@@ -60,11 +63,22 @@ return (
                 </div>
                 <h4>Game Stats:</h4>
                 <ul>
-                    {profile.gameStats && profile.gameStats.length > 0 ? profile.gameStats.map((stat, index) => (
+                    {profile.gameStats && profile.gameStats.length > 0 ? (
+                        profile.gameStats.map((stat, index) => (
                         <li key={index}>
-                            {stat.gameMode} - Rank: {stat.rank}, Best Score: {stat.bestScore}
+                            {stat.rank === 0 && stat.bestScore === 0 ? (
+                            // Zero matches played => show only game mode
+                            <span>{stat.gameMode}</span>
+                            ) : (
+                            // At least one match => show rank/best score
+                            <>
+                              <div>Rank: {stat.rank}</div>
+                              <div>Best Score: {stat.bestScore}</div>
+                            </>
+                            )}
                         </li>
-                    )) : (
+                        ))
+                    ) : (
                         <li>NO GAME STATS AVAILABLE</li>
                     )}
                 </ul>
