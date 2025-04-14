@@ -50,7 +50,7 @@ const StartScreen = () => {
     const timer = setTimeout(() => {
       setIsExiting(true)
 
-    }, 1000000)
+    }, 20000)
     return () => clearTimeout(timer)
   }
   }, [adminOpen])
