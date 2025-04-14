@@ -151,9 +151,12 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 90%;
+  width: 76%;
   line-height: 1.1;
   transform: translate(-50%, -50%);
+  line-height: 1.1;
+
+  /* border: 2px solid pink; */
 }
 
 .startscreen-login-page{
@@ -171,7 +174,7 @@
         1px 1px 0 black;
   animation: pulsate 1s infinite;
   line-height: 1.5;
-  width: 90%;
+  width: 86%;
   max-width: 40rem;
   z-index: 10;  
 }
@@ -206,9 +209,7 @@
 .footer p{
   /* border: solid 2px pink; */
   width: 20rem;
-  height: 1rem;
-
-  
+  height: 1rem; 
 }
 
 .footer img {
