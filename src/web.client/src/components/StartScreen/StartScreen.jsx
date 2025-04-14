@@ -54,7 +54,7 @@ const StartScreen = () => {
     const timer = setTimeout(() => {
       setIsExiting(true)
 
-    }, 10000)
+    }, 1000000)
     return () => clearTimeout(timer)
   }
   }, [adminOpen])
@@ -335,6 +335,7 @@ const StartScreen = () => {
         </div>
       )}
       <div className="enter-text">Press ENTER to play</div>
+      <div className="startscreen-login-page"> Press for Login page</div>
       {/* Footer */}
       <div className="footer">
         <img src="./img/logo4.png" alt="Logo" />
