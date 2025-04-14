@@ -307,25 +307,20 @@ const StartScreen = () => {
       </div>
       {/* Selected Mode (Display as rules) */}
       {selectedMode ? (
-        <div className="mode-info-container">
-           
-          <div className="rules">
-              <p>Welcome
-              Register and scan your QR code to jump into the action Rack up points through thrilling challenges
+        <div className="old-mode-info-container">
+            <div className="qr-code">
+              <QRCode value="https://activepong.azurewebsites.net/signup" size={128} />
+            </div>
+            <div className="startscreen-text">
+              <p>Register and scan your QR code to jump into the action
               </p>
             <ul>
               {selectedMode.description.map((rule, idx) => (
                 <li key={idx}>{rule}</li>
               ))}
             </ul>
-          </div>
-          <div className="qr-container">
-            <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>
-            <div className="qr-code">
-              <QRCode value="https://activepong.azurewebsites.net/signup" size={128} />
             </div>
-          </div>
-          
+              <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>  
         </div>
       ) : (
         
