@@ -102,6 +102,10 @@
 // LARGE PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
 @media (max-width: 576px) {
+    .leaderboard-container{
+        height: 90vh;
+    }
+
     .leaderboard-container h2{
         margin-top: 1rem;
         font-size: 1rem;
