@@ -18,11 +18,7 @@ const gameModes = [
   {
     label: 'TOURNAMENT',
     route: '/tournament',
-    description: [
-      'Welcome',
-      'Register and scan your QR code to jump into the action Rack up points through thrilling challenges'
-      
-    ]
+    description: []
   },
   {
     label: 'PARTY',
@@ -307,12 +303,16 @@ const StartScreen = () => {
       </h1>
       <div>
       <h2 className="selected-mode">{selectedMode?.label}</h2>
+      
       </div>
       {/* Selected Mode (Display as rules) */}
       {selectedMode ? (
         <div className="mode-info-container">
-          
+           
           <div className="rules">
+              <p>Welcome
+              Register and scan your QR code to jump into the action Rack up points through thrilling challenges
+              </p>
             <ul>
               {selectedMode.description.map((rule, idx) => (
                 <li key={idx}>{rule}</li>
@@ -334,9 +334,12 @@ const StartScreen = () => {
           <p>Please open ADMIN to choose a game mode.</p>
         </div>
       )}
+      <div className="startscreen-note-text">Note: This game is only available on PC. For the best experience, please play it on a desktop or laptop computer.</div>
       <div className="enter-text">Press ENTER to play</div>
-      <div className="startscreen-login-page"> Press for Login page</div>
-      {/* Footer */}
+      <div className="startscreen-login-page" onClick={() => navigate('/login')}>
+        Press here to login
+      </div>
+      
       <div className="footer">
         <img src="./img/logo4.png" alt="Logo" />
         <p>2025 ACTIVE SOLUTION</p>
