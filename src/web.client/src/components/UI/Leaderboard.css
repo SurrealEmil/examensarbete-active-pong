@@ -1,5 +1,3 @@
-
-
 .leaderboard-container {
     display: flex;
     flex-direction: column;
@@ -105,6 +103,7 @@
 // ────────────────────────────────────────────────────────────────────────-*/
 @media (max-width: 576px) {
     .leaderboard-container h2{
+        margin-top: 0.3rem;
         font-size: 1rem;
     }
     .leaderboard-table th {
