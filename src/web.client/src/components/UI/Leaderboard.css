@@ -93,9 +93,42 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+// DESKTOP
+// ────────────────────────────────────────────────────────────────────────-*/
+@media (max-width: 1065px) {
+    .leaderboard-container h2{
+        font-size: 4rem;
+    }
+
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
 // TABLETS/DESKTOPS
 // ────────────────────────────────────────────────────────────────────────-*/
-@media (max-width: 769px) {}
+@media (max-width: 769px) {
+    .leaderboard-container h2{
+        font-size: 3.5rem;
+    }
+    .leaderboard-table th {
+        font-size: 1.5rem;
+    }
+    .leaderboard-table td{
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 642px) {
+    .leaderboard-container h2{
+        font-size: 3rem;
+    }
+    .leaderboard-table th {
+        font-size: 1.5rem;
+    }
+    .leaderboard-table td{
+        font-size: 1.5rem;
+    }
+}   
+
 
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -105,10 +138,9 @@
     .leaderboard-container{
         height: 90vh;
     }
-
     .leaderboard-container h2{
-        margin-top: 1rem;
-        font-size: 1rem;
+        margin-top: 0rem;
+        font-size: 1.6rem;
     }
     .leaderboard-table th {
         font-size: 0.8rem;
@@ -122,8 +154,17 @@
 /* ──────────────────────────────────────────────────────────────────────────
 // MEDIUM PHONES
 // ────────────────────────────────────────────────────────────────────────-*/
-@media (max-width: 435px) {
-
+@media (max-width: 400px) {
+    .leaderboard-container h2{
+        margin-top: 1rem;
+        font-size: 1.6rem;
+    }
+    .leaderboard-table th {
+        font-size: 0.7rem;
+    }
+    .leaderboard-table td{
+        font-size: 0.7rem;
+    }
 }
 
 

@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow: auto;
 }
  
 .start-screen-container {
@@ -59,24 +59,6 @@
 
   /* border: 2px solid pink; */
 }
-  
-
-/* .mode-info-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  max-width: 120rem;
-  width: 100%;
-  height: auto;
-  position: relative;
-  letter-spacing: 0.08rem;
-  line-height: 1.3;
-  color: var(--white);
-  padding: 1rem;
-
-  border: 2px solid pink;
-} */
 
 .startscreen-text {
   display: block;
@@ -149,7 +131,7 @@
 .startscreen-note-text{
   text-align: left;
   position: fixed;
-  top: 50%;
+  top: 47%;
   left: 50%;
   width: 76%;
   line-height: 1.1;
@@ -193,7 +175,7 @@
     bottom: 0;
     width: 40%;
     height: auto;
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
     z-index: 100;
     display: flex;
     flex-direction: row;
@@ -405,15 +387,29 @@
   }
 }
 
+/*──────────────────────────────────────────────────────────────────────────
+// LARGE PHONES
+// ────────────────────────────────────────────────────────────────────────-*/
+
 @media (max-width: 500px) {
   .title{
-    font-size: 3rem;
+    font-size: 2.8rem;
+    margin-top: 2rem;
+  }
+
+  .footer{
+    width: 90%;
+    margin-bottom: 0rem;
   }
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+// MEDIUM PHONES
+// ────────────────────────────────────────────────────────────────────────-*/
+
 @media (max-width: 375px) {
   .title{
-    margin-top: 1.3rem;
+    margin-top: 1rem;
     font-size: 3rem;
   }
   .selected-mode {
@@ -437,6 +433,6 @@
   }
   .footer{
     width: 100%;
-    margin-bottom: 0.1rem;
+    margin-bottom: -0.5rem;
   }
 }

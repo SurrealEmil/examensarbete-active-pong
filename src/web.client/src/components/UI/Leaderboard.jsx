@@ -137,6 +137,10 @@ const Leaderboard = () => {
                 )}
               </tbody>
             </table>
+            <div className="footer">
+              <img src="./img/logo4.png" alt="Logo" />
+              <p>2025 ACTIVE SOLUTION</p>
+            </div>
           </div>
         </motion.div>
       )}
