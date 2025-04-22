@@ -1,10 +1,9 @@
-/* import { useEffect } from 'react' */
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react'
 import StartScreen from './components/StartScreen/StartScreen';
 import PongGame from './components/PongGame/PongGame';
 import PongGameTournament from './components/PongGame/PongGame-Tournament'
-import Leaderboard from './components/UI/Leaderboard'
+import Leaderboard from './components/StartScreen/Leaderboard'
 import ConnectOverlay from './components/UI/ConnectOverlay';
 import Lobby from './components/Lobby/Lobby'
 import Login from './components/Login/Login'
@@ -13,23 +12,6 @@ import UserProfile from './components/Login/UserProfile'
 import AdminRegister from './components/Admin/AdminRegister';
 import AdminLeaderboard from './components/Admin/AdminLeaderboard';
 import AdminUsers from './components/Admin/AdminUsers';
-
-
-/* const playersData = [
-  { id: 1, rank: 1, name: 'Arnold swh', score: 8179872 },
-  { id: 2, rank: 2, name: 'Betty White', score: 7924943},
-  { id: 3, rank: 3, name: 'Lara Croft', score: 2804},
-  { id: 4, rank: 4, name: 'Bruce L', score: 8179872 },
-  { id: 5, rank: 5, name: 'Jean-Claude', score: 7924943},
-  { id: 6, rank: 6, name: 'Robo Rider', score: 2804},
-  { id: 7, rank: 7, name: 'Jackie Chan', score: 8179872 },
-  { id: 8, rank: 8, name: 'Pamela Andersson', score: 7924943},
-  { id: 9, rank: 9, name: 'Clint East', score: 2804},
-  { id: 10, rank: 10, name: 'Sylvester Stall', score: 2804},
-] */
-
-
-
 
 const AppContent = () => {
   const location = useLocation()

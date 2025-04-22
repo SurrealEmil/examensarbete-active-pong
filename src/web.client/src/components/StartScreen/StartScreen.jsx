@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StartScreen.css';
 import QRCode from "react-qr-code";
-import PongBackground from './PongBackground';
+/* import PongBackground from './PongBackground'; */
 /* import TransitionOverlay from '../UI/TransitionOverlay'; */
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -270,16 +270,18 @@ const StartScreen = () => {
         <motion.div
           className="start-screen-container"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 10 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
-          
+          transition={{ duration: 2 }}
         >
-    
       {/* ADMIN Button */}
-      <div className='pong-background'>
+     
         {/* <PongBackground/>  */}
-        </div>
+        <video className="background-video" autoPlay muted loop playsInline>
+          <source src="/img/pong-background-2.mov" type="video/mp4" />
+          {/* <source src="/img/pong-background.mp4" type="video/mp4" /> */}
+        </video>
+      
       <div className="admin-button" onClick={toggleAdminDropdown}>
         {/* <div className="hamburger-icon">
           <span></span>

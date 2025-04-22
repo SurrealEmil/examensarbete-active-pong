@@ -98,9 +98,9 @@ const Leaderboard = () => {
       {!isExiting && (
         <motion.div className="leaderboard-container"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 10 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: 2 }}
         >
           <h2>HIGH SCORES</h2>
           <div className="table-wrapper">

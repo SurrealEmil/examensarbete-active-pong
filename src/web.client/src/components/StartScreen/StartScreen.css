@@ -207,17 +207,30 @@
 // PONG BACGROUND
 // ────────────────────────────────────────────────────────────────────────-*/
 
-.pong-background {
+/* .pong-background {
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0.9;
-  z-index: -200;
+ 
   height: 100vh;
   width: 100vw;
-
+  
   object-fit: cover;
-  /* border: 3px solid rgb(255, 0, 255); */
+ 
+  } */
+
+  .background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: -200; 
+
+    /* border: solid 2px */
+  
+    
   }
  
 /* ──────────────────────────────────────────────────────────────────────────
