@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto;
+  overflow: hidden;
 }
  
 .start-screen-container {
@@ -28,6 +28,7 @@
 
 .title {
   position: fixed;
+  margin-top: 3rem;
   top: 0;
   left: 0;
   width: 100%;
@@ -39,7 +40,7 @@
   font-size: clamp(6rem, 9vw, 8rem); 
   letter-spacing: 0.5rem;                      
   text-shadow: black 10px 10px 1px;
-  margin-top: 2rem;
+  
  
   /* border: 2px solid pink; */
 }
