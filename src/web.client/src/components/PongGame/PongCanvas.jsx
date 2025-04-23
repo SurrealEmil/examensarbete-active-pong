@@ -1,6 +1,11 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './PongStyles.css';
+
+/**
+ * PongCanvas Component
+ * Handles game rendering based on the game state received via props.
+ */
 
 const rootStyles = getComputedStyle(document.documentElement);
 const paddleColor = rootStyles.getPropertyValue('--orange').trim();
@@ -17,41 +22,50 @@ const PongCanvas = ({ gameState, canvasWidth, canvasHeight, wallThickness}) => {
       const canvas = staticCanvasRef .current;
       const context = canvas.getContext('2d');
       const grid = 15;
+      
 
       // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height)
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Optionally fill a background (uncomment if needed)
+      // context.fillStyle = 'black';
+      // context.fillRect(0, 0, canvas.width, canvas.height);
+
       // Draw walls
       context.fillStyle = wallColor;
       // Top wall
       context.fillRect(0, 0, canvas.width, wallThickness);
       // Bottom wall
       context.fillRect(0, canvas.height - wallThickness, canvas.width, wallThickness);
-      //center net
+      // // Left wall
+      // context.fillRect(0, 0, wallThickness, canvas.height);
+      // // Right wall
+      // context.fillRect(canvas.width - wallThickness, 0, wallThickness, canvas.height);
+
+      // Draw center net (dotted line)
       for (let i = grid; i < canvas.height - grid; i += grid * 2) {
         context.fillRect(canvas.width / 2 - grid / 2, i, grid, grid);
       }
     }, [canvasWidth, canvasHeight, wallThickness]);
     
-    // Draw dynamic objects: balls and paddles (re-drawn each time gameState updates)
-    useEffect(() => {
-      const canvas = dynamicCanvasRef.current;
-      const context = canvas.getContext('2d');
+    // Draw dynamic objects: ball and paddles (re-drawn each time gameState updates)
+  useEffect(() => {
+    //console.log("Drawing dynamic elements");
+    const canvas = dynamicCanvasRef.current;
+    const context = canvas.getContext('2d');
 
-      // Clear the dynamic canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
+    // Clear the dynamic canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-      const { balls, leftPaddle, rightPaddle } = gameState;
+    const { ball, leftPaddle, rightPaddle } = gameState;
 
     // Draw paddles
     context.fillStyle = paddleColor;
     context.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
     context.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
 
-    // Draw balls
-    context.fillStyle = wallColor;
-    balls.forEach(({ x, y, width, height }) => {
-      context.fillRect(x, y, width, height)
-    })
+    // Draw ball
+    context.fillRect(ball.x, ball.y, ball.width, ball.height);
   }, [gameState]);
 
   return (
@@ -76,19 +90,16 @@ const PongCanvas = ({ gameState, canvasWidth, canvasHeight, wallThickness}) => {
 };
 
 PongCanvas.propTypes = {
-  // the “model” of the world
   gameState: PropTypes.shape({
-    balls: PropTypes.arrayOf(
-      PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        width: PropTypes.number.isRequired,
-        height: PropTypes.number.isRequired,
-        dx: PropTypes.number,
-        dy: PropTypes.number,
-        resetting: PropTypes.bool,
-      })
-    ).isRequired,
+    ball: PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+      dx: PropTypes.number.isRequired,
+      dy: PropTypes.number.isRequired,
+      resetting: PropTypes.bool.isRequired,
+    }).isRequired,
     leftPaddle: PropTypes.shape({
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
@@ -101,16 +112,17 @@ PongCanvas.propTypes = {
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
     }).isRequired,
+    canvasWidth: PropTypes.number.isRequired,
+    canvasHeight: PropTypes.number.isRequired,
+    wallThickness: PropTypes.number,
     scores: PropTypes.shape({
-      player1: PropTypes.number.isRequired,
-      player2: PropTypes.number.isRequired,
+      player1: PropTypes.number.isRequired, // Changed from 'player'
+      player2: PropTypes.number.isRequired, // Changed from 'ai'
     }).isRequired,
   }).isRequired,
-
-  // props for canvas sizing and wall thickness
-  canvasWidth:  PropTypes.number.isRequired,
+  canvasWidth: PropTypes.number.isRequired,
   canvasHeight: PropTypes.number.isRequired,
-  wallThickness: PropTypes.number.isRequired,
 };
+
 
 export default PongCanvas;
