@@ -117,7 +117,6 @@ const {
 } = GAME_CONFIG;
 
 
-
 const PongGameTournament = () => {
   const location = useLocation()
   const navigate = useNavigate();
@@ -129,38 +128,27 @@ const PongGameTournament = () => {
   const [leftJoyConConnected, setLeftJoyConConnected] = useState(false);
   const [rightJoyConConnected, setRightJoyConConnected] = useState(false);
 
-  const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const { player1, player2 } = location.state || {}
-
-  const player1Name = player1?.username || 'Default'
-  const player2Name = player2?.username || 'Default'
+  const player1Name = player1?.username || 'Player 1'
+  const player2Name = player2?.username || 'Player 2'
   const player1Id = player1?.userId || null
   const player2Id = player2?.userId || null
 
-  /* const [player1Name, setPlayer1Name] = useState('')
-  const [player2Name, setPlayer2Name] = useState('') */
-
-  const handlePlayer1NameChange = (name) => {
+/*   const handlePlayer1NameChange = (name) => {
     setPlayer1Name(name)
   }
 
   const handlePlayer2NameChange = (name) => {
     setPlayer2Name(name)
-  }
+  } */
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
   // ──────────────────────────────────────────────────────────────────────────
+
+  const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const INITIAL_GAME_STATE = {
-    ball: {
-      x: canvasWidth / 2 - BALL_DIAMETER / 2,
-      y: canvasHeight / 2 - BALL_DIAMETER / 2,
-      width: BALL_DIAMETER,
-      height: BALL_DIAMETER,
-      dx: 0,
-      dy: 0,
-      resetting: false,
-    },
+    balls: [],
     leftPaddle: {
       x: 25,
       y: canvasHeight / 2 - PADDLE_HEIGHT / 2,
@@ -185,6 +173,12 @@ const PongGameTournament = () => {
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE);
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
+
+  // Timer state: starts at 90 seconds
+  const [timer, setTimer] = useState(90);
+
+  const [balls, setBalls] = useState(1)
+  const [engineVersion, setEngineVersion] = useState(0);
 
   // Control modes for each Joy-Con
   const [controlModeLeft, setControlModeLeft] = useState('joystick');
@@ -298,16 +292,49 @@ const PongGameTournament = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameState.scores]);
 
+  const [extraBallReady, setExtraBallReady] = useState(false);
+
+  useEffect(() => {
+    if (timer === 30) setExtraBallReady(true);  // or whatever your trigger is
+  }, [timer]);
+  
+  useEffect(() => {
+    if (!extraBallReady) return;
+    const engine = engineRef.current;
+    if (!engine) return;
+   // create a brand-new ball
+   const second = Matter.Bodies.circle(
+    canvasWidth/2,
+    canvasHeight/2,
+    BALL_DIAMETER/2,
+    { restitution: BALL_RESTITUTION, frictionAir: BALL_FRICTION_AIR }
+  );
+  // add to engine & to your refs/state
+  Matter.World.add(engine.world, second);
+  ballBodyRefs.current.push(second);
+  // also push into your React state so render & collision logic sees it
+  setGameState(s => ({
+    ...s,
+    balls: s.balls.concat({
+      id: s.balls.length,
+      x: second.position.x - BALL_DIAMETER/2,
+      y: second.position.y - BALL_DIAMETER/2,
+      dx: 0, dy: 0,
+    }),
+  }));
+}, [extraBallReady]);
+
 // ──────────────────────────────────────────────────────────────────────────
 // MATTER.JS SETUP (No Runner started automatically)
 // ──────────────────────────────────────────────────────────────────────────
-const [engineVersion, setEngineVersion] = useState(0);
+
+
 
 const {
   engineRef,
   runnerRef,
   renderRef,
-  ballBodyRef,
+  ballBodyRefs,
   leftPaddleBodyRef,
   rightPaddleBodyRef,
 } = useInitializeMatter({
@@ -320,6 +347,7 @@ const {
   // ──────────────────────────────────────────────────────────────────────────
   // BALL SETTINGS
   // ──────────────────────────────────────────────────────────────────────────
+  ballCount: balls,
   ballDiameter: BALL_DIAMETER,
   ballSpeed: BALL_SPEED, // Initial speed setting
 
@@ -432,7 +460,7 @@ const { fps, isLagSpike } = useGameLoop({
   gameState,
   setGameState,
   engineRef,
-  ballBodyRef,
+  ballBodyRefs,
   leftPaddleBodyRef,
   rightPaddleBodyRef,
   leftPaddleVelocityRef,
@@ -479,7 +507,6 @@ const { fps, isLagSpike } = useGameLoop({
   rumbleSecondaryIntensityLow: RUMBLE_SECONDARY_INTENSITY_LOW,
   rumbleSecondaryStrength: RUMBLE_SECONDARY_STRENGTH,
   rumbleSecondaryDelay: RUMBLE_SECONDARY_DELAY,
-
 
   randomSideThreshold: RANDOM_SIDE_THRESHOLD,
 });
@@ -566,17 +593,14 @@ const { fps, isLagSpike } = useGameLoop({
   })
   } 
   
+  // ──────────────────────────────────────────────────────────────────────────
+  // Timer: countdown 90s → 0
+  // ──────────────────────────────────────────────────────────────────────────
 
-
-// Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90);
-/* const [showLeaderboard, setShowLeaderboard] = useState(false);
- */
-
-useEffect(() => {
-  // Start the timer when the game starts (or immediately if you prefer)
-  const timerId = setInterval(() => {
-    setTimer((prevTimer) => {
+  useEffect(() => {
+    // Start the timer when the game starts (or immediately if you prefer)
+    const timerId = setInterval(() => {
+      setTimer((prevTimer) => {
       if (prevTimer <= 1) {
         clearInterval(timerId);
         // Optionally, add any game-over logic here.
@@ -588,6 +612,14 @@ useEffect(() => {
 
   return () => clearInterval(timerId);
 }, []); // run only once on mount
+
+  // at 30s introduce second ball
+  useEffect(() => {
+    if (timer === 30) {
+      setBalls(2);
+    }
+  }, [timer]);
+
 
 // When timer reaches 0, show the leaderboard
 useEffect(() => {
@@ -620,9 +652,7 @@ useEffect(() => {
               'Content-Type': 'application/json',
               Accept: '*/*',
             },
-            // If your backend requires credentials like cookies:
             
-            //withCredentials: true ,
           }
         );
 
@@ -732,9 +762,11 @@ useEffect(() => {
 
     // Start ball movement
     const randomSign = () => (Math.random() > 0.5 ? 1 : -1);
-    Matter.Body.setVelocity(ballBodyRef.current, {
-      x: BALL_SPEED * randomSign(),
-      y: BALL_SPEED * randomSign(),
+    ballBodyRefs.current.forEach((b) => {
+      Matter.Body.setVelocity(b, {
+        x: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
+        y: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
+      });
     });
 
     try {
@@ -804,8 +836,6 @@ useEffect(() => {
       )}
 
       <div className="pong-game-container">
-        
-           {/* CANVAS */}
           <PongCanvas
           gameState={gameState}
           canvasWidth={canvasWidth}
@@ -813,10 +843,7 @@ useEffect(() => {
           wallThickness={WALL_THICKNESS}
         />
         </div>
-        {/* START OVERLAY */}
-       {/*  {!gameStarted && <StartOverlay onStart={handleStartGame}/>} */}
 
-      {/* PAUSE OVERLAY (only shows if game is paused and not game over) */}
        {gamePaused && gameStarted && !gameOver && (
         <PauseOverlay 
         onResume={handleResume}
@@ -824,20 +851,8 @@ useEffect(() => {
       />  
       )} 
 
-      {/* When game is over, display the leaderboard */}
-    {/* {showLeaderboard && <Leaderboard players={playersData} />} */}
-
-      {/* <div className="pong-game-container"> */}
-
-       
-
-       
-      
-
-    {/* FPS Display Overlay */}
     <FpsOverlay fps={fps} isLagSpike={isLagSpike} />
 
-    {/* Joy-Con Connector */}
     <JoyConConnector
       ref={joyConConnectorRef}
       onMotionDataLeft={(data) => setMotionDataLeft(data)}

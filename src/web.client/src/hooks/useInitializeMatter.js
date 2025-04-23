@@ -79,245 +79,247 @@ export default function useInitializeMatter({
   canvasHeight,
 
   // ──────────────────────────────────────────────────────────────────────────
+  // Number of balls to spawn (default: 1)
+  // ──────────────────────────────────────────────────────────────────────────
+  ballCount = 1,
+
+  // ──────────────────────────────────────────────────────────────────────────
   // BALL SETTINGS
   // ──────────────────────────────────────────────────────────────────────────
-  ballDiameter = 20,         // Default diameter of ball
-  ballSpeed = 10,            // Default initial speed
-  ballFriction = 0,          // No friction
-  ballFrictionAir = 0,       // No air resistance
-  ballRestitution = 1,       // Fully bouncy
-  ballInertia = Infinity,    // No rotational inertia
+  ballDiameter    = 20,
+  ballFriction    = 0,
+  ballFrictionAir = 0,
+  ballRestitution = 1,
+  ballInertia     = Infinity,
 
   // ──────────────────────────────────────────────────────────────────────────
   // PADDLE SETTINGS
   // ──────────────────────────────────────────────────────────────────────────
-  paddleWidth = 20,          // Default paddle width
-  paddleHeight = 200,        // Default paddle height
-  paddleOffsetLeftX = 25,    // Default X offset for left paddle
-  paddleOffsetLeftY = 200,   // Default Y offset for left paddle
-  paddleOffsetRightX = 25,   // Default X offset for right paddle
-  paddleOffsetRightY = 0,    // Default Y offset for right paddle
+  paddleWidth        = 20,
+  paddleHeight       = 200,
+  paddleOffsetLeftX  = 25,
+  paddleOffsetLeftY  = 200,
+  paddleOffsetRightX = 25,
+  paddleOffsetRightY = 0,
 
   // ──────────────────────────────────────────────────────────────────────────
-  // WALL & ARENA SETTINGS
+  // WALL SETTINGS
   // ──────────────────────────────────────────────────────────────────────────
-  wallThickness = 10,        // Default thickness for walls
+  wallThickness = 10,
 
   // ──────────────────────────────────────────────────────────────────────────
-  // GRAVITY SETTINGS
+  // GRAVITY
   // ──────────────────────────────────────────────────────────────────────────
-  gravityX = 0,              // Horizontal gravity force (default: 0)
-  gravityY = 0,              // Vertical gravity force (default: 0)
+  gravityX = 0,
+  gravityY = 0,
 
   // ──────────────────────────────────────────────────────────────────────────
-  // DEBUG & VISUAL SETTINGS
+  // DEBUG & RENDER OPTIONS
   // ──────────────────────────────────────────────────────────────────────────
-  debug = true,              // Enable debug rendering by default
-  backgroundColor = '#1e1e1e', // Default background color
-  wireFrames = true,
-  showCollisions = true,
-  showVelocity = true,
+  debug           = true,
+  backgroundColor = '#1e1e1e',
+  wireFrames      = true,
+  showCollisions    = true,
+  showVelocity      = true,
   showAngleIndicator = true,
-  showIds = true,
-  showPositions = true,       // Show body center positions
-  showBounds = true,          // Show AABB bounding boxes
-  showAxes = true,            // Show axes for each body
-  showSleeping = true,        // Gray out sleeping bodies
-  showSeparations = true,     // Show collision separation vectors
-  showConstraints = true,     // Show constraints (joints, ropes, etc.)
-  showDebug = true,           // Show internal debug info
-  showBroadphase = true,      // Show broadphase collision detection
+  showIds            = true,
+  showPositions      = true,
+  showBounds         = true,
+  showAxes           = true,
+  showSleeping       = true,
+  showSeparations    = true,
+  showConstraints    = true,
+  showDebug          = true,
+  showBroadphase     = true,
 
   // ──────────────────────────────────────────────────────────────────────────
-  // ENGINE VERSION (Triggers re-initialization)
+  // Bump this to force a full teardown & rebuild
   // ──────────────────────────────────────────────────────────────────────────
   version = 0,
 }) {
-  // 1) Create refs
-  const engineRef = useRef(null);
-  const runnerRef = useRef(null);
-  const ballBodyRef = useRef(null);
-  const leftPaddleBodyRef = useRef(null);
+  // ──────────────────────────────────────────────────────────────────────────
+  // Refs for Matter.js engine, runner, renderer, composites & bodies
+  // ──────────────────────────────────────────────────────────────────────────
+  const engineRef          = useRef(null);
+  const runnerRef          = useRef(null);
+  const renderRef          = useRef(null);
+  const wallsRef           = useRef(null);
+  const ballBodyRefs       = useRef([]);     // ← array of Matter.Body
+  const leftPaddleBodyRef  = useRef(null);
   const rightPaddleBodyRef = useRef(null);
-  const renderRef = useRef(null);
-
-  const wallsRef = useRef(null); // Add a ref for walls
-
 
   useEffect(() => {
-    if (!engineRef.current) {
-      // ✅ Request Motion Permissions
-     /*  if (typeof DeviceMotionEvent?.requestPermission === "function") {
-        DeviceMotionEvent.requestPermission()
-            .then(permissionState => {
-                if (permissionState === "granted") {
-                    console.log("✅ Motion access granted.");
-                } else {
-                    console.warn("⚠️ Motion access denied.");
-                }
-            })
-            .catch(error => console.error("❌ Motion permission request failed:", error));
-    } else {
-        console.log("ℹ️ DeviceMotionEvent.requestPermission is not required on this browser.");
-    } */
-      
-      // 2) Create engine & runner
-      const engine = Matter.Engine.create();
-      const runner = Matter.Runner.create();
-      
-      // 3) Optionally set up debug rendering
-      if (debug) {
-        const render = Matter.Render.create({
-          /* element: document.body, */
-          element: document.querySelector('.pong-game-container'),
-          engine,
-          options: {
-            width: canvasWidth,
-            height: canvasHeight,
-            wireframes: wireFrames,
-            background: backgroundColor,
-            showCollisions: showCollisions,
-            showVelocity: showVelocity,
-            showAngleIndicator: showAngleIndicator,
-            showIds: showIds,
-            showPositions: showPositions,
-            showBounds: showBounds,
-            showAxes: showAxes,
-            showSleeping: showSleeping,
-            showSeparations: showSeparations,
-            showConstraints: showConstraints,
-            showDebug: showDebug,
-            showBroadphase: showBroadphase,
-          },
-        });
-        renderRef.current = render;
-        Matter.Render.run(render);
+    // ————————————————————————————————————————————————————————————————————
+    // 1) TEARDOWN existing world if any
+    // ————————————————————————————————————————————————————————————————————
+    if (engineRef.current) {
+      // stop renderer
+      if (renderRef.current) {
+        Matter.Render.stop(renderRef.current);
+        renderRef.current.canvas.remove();
+        renderRef.current.textures = {};
       }
+      // stop runner
+      if (runnerRef.current) {
+        Matter.Runner.stop(runnerRef.current);
+      }
+      const world = engineRef.current.world;
+      // remove walls & balls & paddles
+      Matter.Composite.remove(world, wallsRef.current);
+      ballBodyRefs.current.forEach(b => Matter.World.remove(world, b));
+      Matter.World.remove(world, leftPaddleBodyRef.current);
+      Matter.World.remove(world, rightPaddleBodyRef.current);
+      // clear engine
+      Matter.Engine.clear(engineRef.current);
+      // reset refs
+      engineRef.current = null;
+      ballBodyRefs.current = [];
+    }
 
-        // 4) Create a composite for walls
-        const walls = Matter.Composite.create();
-        Matter.Composite.add(walls, [
-            Matter.Bodies.rectangle(
-                canvasWidth / 2, wallThickness / 2, canvasWidth, wallThickness, 
-                { 
-                  isStatic: true, 
-                  label: 'topWall' }
-              ),
-              Matter.Bodies.rectangle(
-                canvasWidth / 2, canvasHeight - wallThickness / 2, canvasWidth, wallThickness, 
-                { 
-                  isStatic: true, 
-                  label: 'bottomWall' }
-              ),
-        //   Matter.Bodies.rectangle(0, canvasHeight / 2, wallThickness, canvasHeight, { isStatic: true, label: 'leftWall' }),
-        //   Matter.Bodies.rectangle(canvasWidth, canvasHeight / 2, wallThickness, canvasHeight, { isStatic: true, label: 'rightWall' }),
-        ]);
+    // ————————————————————————————————————————————————————————————————————
+    // 2) CREATE new engine & runner
+    // ————————————————————————————————————————————————————————————————————
+    const engine = Matter.Engine.create();
+    const runner = Matter.Runner.create();
+    engine.world.gravity.x = gravityX;
+    engine.world.gravity.y = gravityY;
 
-        wallsRef.current = walls; // Save to ref
+    engineRef.current = engine;
+    runnerRef.current = runner;
 
-      // 5) Create ball & paddles
-      const ballBody = Matter.Bodies.circle(
-        canvasWidth / 2,
-        canvasHeight / 2,
-        ballDiameter / 2,
+    // ————————————————————————————————————————————————————————————————————
+    // 3) OPTIONAL DEBUG RENDERER
+    // ————————————————————————————————————————————————————————————————————
+    if (debug) {
+      const render = Matter.Render.create({
+        element: document.querySelector('.pong-game-container'),
+        engine,
+        options: {
+          width: canvasWidth,
+          height: canvasHeight,
+          wireframes,
+          background: backgroundColor,
+          showCollisions,
+          showVelocity,
+          showAngleIndicator,
+          showIds,
+          showPositions,
+          showBounds,
+          showAxes,
+          showSleeping,
+          showSeparations,
+          showConstraints,
+          showDebug,
+          showBroadphase,
+        },
+      });
+      renderRef.current = render;
+      Matter.Render.run(render);
+    }
+
+    // ————————————————————————————————————————————————————————————————————
+    // 4) CREATE WALLS
+    // ————————————————————————————————————————————————————————————————————
+    const walls = Matter.Composite.create();
+    Matter.Composite.add(walls, [
+      Matter.Bodies.rectangle(
+        canvasWidth/2, wallThickness/2,
+        canvasWidth, wallThickness,
+        { isStatic: true, label: 'topWall' }
+      ),
+      Matter.Bodies.rectangle(
+        canvasWidth/2, canvasHeight - wallThickness/2,
+        canvasWidth, wallThickness,
+        { isStatic: true, label: 'bottomWall' }
+      ),
+    ]);
+    wallsRef.current = walls;
+    Matter.World.add(engine.world, walls);
+
+    // ————————————————————————————————————————————————————————————————————
+    // 5) CREATE PADDLES
+    // ————————————————————————————————————————————————————————————————————
+    const leftPaddle = Matter.Bodies.rectangle(
+      paddleOffsetLeftX + paddleWidth/2,
+      paddleOffsetLeftY + paddleHeight/2,
+      paddleWidth, paddleHeight,
+      { isStatic: true, label: 'leftPaddle' }
+    );
+    const rightPaddle = Matter.Bodies.rectangle(
+      canvasWidth - (paddleWidth + paddleOffsetRightX) + paddleWidth/2,
+      canvasHeight/2,
+      paddleWidth, paddleHeight,
+      { isStatic: true, label: 'rightPaddle' }
+    );
+    leftPaddleBodyRef.current  = leftPaddle;
+    rightPaddleBodyRef.current = rightPaddle;
+    Matter.World.add(engine.world, [leftPaddle, rightPaddle]);
+
+    // ————————————————————————————————————————————————————————————————————
+    // 6) CREATE BALLS
+    // ————————————————————————————————————————————————————————————————————
+    for (let i = 0; i < ballCount; i++) {
+      const ball = Matter.Bodies.circle(
+        canvasWidth/2,
+        canvasHeight/2,
+        ballDiameter/2,
         {
           restitution: ballRestitution,
-          friction: ballFriction,
+          friction:    ballFriction,
           frictionAir: ballFrictionAir,
-          inertia: ballInertia,
-          label: 'ball',
+          inertia:     ballInertia,
+          label:       'ball',
         }
       );
-
-      const leftPaddleBody = Matter.Bodies.rectangle(
-        paddleOffsetLeftX + paddleWidth / 2, 
-        paddleOffsetLeftY + paddleHeight / 2,
-        paddleWidth,
-        paddleHeight,
-        { 
-          isStatic: true, 
-          label: 'leftPaddle',
-          // chamfer: { radius: paddleWidth / 4 }
-        }
-      );
-      
-      const rightPaddleBody = Matter.Bodies.rectangle(
-        canvasWidth - (paddleWidth + paddleOffsetRightX) + paddleWidth / 2,
-        canvasHeight / 2,
-        paddleWidth,
-        paddleHeight,
-        { 
-          isStatic: true,
-          label: 'rightPaddle',
-          // chamfer: { radius: paddleWidth / 4 }
-        }
-      );
-
-      // 6) Save references
-      engineRef.current = engine;
-      runnerRef.current = runner;
-      ballBodyRef.current = ballBody;
-      leftPaddleBodyRef.current = leftPaddleBody;
-      rightPaddleBodyRef.current = rightPaddleBody;
-
-      // Apply gravity settings
-      engine.world.gravity.x = gravityX;  // Horizontal gravity
-      engine.world.gravity.y = gravityY;  // Vertical gravity
-
-      // Add dynamic objects (ball and paddles)
-      Matter.World.add(engine.world, [ballBody, leftPaddleBody, rightPaddleBody]);
-
-      // Add static walls separately
-      Matter.World.add(engine.world, wallsRef.current); // Add walls to the world
-
-      Matter.Body.setPosition(ballBody, {
-        x: canvasWidth / 2,
-        y: canvasHeight / 2,
-      });
-      Matter.Body.setVelocity(ballBody, { x: 0, y: 0 });
+      ballBodyRefs.current.push(ball);
+      Matter.World.add(engine.world, ball);
     }
-// Cleanup on unmount or version change:
-return () => {
-  if (renderRef.current) {
-    Matter.Render.stop(renderRef.current);
-    renderRef.current.canvas.remove();
-    renderRef.current.textures = {};
-  }
 
-  if (runnerRef.current) {
-    Matter.Runner.stop(runnerRef.current);
-  }
+    // — (Optionally start the runner here or in your component) —
+    // Matter.Runner.run(runner, engine);
 
-  if (engineRef.current) {
-    if (wallsRef.current) {
-      Matter.World.remove(engineRef.current.world, wallsRef.current);
-    }
-    Matter.Engine.clear(engineRef.current);
-  }
+  }, [
+    canvasWidth,
+    canvasHeight,
+    ballCount,        // ← rebuild world when this changes
+    ballDiameter,
+    ballFriction,
+    ballFrictionAir,
+    ballRestitution,
+    ballInertia,
+    paddleWidth,
+    paddleHeight,
+    paddleOffsetLeftX,
+    paddleOffsetLeftY,
+    paddleOffsetRightX,
+    paddleOffsetRightY,
+    wallThickness,
+    gravityX,
+    gravityY,
+    debug,
+    backgroundColor,
+    wireFrames,
+    showCollisions,
+    showVelocity,
+    showAngleIndicator,
+    showIds,
+    showPositions,
+    showBounds,
+    showAxes,
+    showSleeping,
+    showSeparations,
+    showConstraints,
+    showDebug,
+    showBroadphase,
+    version,          // ← bump to force full teardown & rebuild
+  ]);
 
-  engineRef.current = null;
-  runnerRef.current = null;
-  renderRef.current = null;
-};
-// Notice we add 'version' to the dependency list
-}, [
-canvasWidth,
-canvasHeight,
-ballDiameter,
-wallThickness,
-paddleWidth,
-paddleHeight,
-debug,
-version // <-- IMPORTANT: triggers re-init
-]);
-
-return {
-engineRef,
-runnerRef,
-ballBodyRef,
-leftPaddleBodyRef,
-rightPaddleBodyRef,
-renderRef,
-};
+  return {
+    engineRef,
+    runnerRef,
+    renderRef,
+    ballBodyRefs,
+    leftPaddleBodyRef,
+    rightPaddleBodyRef,
+  };
 }
-
