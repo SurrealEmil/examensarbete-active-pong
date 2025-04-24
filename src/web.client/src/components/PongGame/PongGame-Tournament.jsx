@@ -12,11 +12,9 @@ import PauseOverlay from '../UI/PauseOverlay';
 /* import StartOverlay from '../UI/StartOverlay'; */
 import FpsOverlay from '../UI/FpsOverlay';
 import TopBar from '../UI/TopBar';
-/* import ScoreDisplay from '../UI/ScoreDisplay'; */
 import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
-// import './PongGame-Tournament.css'
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -116,7 +114,31 @@ const {
 
 } = GAME_CONFIG;
 
+/**
+ * Generate a random velocity vector with the given speed
+ * @param {number} speed - The speed magnitude
+ * @param {number} bufferDeg - Buffer in degrees to avoid near-horizontal/vertical angles
+ */
 
+const LAUNCH_BUFFER_DEG = 15;
+
+function randomVelocity(speed, bufferDeg = 15) {
+  const thresh = Math.sin(bufferDeg * Math.PI / 180)
+  
+  let angle;
+  do {
+    angle = Math.random() * 2 * Math.PI;              
+    // Keep looping while angle is *too close* to 0°, 90°, 180°, 270°
+  } while (
+    Math.abs(Math.sin(angle)) < thresh ||   
+    Math.abs(Math.cos(angle)) < thresh    
+  );
+  
+  return {
+    x: speed * Math.cos(angle),
+    y: speed * Math.sin(angle),
+  };
+}
 
 const PongGameTournament = () => {
   const location = useLocation()
@@ -132,28 +154,18 @@ const PongGameTournament = () => {
   const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const { player1, player2 } = location.state || {}
 
-  const player1Name = player1?.username || 'Default'
-  const player2Name = player2?.username || 'Default'
+  const player1Name = player1?.username || 'Player 1'
+  const player2Name = player2?.username || 'Player 2'
   const player1Id = player1?.userId || null
   const player2Id = player2?.userId || null
 
-  /* const [player1Name, setPlayer1Name] = useState('')
-  const [player2Name, setPlayer2Name] = useState('') */
-
-  const handlePlayer1NameChange = (name) => {
-    setPlayer1Name(name)
-  }
-
-  const handlePlayer2NameChange = (name) => {
-    setPlayer2Name(name)
-  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
   // ──────────────────────────────────────────────────────────────────────────
   const makeBall = () => ({
-    x: canvasWidth / 2 - BALL_DIAMETER / 2,   // ← your own start X
-    y: canvasHeight / 2 - BALL_DIAMETER / 2,  // ← your own start Y
+    x: canvasWidth / 2 - BALL_DIAMETER / 2,  
+    y: canvasHeight / 2 - BALL_DIAMETER / 2,
        width:  BALL_DIAMETER,
        height: BALL_DIAMETER,
        dx: 0,
@@ -162,9 +174,7 @@ const PongGameTournament = () => {
      });
 
   function createNewBall(engine, diameter) {
-      //create the React-side object 
       const reactBall = makeBall();         
-    
       //create the Matter body
       const body = Matter.Bodies.circle(
         canvasWidth / 2,
@@ -179,45 +189,26 @@ const PongGameTournament = () => {
         }
       );
 
-      const randSign = () => (Math.random() > 0.5 ? 1 : -1);
-      Matter.Body.setVelocity(body, {
-        x: BALL_SPEED * randSign(),
-        y: BALL_SPEED * randSign(),
-      });
-
       ballBodyRef.current.push(body);
       Matter.World.add(engine.world, body);
 
       return reactBall;      
-
     }
-  
+
     function addExtraBall() {
-        if (!engineRef.current) return;      // safety
-      
+        if (!engineRef.current) return;     
         const newBallObj = createNewBall(engineRef.current, BALL_DIAMETER);
-      
+        const body = ballBodyRef.current[ballBodyRef.current.length - 1];
+        Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG));
         setGameState(s => ({
           ...s,
           balls: [...s.balls, newBallObj],
         }));
       }
     
-     
-    
-                     
-    
+               
   const INITIAL_GAME_STATE = {
- /*    ball: {
-      x: canvasWidth / 2 - BALL_DIAMETER / 2,
-      y: canvasHeight / 2 - BALL_DIAMETER / 2,
-      width: BALL_DIAMETER,
-      height: BALL_DIAMETER,
-      dx: 0,
-      dy: 0,
-      resetting: false,
-    }, */
-    /* balls: Array.from({ length: GAME_CONFIG.NUM_BALLS }, makeBall), */
+
     balls: [makeBall()],
     leftPaddle: {
       x: 25,
@@ -490,7 +481,6 @@ const { fps, isLagSpike } = useGameLoop({
   gameState,
   setGameState,
   engineRef,
-  /* ballBodyRef, */
   ballBodyRefs: ballBodyRef, 
   leftPaddleBodyRef,
   rightPaddleBodyRef,
@@ -679,9 +669,7 @@ useEffect(() => {
               'Content-Type': 'application/json',
               Accept: '*/*',
             },
-            // If your backend requires credentials like cookies:
-            
-            //withCredentials: true ,
+          
           }
         );
 
@@ -789,18 +777,9 @@ useEffect(() => {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
 
-    // Start ball movement
-    const randomSign = () => (Math.random() > 0.5 ? 1 : -1);
 
-   /*  Matter.Body.setVelocity(ballBodyRef.current, {
-      x: BALL_SPEED * randomSign(),
-      y: BALL_SPEED * randomSign(),
-    }); */
     ballBodyRef.current.forEach(body => {
-      Matter.Body.setVelocity(body, {
-        x: BALL_SPEED * randomSign(),
-        y: BALL_SPEED * randomSign(),
-      })
+      Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
     })
 
     try {
@@ -810,11 +789,10 @@ useEffect(() => {
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
-    setTimeout(addExtraBall, 10_000) 
-    setTimeout(addExtraBall, 15_000) 
     setTimeout(addExtraBall, 20_000) 
-    setTimeout(addExtraBall, 25_000) 
-    setTimeout(addExtraBall, 30_000) 
+    setTimeout(addExtraBall, 40_000) 
+    setTimeout(addExtraBall, 60_000) 
+    setTimeout(addExtraBall, 80_000)
   };
 
   useEffect(() => {
@@ -876,8 +854,6 @@ useEffect(() => {
       )}
 
       <div className="pong-game-container">
-        
-           {/* CANVAS */}
           <PongCanvas
           gameState={gameState}
           canvasWidth={canvasWidth}
@@ -885,31 +861,14 @@ useEffect(() => {
           wallThickness={WALL_THICKNESS}
         />
         </div>
-        {/* START OVERLAY */}
-       {/*  {!gameStarted && <StartOverlay onStart={handleStartGame}/>} */}
 
-      {/* PAUSE OVERLAY (only shows if game is paused and not game over) */}
        {gamePaused && gameStarted && !gameOver && (
         <PauseOverlay 
         onResume={handleResume}
         onQuit={handleQuit}
       />  
-      )} 
-
-      {/* When game is over, display the leaderboard */}
-    {/* {showLeaderboard && <Leaderboard players={playersData} />} */}
-
-      {/* <div className="pong-game-container"> */}
-
-       
-
-       
-      
-
-    {/* FPS Display Overlay */}
+      )}  
     <FpsOverlay fps={fps} isLagSpike={isLagSpike} />
-
-    {/* Joy-Con Connector */}
     <JoyConConnector
       ref={joyConConnectorRef}
       onMotionDataLeft={(data) => setMotionDataLeft(data)}
