@@ -13,7 +13,7 @@ import Matter from 'matter-js';
  * @param {boolean}  params.gameOver
  * @param {Function} params.setGameState
  * @param {Ref}      params.engineRef
- * @param {Ref}      params.ballBodyRef
+ * @param {Ref}      params.ballBodyRefs
  * @param {Ref}      params.leftPaddleBodyRef
  * @param {Ref}      params.rightPaddleBodyRef
  * @param {Ref}      params.leftPaddleVelocityRef
@@ -69,7 +69,8 @@ export default function useGameLoop({
   gameOver,
   setGameState,
   engineRef,
-  ballBodyRef,
+  /* ballBodyRef, */
+  ballBodyRefs,
   leftPaddleBodyRef,
   rightPaddleBodyRef,
   leftPaddleVelocityRef,
@@ -165,7 +166,7 @@ export default function useGameLoop({
       }
 
     setGameState((prev) => {
-      const { ball, leftPaddle, rightPaddle, WALL_THICKNESS, scores } = prev;
+      const { balls, leftPaddle, rightPaddle, WALL_THICKNESS, scores } = prev;
 
       // Left paddle Y
       let newLeftPaddleY =
@@ -188,100 +189,60 @@ export default function useGameLoop({
       );
 
     // --- Update Ball Position from Matter.js ---
-    const newBall = { ...ball };
-    if (engineRef.current && ballBodyRef.current) {
-      const { x, y } = ballBodyRef.current.position;
+  /*   const newBall = { ...ball };
+    if (engineRef.current && ballBodyRefs.current) {
+      const { x, y } = ballBodyRefs.current.position;
       newBall.x = x - newBall.width / 2;
       newBall.y = y - newBall.height / 2;
-    }
+    } */
+      const newBalls = balls.map((b, i) => {
+        const { x, y } = ballBodyRefs.current[i].position;   // read i-th Matter body
+        return { ...b, x: x - b.width / 2, y: y - b.height / 2 };
+      });
 
       // Check for scoring
-      const newScores = { ...scores };
+    
+      // -------- Check for scoring (multi-ball) -----------------
+const newScores = { ...scores };
 
-      // Ball out left => player2 scores
-      if (newBall.x < 0 && !newBall.resetting) {
-        newScores.player2 += 1;
-        newBall.resetting = true;
-        if (playMissSound) playMissSound();
+newBalls.forEach((b, i) => {
+  const body = ballBodyRefs.current[i];
 
-        // Rumble the left Joy-Con
-        connectedJoyCons.forEach((joyCon) => {
-          if (joyCon instanceof JoyConLeft) {
-            joyCon.rumble(rumbleIntensityHigh, rumbleIntensityLow, rumbleStrength, rumbleDuration);
-            setTimeout(() => {
-              joyCon.rumble(
-                rumbleSecondaryIntensityHigh,
-                rumbleSecondaryIntensityLow,
-                rumbleSecondaryStrength
-              );
-            }, rumbleSecondaryDelay);
-          }
-        });
+  // LEFT wall  →  Player 2 scores
+  if (b.x + b.width < 0 && !b.resetting) {
+    newScores.player2 += 1;
+    newBalls[i] = { ...b, resetting: true };
+    if (playMissSound) playMissSound();
+    setTimeout(() => resetBall(body, i), ballResetDelay);
+  }
 
+  // RIGHT wall →  Player 1 scores
+  if (b.x > canvasWidth && !b.resetting) {
+    newScores.player1 += 1;
+    newBalls[i] = { ...b, resetting: true };
+    if (playMissSound) playMissSound();
+    setTimeout(() => resetBall(body, i), ballResetDelay);
+  }
+});
 
-        // Look into more, add config for all of rumble TODO
-        
-        
-        // Reset logic
-        setTimeout(() => {
-          if (ballBodyRef.current) {
-            Matter.Body.setPosition(ballBodyRef.current, { x: canvasWidth / 2, y: canvasHeight / 2 });
-            const randomSide = () => (Math.random() > randomSideThreshold ? 1 : -1);
-            // clamp to maxBallSpeed
-            const clampedSpeed = Math.min(ballSpeed, maxBallSpeed);
-            Matter.Body.setVelocity(ballBodyRef.current, {
-              x: clampedSpeed * randomSide(),
-              y: clampedSpeed * randomSide(),
-            });
-            desiredBallSpeedRef.current = clampedSpeed;
-          }
-          setGameState((s) => ({ 
-            ...s,
-            ball: { ...s.ball, resetting: false },
-          }));
-        }, ballResetDelay);
-      } 
-      // Ball out right => player1 scores
-      else if (newBall.x > canvasWidth && !newBall.resetting) {
-        newScores.player1 += 1;
-        newBall.resetting = true;
-        if (playMissSound) playMissSound();
+/* ---------- helper, scoped inside the setGameState callback ---------- */
+function resetBall(body, idx) {
+  Matter.Body.setPosition(body, { x: canvasWidth / 2, y: canvasHeight / 2 });
 
-        // Rumble the right Joy-Con
-        connectedJoyCons.forEach((joyCon) => {
-          if (joyCon instanceof JoyConRight) {
-            joyCon.rumble(rumbleIntensityHigh, rumbleIntensityLow, rumbleStrength, rumbleDuration);
-            setTimeout(() => {
-              joyCon.rumble(
-                rumbleSecondaryIntensityHigh,
-                rumbleSecondaryIntensityLow,
-                rumbleSecondaryStrength
-              );
-            }, rumbleSecondaryDelay);
-          }
-        });
+  const sign = Math.random() > randomSideThreshold ? 1 : -1;
+  const v    = Math.min(ballSpeed, maxBallSpeed);
+  Matter.Body.setVelocity(body, { x: v * sign, y: v * sign });
+  desiredBallSpeedRef.current = v;
 
-        // Look into more, add config for all of rumble TODO
+  // clear the resetting flag for **this** ball only
+  setGameState(s => {
+    const updated = [...s.balls];
+    updated[idx] = { ...updated[idx], resetting: false };
+    return { ...s, balls: updated };
+  });
+}
 
-        // Reset logic
-        setTimeout(() => {
-          if (ballBodyRef.current) {
-            Matter.Body.setPosition(ballBodyRef.current, { x: canvasWidth / 2, y: canvasHeight / 2 });
-            const randomSide = () => (Math.random() > randomSideThreshold ? 1 : -1);
-            // clamp to maxBallSpeed
-            const clampedSpeed = Math.min(ballSpeed, maxBallSpeed);
-            Matter.Body.setVelocity(ballBodyRef.current, {
-              x: clampedSpeed * randomSide(),
-              y: clampedSpeed * randomSide(),
-            });
-            desiredBallSpeedRef.current = clampedSpeed;
-          }
-          setGameState((s) => ({ 
-            ...s,
-            ball: { ...s.ball, resetting: false },
-          }));
-        }, ballResetDelay);
-      }
+      
 
       leftPaddlePositionRef.current = newLeftPaddleY;
       rightPaddlePositionRef.current = newRightPaddleY;
@@ -289,7 +250,7 @@ export default function useGameLoop({
       // Return new state
       return {
         ...prev,
-        ball: newBall,
+        balls: newBalls,
         scores: newScores,
         leftPaddle: { ...leftPaddle, y: newLeftPaddleY },
         rightPaddle: { ...rightPaddle, y: newRightPaddleY },
@@ -327,7 +288,8 @@ export default function useGameLoop({
     canvasWidth,
     enableFps,
     engineRef,
-    ballBodyRef,
+    /* ballBodyRef, */
+    ballBodyRefs,
     playMissSound,
     playSideSound,
     playHitSound,
@@ -363,8 +325,8 @@ export default function useGameLoop({
             case 'rightPaddle':
                   if (playHitSound) playHitSound();
                   // bounce logic
-                  if (ballBodyRef.current) {
-                    const ball = ballBodyRef.current;
+                  if (ballBodyRefs.current) {
+                    const ball = ballBodyRefs.current;
                     const paddleBody = otherBody;
                     const paddleHeight =
                       paddleBody.label === 'leftPaddle'
@@ -418,8 +380,8 @@ export default function useGameLoop({
     // BEFORE UPDATE => force ball’s speed to desiredBallSpeedRef
     // ──────────────────────────────────────────────────────────────────────────
     const handleBeforeUpdate = () => {
-      if (!ballBodyRef.current) return;
-      const ball = ballBodyRef.current;
+      if (!ballBodyRefs.current) return;
+      const ball = ballBodyRefs.current;
       const actualSpeed = ball.speed;
       const targetSpeed = desiredBallSpeedRef.current;
 
@@ -474,7 +436,8 @@ export default function useGameLoop({
     speedAdjustThreshold,
     gameLoop,
     engineRef,
-    ballBodyRef,
+    /* ballBodyRef, */
+    ballBodyRefs,
     playSideSound,
     playHitSound,
     setGameState,

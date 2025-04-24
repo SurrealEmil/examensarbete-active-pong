@@ -132,8 +132,8 @@ const PongGameTournament = () => {
   const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const { player1, player2 } = location.state || {}
 
-  const player1Name = player1?.username || 'Player 1'
-  const player2Name = player2?.username || 'Player 2'
+  const player1Name = player1?.username || 'Default'
+  const player2Name = player2?.username || 'Default'
   const player1Id = player1?.userId || null
   const player2Id = player2?.userId || null
 
@@ -151,8 +151,18 @@ const PongGameTournament = () => {
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
   // ──────────────────────────────────────────────────────────────────────────
+  const makeBall = () => ({
+    x: canvasWidth / 2 - BALL_DIAMETER / 2,   // ← your own start X
+    y: canvasHeight / 2 - BALL_DIAMETER / 2,  // ← your own start Y
+       width:  BALL_DIAMETER,
+       height: BALL_DIAMETER,
+       dx: 0,
+       dy: 0,
+       resetting: false,
+     });
+
   const INITIAL_GAME_STATE = {
-    ball: {
+ /*    ball: {
       x: canvasWidth / 2 - BALL_DIAMETER / 2,
       y: canvasHeight / 2 - BALL_DIAMETER / 2,
       width: BALL_DIAMETER,
@@ -160,7 +170,8 @@ const PongGameTournament = () => {
       dx: 0,
       dy: 0,
       resetting: false,
-    },
+    }, */
+    balls: Array.from({ length: GAME_CONFIG.NUM_BALLS }, makeBall),
     leftPaddle: {
       x: 25,
       y: canvasHeight / 2 - PADDLE_HEIGHT / 2,
@@ -186,8 +197,6 @@ const PongGameTournament = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
 
-  const [ballCount, setBallCount]  = useState(1);
-  const [engineVersion, setEngineVersion] = useState(0);
   // Control modes for each Joy-Con
   const [controlModeLeft, setControlModeLeft] = useState('joystick');
   const [controlModeRight, setControlModeRight] = useState('joystick');
@@ -303,13 +312,13 @@ const PongGameTournament = () => {
 // ──────────────────────────────────────────────────────────────────────────
 // MATTER.JS SETUP (No Runner started automatically)
 // ──────────────────────────────────────────────────────────────────────────
-/* const [engineVersion, setEngineVersion] = useState(0); */
+const [engineVersion, setEngineVersion] = useState(0);
 
 const {
   engineRef,
   runnerRef,
   renderRef,
-  ballBodyRefs,
+  ballBodyRef,
   leftPaddleBodyRef,
   rightPaddleBodyRef,
 } = useInitializeMatter({
@@ -376,40 +385,8 @@ const {
   // ──────────────────────────────────────────────────────────────────────────
   // ENGINE VERSION (Triggers re-initialization)
   // ──────────────────────────────────────────────────────────────────────────
-  ballCount,
   version: engineVersion,
 });
-
-const singleBallRef = useRef(null);
-
-useEffect(() => {
-  if (!ballBodyRefs?.current?.length) return;  // wait for the first ball
-
-  const ball = ballBodyRefs.current[0];
-  singleBallRef.current = ball;                // keep stable ref
-
-  // Are we in the game and is the ball still idle?
-  const stationary =
-    ball.velocity.x === 0 && ball.velocity.y === 0;
-
-  if (gameStarted && stationary) {
-    const sign = () => (Math.random() > 0.5 ? 1 : -1);
-    Matter.Body.setVelocity(ball, {
-      x: BALL_SPEED * sign(),
-      y: BALL_SPEED * sign(),
-    });
-  }
-}, [ballBodyRefs, gameStarted, BALL_SPEED]);
-
-
-useEffect(() => {
-  if (!gameStarted) return;
-  const id = setTimeout(() => {
-    setBallCount(2);                     // now we want two balls
-    setEngineVersion(v => v + 1);        // rebuild the world with that new count
-  }, 10_000);
-  return () => clearTimeout(id);
-}, [gameStarted]);
 
 // ──────────────────────────────────────────────────────────────────────────
 // PADDLE CONTROL HOOK
@@ -466,7 +443,8 @@ const { fps, isLagSpike } = useGameLoop({
   gameState,
   setGameState,
   engineRef,
-  ballBodyRef: singleBallRef,
+  /* ballBodyRef, */
+  ballBodyRefs: ballBodyRef, 
   leftPaddleBodyRef,
   rightPaddleBodyRef,
   leftPaddleVelocityRef,
@@ -523,27 +501,48 @@ const { fps, isLagSpike } = useGameLoop({
   // ──────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!engineRef.current) return;
-    const handler = event => {
+    const currEngine = engineRef.current
+    if (!engineRef.current) {
+      console.warn("No engine yet -- skipping collission listener")
+      return;
+    }
+
+    console.log("Attaching collisionStart listener...");
+    const handleCollisionStart = (event) => {
+
+
+
+
       event.pairs.forEach(({ bodyA, bodyB }) => {
+        // Detect ball + left paddle
         if (
-          (bodyA === singleBallRef.current && bodyB === leftPaddleBodyRef.current) ||
-          (bodyB === singleBallRef.current && bodyA === leftPaddleBodyRef.current)
+          (bodyA === ballBodyRef.current && bodyB === leftPaddleBodyRef.current) ||
+          (bodyB === ballBodyRef.current && bodyA === leftPaddleBodyRef.current)
         ) {
           awardPointsForHit("player1");
         }
-        // … same for player2 …
+  
+        // Detect ball + right paddle
+        if (
+          (bodyA === ballBodyRef.current && bodyB === rightPaddleBodyRef.current) ||
+          (bodyB === ballBodyRef.current && bodyA === rightPaddleBodyRef.current)
+        ) {
+          awardPointsForHit("player2");
+        }
       });
     };
   
-    Matter.Events.on(engineRef.current, "collisionStart", handler);
-    return () => Matter.Events.off(engineRef.current, "collisionStart", handler);
+    Matter.Events.on(currEngine, "collisionStart", handleCollisionStart);
+  
+    return () => {
+      console.log("Removing collisionStart listener...");
+      Matter.Events.off(currEngine, "collisionStart", handleCollisionStart);
+    };
   }, [engineRef.current]);
   
 
   function awardPointsForHit(playerKey) {
-    /* if (!ballBodyRef.current || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) { */
-       if (!singleBallRef.current || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
+    if (!ballBodyRef.current || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
       return;
     }
   
@@ -552,9 +551,8 @@ const { fps, isLagSpike } = useGameLoop({
       playerKey === "player1" ? leftPaddleBodyRef.current : rightPaddleBodyRef.current;
   
     // Get the paddle's center (vertical position) and ball's center.
-    /* const paddleCenterY = paddleBody.position.y; */
     const paddleCenterY = paddleBody.position.y;
-    const ballCenterY = singleBallRef.current.position.y;
+    const ballCenterY = ballBodyRef.current.position.y;
     const offset = ballCenterY - paddleCenterY; 
     const paddleHeightEffective = paddleBody.bounds.max.y - paddleBody.bounds.min.y;
     const normalizedOffset = Math.min(Math.abs(offset) / (paddleHeightEffective / 2), 1);
@@ -746,17 +744,17 @@ useEffect(() => {
 
     // Start ball movement
     const randomSign = () => (Math.random() > 0.5 ? 1 : -1);
+
    /*  Matter.Body.setVelocity(ballBodyRef.current, {
       x: BALL_SPEED * randomSign(),
       y: BALL_SPEED * randomSign(),
     }); */
-  /*   if (singleBallRef.current) {
-      const s = () => (Math.random() > 0.5 ? 1 : -1);
-      Matter.Body.setVelocity(singleBallRef.current, {
-        x: BALL_SPEED * s(),
-        y: BALL_SPEED * s(),
-      });
-    } */
+    ballBodyRef.current.forEach(body => {
+      Matter.Body.setVelocity(body, {
+        x: BALL_SPEED * randomSign(),
+        y: BALL_SPEED * randomSign(),
+      })
+    })
 
     try {
       await playMusicSound()

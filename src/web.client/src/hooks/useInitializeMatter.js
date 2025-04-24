@@ -136,7 +136,7 @@ export default function useInitializeMatter({
   // 1) Create refs
   const engineRef = useRef(null);
   const runnerRef = useRef(null);
-  const ballBodyRef = useRef(null);
+  const ballBodyRef = useRef([]);
   const leftPaddleBodyRef = useRef(null);
   const rightPaddleBodyRef = useRef(null);
   const renderRef = useRef(null);
@@ -216,7 +216,7 @@ export default function useInitializeMatter({
         wallsRef.current = walls; // Save to ref
 
       // 5) Create ball & paddles
-      const ballBody = Matter.Bodies.circle(
+    /*   const ballBody = Matter.Bodies.circle(
         canvasWidth / 2,
         canvasHeight / 2,
         ballDiameter / 2,
@@ -227,7 +227,25 @@ export default function useInitializeMatter({
           inertia: ballInertia,
           label: 'ball',
         }
-      );
+      ); */
+      const ballBodies = [];
+
+      // b. build two identical Ball objects
+      for (let i = 0; i < 2; i++) {
+        const ball = Matter.Bodies.circle(
+        canvasWidth / 2,
+        canvasHeight / 2,
+        ballDiameter / 2,
+      {
+        restitution: ballRestitution,
+        friction:    ballFriction,
+        frictionAir: ballFrictionAir,
+        inertia:     ballInertia,
+        label: 'ball',          // all balls share the same label
+      }
+    );
+      ballBodies.push(ball);
+}
 
       const leftPaddleBody = Matter.Bodies.rectangle(
         paddleOffsetLeftX + paddleWidth / 2, 
@@ -256,7 +274,8 @@ export default function useInitializeMatter({
       // 6) Save references
       engineRef.current = engine;
       runnerRef.current = runner;
-      ballBodyRef.current = ballBody;
+      /* ballBodyRef.current = ballBody; */
+      ballBodyRef.current = ballBodies;
       leftPaddleBodyRef.current = leftPaddleBody;
       rightPaddleBodyRef.current = rightPaddleBody;
 
@@ -265,16 +284,15 @@ export default function useInitializeMatter({
       engine.world.gravity.y = gravityY;  // Vertical gravity
 
       // Add dynamic objects (ball and paddles)
-      Matter.World.add(engine.world, [ballBody, leftPaddleBody, rightPaddleBody]);
-
+      /* Matter.World.add(engine.world, [ballBody, leftPaddleBody, rightPaddleBody]); */
+      Matter.World.add(engine.world, [...ballBodies, leftPaddleBody, rightPaddleBody]);
       // Add static walls separately
       Matter.World.add(engine.world, wallsRef.current); // Add walls to the world
 
-      Matter.Body.setPosition(ballBody, {
-        x: canvasWidth / 2,
-        y: canvasHeight / 2,
-      });
-      Matter.Body.setVelocity(ballBody, { x: 0, y: 0 });
+      ballBodies.forEach(body => {
+        Matter.Body.setPosition(body, { x: canvasWidth / 2, y: canvasHeight / 2 });
+          Matter.Body.setVelocity(body, { x: 0, y: 0 });
+        });
     }
 // Cleanup on unmount or version change:
 return () => {

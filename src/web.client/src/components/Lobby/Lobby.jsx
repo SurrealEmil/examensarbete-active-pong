@@ -4,7 +4,7 @@ import JoyConConnector from '../JoyCon/JoyConConnector';
 import usePaddleControls from '../../hooks/usePaddleControls';
 import TopBar from '../UI/TopBar';
 //import ScoreDisplay from '../UI/ScoreDisplay';
-import PongCanvas from '../PongGame/PongCanvas';
+import PongCanvas from '../PongGame/PongCanvas-Lobby';
 import '../PongGame/PongStyles.css';
 import '../Lobby/Lobby.css'
 import LobbyCameraOverlay from './LobbyCameraOverlay'

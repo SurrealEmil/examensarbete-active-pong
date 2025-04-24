@@ -2,6 +2,7 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // PONG GAMELOOP SETTINGS (useGameLoop.js)
     // ─────────────────────────────────────────────────────────────────────────
+    NUM_BALLS: 2,
     BALL_SPEED: 9, // Initial ball speed when the game starts
     MAX_BALL_SPEED: 15, // Maximum speed the ball can reach
     SPEED_INCREMENT: 1, // How much the ball speed increases over time

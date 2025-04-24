@@ -57,29 +57,16 @@ const PongCanvas = ({ gameState, canvasWidth, canvasHeight, wallThickness}) => {
     // Clear the dynamic canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    const { balls, leftPaddle, rightPaddle } = gameState;
+    const { ball, leftPaddle, rightPaddle } = gameState;
 
     // Draw paddles
     context.fillStyle = paddleColor;
-    context.fillRect(
-      leftPaddle.x, 
-      leftPaddle.y, 
-      leftPaddle.width, 
-      leftPaddle.height
-    );
-
-    context.fillRect(
-      rightPaddle.x, 
-      rightPaddle.y, 
-      rightPaddle.width, 
-      rightPaddle.height
-    );
+    context.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
+    context.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
 
     // Draw ball
-    balls.forEach(({ x, y, width, height }) => {
-      context.fillRect(x, y, width, height);
-    });
-  }, [gameState])
+    context.fillRect(ball.x, ball.y, ball.width, ball.height);
+  }, [gameState]);
 
   return (
     <div className="pong-game-container">
@@ -104,8 +91,7 @@ const PongCanvas = ({ gameState, canvasWidth, canvasHeight, wallThickness}) => {
 
 PongCanvas.propTypes = {
   gameState: PropTypes.shape({
-    balls: PropTypes.arrayOf(
-      PropTypes.shape({
+    ball: PropTypes.shape({
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
       width: PropTypes.number.isRequired,
@@ -113,8 +99,7 @@ PongCanvas.propTypes = {
       dx: PropTypes.number.isRequired,
       dy: PropTypes.number.isRequired,
       resetting: PropTypes.bool.isRequired,
-    })
-    ).isRequired,
+    }).isRequired,
     leftPaddle: PropTypes.shape({
       x: PropTypes.number.isRequired,
       y: PropTypes.number.isRequired,
