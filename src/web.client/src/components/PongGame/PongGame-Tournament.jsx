@@ -288,7 +288,6 @@ const PongGameTournament = () => {
   // AUDIO
   // ──────────────────────────────────────────────────────────────────────────
   const {
-    audioEnabled,
     setAudioEnabled,
     playHitSound,
     playSideSound,
@@ -552,20 +551,20 @@ const { fps, isLagSpike } = useGameLoop({
 
       event.pairs.forEach(({ bodyA, bodyB }) => {
         // Detect ball + left paddle
-        if (
-          (bodyA === ballBodyRef.current && bodyB === leftPaddleBodyRef.current) ||
-          (bodyB === ballBodyRef.current && bodyA === leftPaddleBodyRef.current)
-        ) {
-          awardPointsForHit("player1");
+        const isBall = (b) => ballBodyRef.current.includes(b);
+          
+        if ((isBall(bodyA) && bodyB === leftPaddleBodyRef.current) ||
+            (isBall(bodyB) && bodyA === leftPaddleBodyRef.current)) {
+          const ball = isBall(bodyA) ? bodyA : bodyB;
+          awardPointsForHit("player1", ball);
         }
-  
+        
         // Detect ball + right paddle
-        if (
-          (bodyA === ballBodyRef.current && bodyB === rightPaddleBodyRef.current) ||
-          (bodyB === ballBodyRef.current && bodyA === rightPaddleBodyRef.current)
-        ) {
-          awardPointsForHit("player2");
-        }
+        if ((isBall(bodyA) && bodyB === rightPaddleBodyRef.current) ||
+            (isBall(bodyB) && bodyA === rightPaddleBodyRef.current)) {
+          const ball = isBall(bodyA) ? bodyA : bodyB;
+          awardPointsForHit("player2", ball);
+}
       });
     };
   
@@ -578,8 +577,8 @@ const { fps, isLagSpike } = useGameLoop({
   }, [engineRef.current]);
   
 
-  function awardPointsForHit(playerKey) {
-    if (!ballBodyRef.current || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
+  function awardPointsForHit(playerKey, ballBody) {
+    if (!ballBody || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
       return;
     }
   
@@ -589,7 +588,7 @@ const { fps, isLagSpike } = useGameLoop({
   
     // Get the paddle's center (vertical position) and ball's center.
     const paddleCenterY = paddleBody.position.y;
-    const ballCenterY = ballBodyRef.current.position.y;
+    const ballCenterY = ballBody.position.y;
     const offset = ballCenterY - paddleCenterY; 
     const paddleHeightEffective = paddleBody.bounds.max.y - paddleBody.bounds.min.y;
     const normalizedOffset = Math.min(Math.abs(offset) / (paddleHeightEffective / 2), 1);
