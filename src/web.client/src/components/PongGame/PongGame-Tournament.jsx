@@ -161,6 +161,52 @@ const PongGameTournament = () => {
        resetting: false,
      });
 
+  function createNewBall(engine, diameter) {
+      //create the React-side object 
+      const reactBall = makeBall();         
+    
+      //create the Matter body
+      const body = Matter.Bodies.circle(
+        canvasWidth / 2,
+        canvasHeight / 2,
+        diameter / 2,
+        {
+          restitution: BALL_RESTITUTION,
+          friction:    BALL_FRICTION,
+          frictionAir: BALL_FRICTION_AIR,
+          inertia:     BALL_INERTIA,
+          label: 'ball',
+        }
+      );
+
+      const randSign = () => (Math.random() > 0.5 ? 1 : -1);
+      Matter.Body.setVelocity(body, {
+        x: BALL_SPEED * randSign(),
+        y: BALL_SPEED * randSign(),
+      });
+
+      ballBodyRef.current.push(body);
+      Matter.World.add(engine.world, body);
+
+      return reactBall;      
+
+    }
+  
+    function addExtraBall() {
+        if (!engineRef.current) return;      // safety
+      
+        const newBallObj = createNewBall(engineRef.current, BALL_DIAMETER);
+      
+        setGameState(s => ({
+          ...s,
+          balls: [...s.balls, newBallObj],
+        }));
+      }
+    
+     
+    
+                     
+    
   const INITIAL_GAME_STATE = {
  /*    ball: {
       x: canvasWidth / 2 - BALL_DIAMETER / 2,
@@ -171,7 +217,8 @@ const PongGameTournament = () => {
       dy: 0,
       resetting: false,
     }, */
-    balls: Array.from({ length: GAME_CONFIG.NUM_BALLS }, makeBall),
+    /* balls: Array.from({ length: GAME_CONFIG.NUM_BALLS }, makeBall), */
+    balls: [makeBall()],
     leftPaddle: {
       x: 25,
       y: canvasHeight / 2 - PADDLE_HEIGHT / 2,
@@ -758,10 +805,16 @@ useEffect(() => {
 
     try {
       await playMusicSound()
+      
       //console.log('Music started successfully!')
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
+    setTimeout(addExtraBall, 10_000) 
+    setTimeout(addExtraBall, 15_000) 
+    setTimeout(addExtraBall, 20_000) 
+    setTimeout(addExtraBall, 25_000) 
+    setTimeout(addExtraBall, 30_000) 
   };
 
   useEffect(() => {
