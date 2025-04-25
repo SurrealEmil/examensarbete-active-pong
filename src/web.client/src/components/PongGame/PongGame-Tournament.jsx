@@ -12,11 +12,9 @@ import PauseOverlay from '../UI/PauseOverlay';
 /* import StartOverlay from '../UI/StartOverlay'; */
 import FpsOverlay from '../UI/FpsOverlay';
 import TopBar from '../UI/TopBar';
-/* import ScoreDisplay from '../UI/ScoreDisplay'; */
 import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
-// import './PongGame-Tournament.css'
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -116,7 +114,31 @@ const {
 
 } = GAME_CONFIG;
 
+/**
+ * Generate a random velocity vector with the given speed
+ * @param {number} speed - The speed magnitude
+ * @param {number} bufferDeg - Buffer in degrees to avoid near-horizontal/vertical angles
+ */
 
+const LAUNCH_BUFFER_DEG = 15;
+
+function randomVelocity(speed, bufferDeg = 15) {
+  const thresh = Math.sin(bufferDeg * Math.PI / 180)
+  
+  let angle;
+  do {
+    angle = Math.random() * 2 * Math.PI;              
+    // Keep looping while angle is *too close* to 0°, 90°, 180°, 270°
+  } while (
+    Math.abs(Math.sin(angle)) < thresh ||   
+    Math.abs(Math.cos(angle)) < thresh    
+  );
+  
+  return {
+    x: speed * Math.cos(angle),
+    y: speed * Math.sin(angle),
+  };
+}
 
 const PongGameTournament = () => {
   const location = useLocation()
@@ -132,35 +154,62 @@ const PongGameTournament = () => {
   const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
   const { player1, player2 } = location.state || {}
 
-  const player1Name = player1?.username || 'Default'
-  const player2Name = player2?.username || 'Default'
+  const player1Name = player1?.username || 'Player 1'
+  const player2Name = player2?.username || 'Player 2'
   const player1Id = player1?.userId || null
   const player2Id = player2?.userId || null
 
-  /* const [player1Name, setPlayer1Name] = useState('')
-  const [player2Name, setPlayer2Name] = useState('') */
-
-  const handlePlayer1NameChange = (name) => {
-    setPlayer1Name(name)
-  }
-
-  const handlePlayer2NameChange = (name) => {
-    setPlayer2Name(name)
-  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
   // ──────────────────────────────────────────────────────────────────────────
+  const makeBall = () => ({
+    x: canvasWidth / 2 - BALL_DIAMETER / 2,  
+    y: canvasHeight / 2 - BALL_DIAMETER / 2,
+       width:  BALL_DIAMETER,
+       height: BALL_DIAMETER,
+       dx: 0,
+       dy: 0,
+       resetting: false,
+     });
+
+  function createNewBall(engine, diameter) {
+      const reactBall = makeBall();         
+      //create the Matter body
+      const body = Matter.Bodies.circle(
+        canvasWidth / 2,
+        canvasHeight / 2,
+        diameter / 2,
+        {
+          restitution: BALL_RESTITUTION,
+          friction:    BALL_FRICTION,
+          frictionAir: BALL_FRICTION_AIR,
+          inertia:     BALL_INERTIA,
+          label: 'ball',
+        }
+      );
+
+      ballBodyRef.current.push(body);
+      Matter.World.add(engine.world, body);
+
+      return reactBall;      
+    }
+
+    function addExtraBall() {
+        if (!engineRef.current) return;     
+        const newBallObj = createNewBall(engineRef.current, BALL_DIAMETER);
+        const body = ballBodyRef.current[ballBodyRef.current.length - 1];
+        Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG));
+        setGameState(s => ({
+          ...s,
+          balls: [...s.balls, newBallObj],
+        }));
+      }
+    
+               
   const INITIAL_GAME_STATE = {
-    ball: {
-      x: canvasWidth / 2 - BALL_DIAMETER / 2,
-      y: canvasHeight / 2 - BALL_DIAMETER / 2,
-      width: BALL_DIAMETER,
-      height: BALL_DIAMETER,
-      dx: 0,
-      dy: 0,
-      resetting: false,
-    },
+
+    balls: [makeBall()],
     leftPaddle: {
       x: 25,
       y: canvasHeight / 2 - PADDLE_HEIGHT / 2,
@@ -239,7 +288,6 @@ const PongGameTournament = () => {
   // AUDIO
   // ──────────────────────────────────────────────────────────────────────────
   const {
-    audioEnabled,
     setAudioEnabled,
     playHitSound,
     playSideSound,
@@ -432,7 +480,7 @@ const { fps, isLagSpike } = useGameLoop({
   gameState,
   setGameState,
   engineRef,
-  ballBodyRef,
+  ballBodyRefs: ballBodyRef, 
   leftPaddleBodyRef,
   rightPaddleBodyRef,
   leftPaddleVelocityRef,
@@ -503,20 +551,20 @@ const { fps, isLagSpike } = useGameLoop({
 
       event.pairs.forEach(({ bodyA, bodyB }) => {
         // Detect ball + left paddle
-        if (
-          (bodyA === ballBodyRef.current && bodyB === leftPaddleBodyRef.current) ||
-          (bodyB === ballBodyRef.current && bodyA === leftPaddleBodyRef.current)
-        ) {
-          awardPointsForHit("player1");
+        const isBall = (b) => ballBodyRef.current.includes(b);
+          
+        if ((isBall(bodyA) && bodyB === leftPaddleBodyRef.current) ||
+            (isBall(bodyB) && bodyA === leftPaddleBodyRef.current)) {
+          const ball = isBall(bodyA) ? bodyA : bodyB;
+          awardPointsForHit("player1", ball);
         }
-  
+        
         // Detect ball + right paddle
-        if (
-          (bodyA === ballBodyRef.current && bodyB === rightPaddleBodyRef.current) ||
-          (bodyB === ballBodyRef.current && bodyA === rightPaddleBodyRef.current)
-        ) {
-          awardPointsForHit("player2");
-        }
+        if ((isBall(bodyA) && bodyB === rightPaddleBodyRef.current) ||
+            (isBall(bodyB) && bodyA === rightPaddleBodyRef.current)) {
+          const ball = isBall(bodyA) ? bodyA : bodyB;
+          awardPointsForHit("player2", ball);
+}
       });
     };
   
@@ -529,8 +577,8 @@ const { fps, isLagSpike } = useGameLoop({
   }, [engineRef.current]);
   
 
-  function awardPointsForHit(playerKey) {
-    if (!ballBodyRef.current || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
+  function awardPointsForHit(playerKey, ballBody) {
+    if (!ballBody || !leftPaddleBodyRef.current || !rightPaddleBodyRef.current) {
       return;
     }
   
@@ -540,7 +588,7 @@ const { fps, isLagSpike } = useGameLoop({
   
     // Get the paddle's center (vertical position) and ball's center.
     const paddleCenterY = paddleBody.position.y;
-    const ballCenterY = ballBodyRef.current.position.y;
+    const ballCenterY = ballBody.position.y;
     const offset = ballCenterY - paddleCenterY; 
     const paddleHeightEffective = paddleBody.bounds.max.y - paddleBody.bounds.min.y;
     const normalizedOffset = Math.min(Math.abs(offset) / (paddleHeightEffective / 2), 1);
@@ -569,7 +617,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90);
+const [timer, setTimer] = useState(90_000);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
@@ -620,9 +668,7 @@ useEffect(() => {
               'Content-Type': 'application/json',
               Accept: '*/*',
             },
-            // If your backend requires credentials like cookies:
-            
-            //withCredentials: true ,
+          
           }
         );
 
@@ -710,13 +756,16 @@ useEffect(() => {
 
   const joyConConnectorRef = useRef(null);
 
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // START/RESTART GAME LOGIC
+  // ──────────────────────────────────────────────────────────────────────────
   const handleStartGame = async () => {
     // Attempt Joy-Con connection
     if (joyConConnectorRef.current) {
       const connected = await joyConConnectorRef.current.connect();
       if (!connected) {
-        alert('Cannot start game without Joy-Cons.');
-        
+        alert('Cannot start game without Joy-Cons.');    
       }
     }
 
@@ -730,19 +779,20 @@ useEffect(() => {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
 
-    // Start ball movement
-    const randomSign = () => (Math.random() > 0.5 ? 1 : -1);
-    Matter.Body.setVelocity(ballBodyRef.current, {
-      x: BALL_SPEED * randomSign(),
-      y: BALL_SPEED * randomSign(),
-    });
+    ballBodyRef.current.forEach(body => {
+      Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
+    })
 
     try {
       await playMusicSound()
+      
       //console.log('Music started successfully!')
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
+    [20_000, 40_000, 60_000, 80_000].forEach((delay) => {
+      setTimeout(addExtraBall, delay)
+    })
   };
 
   useEffect(() => {
@@ -756,7 +806,6 @@ useEffect(() => {
   useEffect(() => {
     handleStartGame()
   }, [])
-
 
   // ──────────────────────────────────────────────────────────────────────────
   // OPTIONAL: Toggle control modes
@@ -804,8 +853,6 @@ useEffect(() => {
       )}
 
       <div className="pong-game-container">
-        
-           {/* CANVAS */}
           <PongCanvas
           gameState={gameState}
           canvasWidth={canvasWidth}
@@ -813,31 +860,14 @@ useEffect(() => {
           wallThickness={WALL_THICKNESS}
         />
         </div>
-        {/* START OVERLAY */}
-       {/*  {!gameStarted && <StartOverlay onStart={handleStartGame}/>} */}
 
-      {/* PAUSE OVERLAY (only shows if game is paused and not game over) */}
        {gamePaused && gameStarted && !gameOver && (
         <PauseOverlay 
         onResume={handleResume}
         onQuit={handleQuit}
       />  
-      )} 
-
-      {/* When game is over, display the leaderboard */}
-    {/* {showLeaderboard && <Leaderboard players={playersData} />} */}
-
-      {/* <div className="pong-game-container"> */}
-
-       
-
-       
-      
-
-    {/* FPS Display Overlay */}
+      )}  
     <FpsOverlay fps={fps} isLagSpike={isLagSpike} />
-
-    {/* Joy-Con Connector */}
     <JoyConConnector
       ref={joyConConnectorRef}
       onMotionDataLeft={(data) => setMotionDataLeft(data)}
