@@ -756,13 +756,16 @@ useEffect(() => {
 
   const joyConConnectorRef = useRef(null);
 
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // START/RESTART GAME LOGIC
+  // ──────────────────────────────────────────────────────────────────────────
   const handleStartGame = async () => {
     // Attempt Joy-Con connection
     if (joyConConnectorRef.current) {
       const connected = await joyConConnectorRef.current.connect();
       if (!connected) {
-        alert('Cannot start game without Joy-Cons.');
-        
+        alert('Cannot start game without Joy-Cons.');    
       }
     }
 
@@ -776,7 +779,6 @@ useEffect(() => {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
 
-
     ballBodyRef.current.forEach(body => {
       Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
     })
@@ -788,10 +790,9 @@ useEffect(() => {
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
-    setTimeout(addExtraBall, 20_000) 
-    setTimeout(addExtraBall, 40_000) 
-    setTimeout(addExtraBall, 60_000) 
-    setTimeout(addExtraBall, 80_000)
+    [20_000, 40_000, 60_000, 80_000].forEach((delay) => {
+      setTimeout(addExtraBall, delay)
+    })
   };
 
   useEffect(() => {
@@ -805,7 +806,6 @@ useEffect(() => {
   useEffect(() => {
     handleStartGame()
   }, [])
-
 
   // ──────────────────────────────────────────────────────────────────────────
   // OPTIONAL: Toggle control modes
