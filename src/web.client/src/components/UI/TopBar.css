@@ -69,12 +69,12 @@
 
 .player1-name{
   font-size: 2rem;
-  
-
+  text-align: left;
 }
 
 .player2-name{
   font-size: 2rem;
+  text-align: right;
 }
 
 .player1-score {
@@ -120,3 +120,184 @@
   
   /* border: 2px solid pink; */
 }
+@media (min-width: 3000px) {
+  .player1-name, .player1-score{
+    font-size: 2.2rem;
+    margin-left: -2rem;
+  }
+  .player2-name, .player2-score{
+    font-size: 2.2rem;
+    margin-right: -2rem;
+  }
+  .joycon-icon-left {
+    margin-top: 1rem;
+    width: 5rem;
+    height: 5rem;
+  }
+  .joycon-icon-right {
+    margin-top: 1rem;
+    width: 5rem;
+    height: 5rem;
+  }
+  .timer-display h3 {
+    font-size: 3.2rem;
+  }
+}
+
+@media (max-width: 2800px) {
+  .player1-name .player1-score{
+    margin-top: 0.5rem;
+    font-size: 1.8rem;
+    margin-left: -1rem;
+  }
+  .player2-name .player2-score{
+    margin-top: 0.5rem;
+    font-size: 1.8rem;
+    margin-right: -1rem;
+  } 
+  .joycon-icon-left {
+    margin-top: 1rem;
+    width: 5rem;
+    height: 5rem;
+  }
+  .joycon-icon-right {
+    margin-top: 1rem;
+    width: 5rem;
+    height: 5rem;
+  }
+  .timer-display h3 {
+    font-size: 2.8rem;
+  }
+  
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+// TABLETS/DESKTOPS
+// ────────────────────────────────────────────────────────────────────────-*/
+@media (max-width: 2000px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+    margin-left: 0.2rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+    margin-right: 0.2rem;
+  }
+  .timer-display h3 {
+    font-size: 2.6rem;
+  }
+}
+
+@media (max-width: 1800px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+    margin-left: 1rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+    margin-right: 1rem;
+  }
+  .timer-display h3 {
+    font-size: 2.6rem;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+// LARGE PHONES
+// ────────────────────────────────────────────────────────────────────────-*/
+@media (max-width: 1300px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 1.4rem;
+    margin-left: 1.2rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 1.4rem;
+    margin-right: 1.2rem;
+  }
+  .timer-display h3 {
+    font-size: 2.4rem;
+  }
+}
+/* ──────────────────────────────────────────────────────────────────────────
+// MEDIUM PHONES
+// ────────────────────────────────────────────────────────────────────────-*/
+@media (max-width: 1200px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    margin-left: 0.8rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    margin-right: 0.8rem;
+    }
+  .joycon-icon-left {
+    width: 3rem;
+    height: 3rem;
+  }
+  .joycon-icon-right {
+    width: 3rem;
+    height: 3rem;
+  }
+  .timer-display h3 {
+    font-size: 2.1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 0.8rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    margin-right: 0.8rem;
+    }
+  .joycon-icon-left {
+    width: 3rem;
+    height: 3rem;
+  }
+  .joycon-icon-right {
+    width: 3rem;
+    height: 3rem;
+  }
+  .timer-display h3 {
+    font-size: 1.9rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .player1-name, .player1-score{
+    margin-top: 0.5rem;
+    font-size: 0.6rem;
+    margin-left: 2rem;
+  }
+  .player2-name, .player2-score{
+    margin-top: 0.5rem;
+    font-size: 0.6rem;
+    margin-right: 2rem;
+  }
+  .joycon-icon-left {
+    width: 3rem;
+    height: 3rem;
+  }
+  .joycon-icon-right {
+    width: 3rem;
+    height: 3rem;
+  }
+  .timer-display h3 {
+    font-size: 1rem;
+  }
+}
+
+
+
