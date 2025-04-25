@@ -617,7 +617,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90_000);
+const [timer, setTimer] = useState(90);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
