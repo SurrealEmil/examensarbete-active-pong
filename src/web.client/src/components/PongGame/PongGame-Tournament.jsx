@@ -765,7 +765,7 @@ useEffect(() => {
     setGamePaused(false);
   };
 
-  // NEW: Pause the game when a player wins (first to 5)
+  // NEW: Pause the game when a player wins (first to 5.)
   useEffect(() => {
     if (gameState.scores.player1 >= WINNING_SCORE || gameState.scores.player2 >= WINNING_SCORE) {
       setGamePaused(true);
