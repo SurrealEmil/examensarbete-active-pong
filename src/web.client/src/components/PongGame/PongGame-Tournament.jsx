@@ -664,7 +664,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (timer === 0) {
-    stopMusicSound()
+    stopMusicSound();
     const player1Payload = {
       userId: player1Id,
       username: player1Name,
@@ -692,31 +692,22 @@ useEffect(() => {
               'Content-Type': 'application/json',
               Accept: '*/*',
             },
-          
           }
         );
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/leaderboard/submit-multiplayer`,
-        { player1: player1Payload, player2: player2Payload },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
-          }
-        }
-      );
 
         console.log('Scores submitted:', response.data);
 
         // Navigate to leaderboard with state
-        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id]}});
-
+        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id] } });
       } catch (error) {
         console.error('Error submitting scores:', error.response?.data || error.message);
       }
     };
 
+    submitScores(); // Call the function
+  }
+}, [timer]); // Add dependencies
+  
 
   // ──────────────────────────────────────────────────────────────────────────
   // PAUSE/RESUME Debug Renderer (Optional)
