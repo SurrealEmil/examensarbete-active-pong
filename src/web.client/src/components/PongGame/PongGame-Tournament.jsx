@@ -545,29 +545,42 @@ const { fps, isLagSpike } = useGameLoop({
 
     console.log("Attaching collisionStart listener...");
     const handleCollisionStart = (event) => {
-
-
-
-
       event.pairs.forEach(({ bodyA, bodyB }) => {
-        // Detect ball + left paddle
-        const isBall = (b) => ballBodyRef.current.includes(b);
-          
-        if ((isBall(bodyA) && bodyB === leftPaddleBodyRef.current) ||
-            (isBall(bodyB) && bodyA === leftPaddleBodyRef.current)) {
-          const ball = isBall(bodyA) ? bodyA : bodyB;
-          awardPointsForHit("player1", ball);
+        // identify which is ball and which is paddle
+        const isBall = b => ballBodyRef.current.includes(b);
+        const ball   = isBall(bodyA) ? bodyA : isBall(bodyB) ? bodyB : null;
+        const paddle = ball === bodyA ? bodyB : ball === bodyB ? bodyA : null;
+        if (!ball || (paddle !== leftPaddleBodyRef.current && paddle !== rightPaddleBodyRef.current)) {
+          return;
         }
-        
-        // Detect ball + right paddle
-        if ((isBall(bodyA) && bodyB === rightPaddleBodyRef.current) ||
-            (isBall(bodyB) && bodyA === rightPaddleBodyRef.current)) {
-          const ball = isBall(bodyA) ? bodyA : bodyB;
-          awardPointsForHit("player2", ball);
-}
+    
+        // 1) normalized hit offset
+        const paddleHeight = paddle.bounds.max.y - paddle.bounds.min.y;
+        let   offsetY      = ball.position.y - paddle.position.y;
+        let   normY        = offsetY / (paddleHeight / 2);
+              normY        = Math.max(-1, Math.min(1, normY));
+    
+        // 2) compute bounce angle & new speed
+        const bounceAngle = normY * MAX_BOUNCE_ANGLE;
+        const currSpeed   = Math.hypot(ball.velocity.x, ball.velocity.y);
+        const newSpeed    = Math.min(currSpeed + SPEED_INCREMENT, MAX_BALL_SPEED);
+    
+        // 3) build outgoing velocity
+        let newVx = newSpeed * Math.cos(bounceAngle);
+        let newVy = newSpeed * Math.sin(bounceAngle);
+    
+        // 4) flip X and award point
+        if (paddle === leftPaddleBodyRef.current) {
+          newVx = Math.abs(newVx);
+          awardPointsForHit('player1', ball);
+        } else {
+          newVx = -Math.abs(newVx);
+          awardPointsForHit('player2', ball);
+        }
+    
+        Matter.Body.setVelocity(ball, { x: newVx, y: newVy });
       });
     };
-  
     Matter.Events.on(currEngine, "collisionStart", handleCollisionStart);
   
     return () => {
@@ -790,7 +803,7 @@ useEffect(() => {
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
-    [20_000, 40_000, 60_000, 80_000].forEach((delay) => {
+    [40_000, 80_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
     })
   };
