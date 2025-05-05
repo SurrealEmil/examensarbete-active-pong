@@ -132,13 +132,13 @@ const PongGame = () => {
   /* const [player1Name, setPlayer1Name] = useState('')
   const [player2Name, setPlayer2Name] = useState('') */
 
-  const handlePlayer1NameChange = (name) => {
-    setPlayer1Name(name)
-  }
+  //const handlePlayer1NameChange = (name) => {
+  //  setPlayer1Name(name)
+  //  }
 
-  const handlePlayer2NameChange = (name) => {
-    setPlayer2Name(name)
-  }
+  //const handlePlayer2NameChange = (name) => {
+  //  setPlayer2Name(name)
+  //}
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
