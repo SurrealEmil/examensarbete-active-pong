@@ -158,12 +158,12 @@
 // ────────────────────────────────────────────────────────────────────────-*/
 @media (max-width: 400px) {
     .leaderboard-container h2{
-        margin-top: 1rem;
+        margin-top: 1.6rem;
         font-size: 1.6rem;
     }
     .leaderboard-table th {
         font-size: 0.7rem;
-        padding: 0.2rem;
+        padding: 0.1rem;
        
        /*  border: solid 2px pink; */
     }
