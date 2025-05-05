@@ -77,7 +77,7 @@ export default function usePaddleControls({
   pitchSmoothingFactor = 0.1,
 
   // Newly added "magic" constants as parameters
-  joystickBaseSpeed = 7,
+  joystickBaseSpeed = 20,
   joystickMaxAcceleration = 5,
   orientationDeadZone = 0.1,
   orientationBoost = 50,
@@ -104,6 +104,21 @@ export default function usePaddleControls({
   const neutralBetaLeft = 0;
   const neutralBetaRight = 0;
 
+
+
+  const joystickInertiaDecay = 0.92; // how fast swing slows down (0.9 = more swing, 0.99 = long glide)
+
+  const accelerationStep = 0.05;
+  const maxAcceleration = 2;
+  const smoothingFactor = 0.9;
+
+  useEffect(() => {
+    console.log('[usePaddleControls] Using joystick calibration offsets:');
+    console.log('  LEFT:', leftJoystickCalibrationOffset.toFixed(2));
+    console.log('  RIGHT:', rightJoystickCalibrationOffset.toFixed(2));
+  }, [leftJoystickCalibrationOffset, rightJoystickCalibrationOffset]);
+  
+  
   useEffect(() => {
     if (!gameStarted) {
       // Reset everything if game not started
@@ -123,44 +138,48 @@ export default function usePaddleControls({
     if (controlModeLeft === 'joystick') {
       const rawInput = joystickDataLeft?.leftVertical ?? 0;
       const input = rawInput - leftJoystickCalibrationOffset;
-
-      if (Math.abs(input) > leftJoystickDeadZone) {
-        // If sign flips, reset acceleration
-        if (Math.sign(input) !== Math.sign(leftPaddleVelocityRef.current)) {
-          joystickAccelerationRefLeft.current = 1;
+      const withinDeadZone = Math.abs(input) < leftJoystickDeadZone;
+    
+      if (withinDeadZone) {
+        // Let paddle glide naturally when no input
+        leftPaddleVelocityRef.current *= joystickInertiaDecay;
+    
+        // Clamp very small speeds to zero
+        if (Math.abs(leftPaddleVelocityRef.current) < 0.01) {
+          leftPaddleVelocityRef.current = 0;
+        }
+    
+        joystickAccelerationRefLeft.current = 1;
+      } else {
+        const scaled = (Math.abs(input) - leftJoystickDeadZone) / (1 - leftJoystickDeadZone);
+        const direction = Math.sign(input);
+    
+        const isFullTilt = Math.abs(input) >= 0.99;
+    
+        if (isFullTilt) {
+          // Accelerate only at full stick
+          if (Math.sign(leftPaddleVelocityRef.current) === direction) {
+            joystickAccelerationRefLeft.current = Math.min(
+              joystickAccelerationRefLeft.current + accelerationStep,
+              maxAcceleration
+            );
+          } else {
+            // Direction changed → reset
+            joystickAccelerationRefLeft.current = 1;
+          }
         } else {
-          // Increase up to joystickMaxAcceleration
-          joystickAccelerationRefLeft.current = Math.min(
-            joystickAccelerationRefLeft.current + 0.03,
-            joystickMaxAcceleration
-          );
+          // Not at full tilt = constant speed, reset acceleration
+          joystickAccelerationRefLeft.current = 1;
         }
-
-        // Convert input to [0..1]
-        const scaled =
-          (Math.abs(input) - leftJoystickDeadZone) /
-          (1 - leftJoystickDeadZone);
-
-        // Base velocity
-        let velocity =
-          joystickBaseSpeed *
-          scaled *
-          Math.sign(input) *
-          joystickAccelerationRefLeft.current;
-
-        // Joystick “swing” detection
-        if (Math.abs(motionDataLeft.gyroDpsX || 0) > joystickSwingThreshold) {
-          velocity *= 2;
-        }
-
-        const smoothingFactor = 0.8
-        leftPaddleVelocityRef.current = 
+    
+        const velocity = joystickBaseSpeed * scaled * direction * joystickAccelerationRefLeft.current;
+    
+        // Smooth the velocity change for buttery motion
+        const smoothedVelocity =
           leftPaddleVelocityRef.current * (1 - smoothingFactor) +
           velocity * smoothingFactor;
-      } else {
-        // Below dead zone → reset
-        joystickAccelerationRefLeft.current = 1;
-        leftPaddleVelocityRef.current = 0;
+    
+        leftPaddleVelocityRef.current = smoothedVelocity;
       }
     } else {
       // Left Paddle Orientation
@@ -228,39 +247,49 @@ export default function usePaddleControls({
     if (controlModeRight === 'joystick') {
       const rawInput = joystickDataRight?.rightVertical ?? 0;
       const input = rawInput - rightJoystickCalibrationOffset;
-
-      if (Math.abs(input) > rightJoystickDeadZone) {
-        if (Math.sign(input) !== Math.sign(rightPaddleVelocityRef.current)) {
-          joystickAccelerationRefRight.current = 1;
+      const withinDeadZone = Math.abs(input) < rightJoystickDeadZone;
+    
+      if (withinDeadZone) {
+        // Let paddle glide naturally when no input
+        rightPaddleVelocityRef.current *= joystickInertiaDecay;
+    
+        // Clamp very small speeds to zero
+        if (Math.abs(rightPaddleVelocityRef.current) < 0.01) {
+          rightPaddleVelocityRef.current = 0;
+        }
+    
+        joystickAccelerationRefRight.current = 1;
+      } else {
+        const scaled = (Math.abs(input) - rightJoystickDeadZone) / (1 - rightJoystickDeadZone);
+        const direction = Math.sign(input);
+    
+        const isFullTilt = Math.abs(input) >= 0.99;
+    
+        if (isFullTilt) {
+          // Accelerate only at full stick
+          if (Math.sign(rightPaddleVelocityRef.current) === direction) {
+            joystickAccelerationRefRight.current = Math.min(
+              joystickAccelerationRefRight.current + accelerationStep,
+              maxAcceleration
+            );
+          } else {
+            // Direction changed → reset
+            joystickAccelerationRefRight.current = 1;
+          }
         } else {
-          joystickAccelerationRefRight.current = Math.min(
-            joystickAccelerationRefRight.current + 0.03,
-            joystickMaxAcceleration
-          );
+          // Not at full tilt = constant speed, reset acceleration
+          joystickAccelerationRefRight.current = 1;
         }
-
-        const scaled =
-          (Math.abs(input) - rightJoystickDeadZone) /
-          (1 - rightJoystickDeadZone);
-
-        let velocity =
-          joystickBaseSpeed *
-          scaled *
-          Math.sign(input) *
-          joystickAccelerationRefRight.current;
-
-        if (Math.abs(motionDataRight.gyroDpsX || 0) > joystickSwingThreshold) {
-          velocity *= 2;
-        }
-
-        const smoothingFactor = 0.8
-        rightPaddleVelocityRef.current = 
+    
+        const velocity = joystickBaseSpeed * scaled * direction * joystickAccelerationRefRight.current;
+    
+        // Smooth the velocity change for buttery motion
+        const smoothedVelocity =
           rightPaddleVelocityRef.current * (1 - smoothingFactor) +
           velocity * smoothingFactor;
-      } else {
-        joystickAccelerationRefRight.current = 1;
-        rightPaddleVelocityRef.current = 0;
-      }
+    
+        rightPaddleVelocityRef.current = smoothedVelocity;
+      }    
     } else {
       // Right Paddle Orientation
       let rawPitchRight = motionDataRight.orientationBeta || 0;

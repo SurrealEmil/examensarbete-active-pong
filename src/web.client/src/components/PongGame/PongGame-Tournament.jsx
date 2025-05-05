@@ -119,10 +119,22 @@ const {
 
 
 const PongGameTournament = () => {
-  const location = useLocation()
+  const location = useLocation();
   const navigate = useNavigate();
 
-  // 2) For dynamic screen sizing
+  const {
+    player1,
+    player2,
+    leftJoystickOffset = 0.1,
+    rightJoystickOffset = 0.1,
+    controlModeLeft: initialControlModeLeft,
+    controlModeRight: initialControlModeRight,
+    joystickDataLeft: initialJoystickDataLeft,
+    joystickDataRight: initialJoystickDataRight,
+    motionDataLeft: initialMotionDataLeft,
+    motionDataRight: initialMotionDataRight,
+  } = location.state || {};
+
   const canvasWidth = window.innerWidth;
   const canvasHeight = window.innerHeight;
 
@@ -130,23 +142,19 @@ const PongGameTournament = () => {
   const [rightJoyConConnected, setRightJoyConConnected] = useState(false);
 
   const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
-  const { player1, player2 } = location.state || {}
 
-  const player1Name = player1?.username || 'Default'
-  const player2Name = player2?.username || 'Default'
-  const player1Id = player1?.userId || null
-  const player2Id = player2?.userId || null
+  const player1Name = player1?.username || 'Default';
+  const player2Name = player2?.username || 'Default';
+  const player1Id = player1?.userId || null;
+  const player2Id = player2?.userId || null;
 
-  /* const [player1Name, setPlayer1Name] = useState('')
-  const [player2Name, setPlayer2Name] = useState('') */
+  // const handlePlayer1NameChange = (name) => {
+  //   setPlayer1Name(name)
+  // }
 
-  const handlePlayer1NameChange = (name) => {
-    setPlayer1Name(name)
-  }
-
-  const handlePlayer2NameChange = (name) => {
-    setPlayer2Name(name)
-  }
+  // const handlePlayer2NameChange = (name) => {
+  //   setPlayer2Name(name)
+  // }
 
   // ──────────────────────────────────────────────────────────────────────────
   // INITIAL GAME STATE
@@ -401,9 +409,9 @@ const {
   rightPaddleHeight: gameState.rightPaddle.height,
 
   leftJoystickDeadZone: LEFT_JOYSTICK_DEAD_ZONE,
-  leftJoystickCalibrationOffset: LEFT_JOYSTICK_CALIBRATION_OFFSET,
+  leftJoystickCalibrationOffset: leftJoystickOffset,
   rightJoystickDeadZone: RIGHT_JOYSTICK_DEAD_ZONE,
-  rightJoystickCalibrationOffset: RIGHT_JOYSTICK_CALIBRATION_OFFSET,
+  rightJoystickCalibrationOffset: rightJoystickOffset,
 
   joystickSwingThreshold: JOYSTICK_SWING_THRESHOLD,
   orientationSwingThreshold: ORIENTATION_SWING_THRESHOLD,
@@ -589,10 +597,29 @@ useEffect(() => {
   return () => clearInterval(timerId);
 }, []); // run only once on mount
 
-// When timer reaches 0, show the leaderboard
 useEffect(() => {
-  if (timer === 0) {
-    stopMusicSound()
+  if (timer !== 0) return;
+
+  stopMusicSound();
+
+  const ball = ballBodyRef.current;
+
+  // If the ball is in reset mode, end the game immediately
+  if (gameState.ball.resetting) {
+    console.log("Ball is resetting — ending game immediately.");
+    submitScores();
+    return;
+  }
+
+  // Otherwise, wait just long enough to see if reset is about to happen (e.g. serve is in progress)
+  const shortTimeout = setTimeout(() => {
+    console.log("Ball was not resetting — ending game after short delay.");
+    submitScores();
+  }, 300); // just a short buffer to catch delayed resets
+
+  return () => clearTimeout(shortTimeout);
+
+  async function submitScores() {
     const player1Payload = {
       userId: player1Id,
       username: player1Name,
@@ -603,42 +630,41 @@ useEffect(() => {
     const player2Payload = {
       userId: player2Id,
       username: player2Name,
-      bestScore: gameState.scores.player2,  
+      bestScore: gameState.scores.player2,
       gameMode: 'Pong',
     };
 
-    const submitScores = async () => {
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/leaderboard/submit-multiplayer`,
-          {
-            player1: player1Payload,
-            player2: player2Payload,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: '*/*',
-            },
-            // If your backend requires credentials like cookies:
-            
-            //withCredentials: true ,
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/leaderboard/submit-multiplayer`,
+        { player1: player1Payload, player2: player2Payload },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
           }
-        );
+        }
+      );
 
-        console.log('Scores submitted:', response.data);
-
-        // Navigate to leaderboard with state
-        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id]}});
-
-      } catch (error) {
-        console.error('Error submitting scores:', error.response?.data || error.message);
-      }
-    };
-
-    submitScores();
+      console.log('Scores submitted:', response.data);
+      navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id] } });
+    } catch (error) {
+      console.error('Error submitting scores:', error.response?.data || error.message);
+    }
   }
-}, [timer, player1Name, player2Name, gameState.scores, navigate]);
+}, [
+  timer,
+  gameState.ball.resetting,
+  player1Id,
+  player2Id,
+  player1Name,
+  player2Name,
+  gameState.scores,
+  navigate,
+  stopMusicSound,
+  ballBodyRef,
+]);
+
 
   // ──────────────────────────────────────────────────────────────────────────
   // PAUSE/RESUME Debug Renderer (Optional)
@@ -772,8 +798,7 @@ useEffect(() => {
 
   const toggleControlModeRight = () => {
     setControlModeRight((prev) => {
-      const newMode =
-        prev === 'joystick' ? 'accelerometer' : 'joystick';
+      const newMode = prev === 'joystick' ? 'accelerometer' : 'joystick';
       //console.log('Switched Right Joy-Con mode to:', newMode);
       rightPaddleVelocityRef.current = 0; // reset
       return newMode;
