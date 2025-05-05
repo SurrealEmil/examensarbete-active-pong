@@ -1,25 +1,18 @@
 .overlay {
-
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 9999; 
-    background-color: rgba(0, 0, 0, 0.375); 
+    background-color: rgba(0, 0, 0, 0.12); 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-
-    /* border: 10px solid pink; */
-  
-
-    
+    justify-content: center;   
 }
 
 .searching-text {
-
   position: relative; 
   color: var(--orange);
   font-size: 2rem;
@@ -27,26 +20,18 @@
   width: 75rem;
   line-height: 1.8;
   text-align: center;
-  margin-bottom: 2rem; /* Add space between text and video */
-  
-  /* Add some styling to make it stand out */
+  margin-bottom: 2rem; 
   padding: 1rem 2rem;
   background-color: rgba(0, 0, 0, 0.7);
   border: 4px solid var(--orange);
   border-radius: 8px;
   box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
-  
-  /* Animation */
-  /* animation: textBlink 1.2s infinite alternate; */
   max-width: 90%;
-
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: nowrap;
 }
-
-
 
 .searching-text::after {
   content: "";
@@ -56,7 +41,6 @@
   margin-left: 0.5rem;
   animation: loadingDots 1.5s infinite;
 }
-
 
 .video {
   width: 100%;
@@ -90,13 +74,9 @@
   100% { background-position: 0 1200px; }
 }
 
-/* Optional CRT scanline effect */
 
 
 
-
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .searching-text {
     font-size: 1.2rem;
@@ -104,3 +84,4 @@
     border-width: 3px;
   }
 }
+

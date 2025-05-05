@@ -89,7 +89,7 @@
   left: 12%;
   top: 50%;
   transform: translate(-50%, -50%);
-
+  
   /* border: 2px solid pink; */
 }
   
@@ -98,8 +98,8 @@
   right: 12%;
   top: 50%;
   transform: translate(50%, -50%);
-  width: 11rem;
-  height: 10rem;
+  width: 16rem;
+  height: 16rem;
 
   /* border: 2px solid pink; */
 }

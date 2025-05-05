@@ -13,8 +13,6 @@
   flex-shrink: 0; 
 
   /* border: 2px solid pink; */
-
-
 }
 
 .topbar-name-wrapper-left{
@@ -42,27 +40,19 @@
 .player-1-container{
   display: flex;
   flex-direction: column;
-  
-  
   height: 4rem;
   gap: 1.5vh;
   width: auto;
- 
   margin-left: 3vw;
-  
-
   /* border: 2px solid pink;  */
 }
 
 .player-2-container{
   display: flex;
-  flex-direction: column;
-  
-  
+  flex-direction: column; 
   height: 4rem;
   gap: 1.5vh;
   width: auto;
- 
   margin-right: 3vw;
  /*  border: 2px solid pink;  */
 }
@@ -79,8 +69,7 @@
 
 .player1-score {
   font-size: 2rem;
-  text-align: left;
- 
+  text-align: left; 
 }
 
 .player2-score {
@@ -90,8 +79,7 @@
 
 
 .joycon-icon-left {
-  position: fixed;
-  
+  position: fixed; 
   font-size: 1.2em;
   width: 4rem;
   height: 4rem;
@@ -100,8 +88,7 @@
 }
 
 .joycon-icon-right{
-  position: fixed;
-  
+  position: fixed; 
   font-size: 1.2em;
   width: 4rem;
   height: 4rem;     
@@ -299,5 +286,11 @@
   }
 }
 
+
+@media (max-width: 650px) {
+  .player1-name, .player1-score, .player2-name, .player2-score{
+    display: none;
+  }
+}
 
 
