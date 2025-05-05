@@ -139,6 +139,8 @@ export default function usePaddleControls({
       const rawInput = joystickDataLeft?.leftVertical ?? 0;
       const input = rawInput - leftJoystickCalibrationOffset;
       const withinDeadZone = Math.abs(input) < leftJoystickDeadZone;
+
+      // console.log('Left Paddle Input:', input.toFixed(2), 'withinDeadZone:', withinDeadZone);
     
       if (withinDeadZone) {
         // Let paddle glide naturally when no input
@@ -154,7 +156,7 @@ export default function usePaddleControls({
         const scaled = (Math.abs(input) - leftJoystickDeadZone) / (1 - leftJoystickDeadZone);
         const direction = Math.sign(input);
     
-        const isFullTilt = Math.abs(input) >= 0.99;
+        const isFullTilt = Math.abs(input) >= 0.85;
     
         if (isFullTilt) {
           // Accelerate only at full stick
@@ -248,6 +250,8 @@ export default function usePaddleControls({
       const rawInput = joystickDataRight?.rightVertical ?? 0;
       const input = rawInput - rightJoystickCalibrationOffset;
       const withinDeadZone = Math.abs(input) < rightJoystickDeadZone;
+
+      console.log('Right Paddle Input:', input.toFixed(2), 'withinDeadZone:', withinDeadZone);
     
       if (withinDeadZone) {
         // Let paddle glide naturally when no input
@@ -263,7 +267,7 @@ export default function usePaddleControls({
         const scaled = (Math.abs(input) - rightJoystickDeadZone) / (1 - rightJoystickDeadZone);
         const direction = Math.sign(input);
     
-        const isFullTilt = Math.abs(input) >= 0.99;
+        const isFullTilt = Math.abs(input) >= 0.85;
     
         if (isFullTilt) {
           // Accelerate only at full stick

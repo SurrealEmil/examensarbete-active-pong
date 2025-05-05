@@ -205,6 +205,8 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   const [gamePaused, setGamePaused] = useState(false);
   const [leftCurrentlyNeutral, setLeftCurrentlyNeutral] = useState(false);
   const [rightCurrentlyNeutral, setRightCurrentlyNeutral] = useState(false);
+  const [calibrationStatus, setCalibrationStatus] = useState('idle'); 
+
 
   // Final neutral values safely stored for later use
   const [finalCapturedNeutral, setFinalCapturedNeutral] = useState({
@@ -360,32 +362,32 @@ useEffect(() => {
       leftConnected &&
       rightConnected
     ) {
+      setCalibrationStatus('calibrating');
       console.log("✅ Both players scanned and Joy-Cons connected. Starting auto-neutral baseline capture...");
   
       let attempts = 0;
       const interval = setInterval(() => {
         if (attempts >= 5) {
           clearInterval(interval);
+          setCalibrationStatus('done');
           return;
         }
         attempts++;
   
         neutralRefLeft.current = joystickValueRefLeft.current;
         neutralRefRight.current = joystickValueRefRight.current;
-
+  
         setFinalCapturedNeutral({
           left: joystickValueRefLeft.current,
           right: joystickValueRefRight.current
         });
   
-        console.log(`🎯 Auto neutral capture ${attempts}`);
-        console.log("Neutral baseline manually captured (LEFT):", neutralRefLeft.current.toFixed(2));
-        console.log("Neutral baseline manually captured (RIGHT):", neutralRefRight.current.toFixed(2));
-      }, 400); // 5 times over 2 seconds
+        // console.log(`🎯 Auto neutral capture ${attempts}`);
+      }, 400);
   
       return () => clearInterval(interval);
     }
-  }, [scannedPlayers, leftConnected, rightConnected]);
+  }, [scannedPlayers, leftConnected, rightConnected]);  
   
   // Listen for custom JoyCon events
   useEffect(() => {
@@ -497,6 +499,7 @@ const DelayedLobbyCameraOverlay = (props) => {
         player1Name={scannedPlayers.player1?.username || 'Waiting for player 1'}
         player2Name={scannedPlayers.player2?.username || 'Waiting for player 2'}
       />
+      
       <div className="pong-game-container">
         <div className="connection-status">
           <div className="player-1">
@@ -507,20 +510,14 @@ const DelayedLobbyCameraOverlay = (props) => {
             {leftConnected && (
               <>
                 <p className="ready-msg-1">
-                  {leftReady ? "Ready" : "Press MINUS button when ready"}
+                  {calibrationStatus !== 'done'
+                      ? <span className="spinner-text">
+                      <span className="spinner" />
+                    </span>
+                      : leftReady
+                        ? 'Ready'
+                        : 'PLUS button when ready'}
                 </p>
-
-                {/* NEW! Show paddle neutral state */}
-                {neutralRefLeft.current !== null && (
-                  <p
-                    className="neutralized-msg"
-                    style={{
-                      color: leftCurrentlyNeutral ? 'orange' : 'gray',
-                    }}
-                  >
-                    Paddle {leftCurrentlyNeutral ? 'Zeroed!' : 'Moving...'}
-                  </p>
-                )}
               </>
             )}
           </div>
@@ -528,24 +525,17 @@ const DelayedLobbyCameraOverlay = (props) => {
             <p className={!rightConnected ? "pulsate" : ""}>
               {rightConnected ? "Connected" : "Searching for JoyCon"}
             </p>
-
             {rightConnected && (
               <>
                 <p className="ready-msg-2">
-                  {rightReady ? "Ready" : "Press PLUS button when ready"}
+                  {calibrationStatus !== 'done'
+                    ? <span className="spinner-text">
+                    <span className="spinner" />
+                  </span>
+                    : rightReady
+                      ? 'Ready'
+                      : 'PLUS button when ready'}
                 </p>
-
-                {/* NEW! Show paddle neutral state */}
-                {neutralRefRight.current !== null && (
-                  <p
-                    className="neutralized-msg"
-                    style={{
-                      color: rightCurrentlyNeutral ? 'orange' : 'gray',
-                    }}
-                  >
-                    Paddle {rightCurrentlyNeutral ? 'Zeroed!' : 'Moving...'}
-                  </p>
-                )}
               </>
             )}
         </div>
