@@ -566,12 +566,18 @@ const { fps, isLagSpike } = useGameLoop({
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
 
-    // Start ball movement
+  /*   // Start ball movement
     const randomSign = () => (Math.random() > 0.5 ? 1 : -1);
     Matter.Body.setVelocity(ballBodyRef.current, {
       x: BALL_SPEED * randomSign(),
       y: BALL_SPEED * randomSign(),
-    });
+    }); */
+    ballBodyRef.current.forEach((body) =>
+      Matter.Body.setVelocity(body, {
+        x: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
+        y: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
+      })
+    );
 
     try {
       await playMusicSound()
