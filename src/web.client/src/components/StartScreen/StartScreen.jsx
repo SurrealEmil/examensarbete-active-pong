@@ -311,7 +311,7 @@ const StartScreen = () => {
       {selectedMode ? (
         <div className="old-mode-info-container">
             <div className="qr-code">
-              <QRCode value="https://activepong.azurewebsites.net/signup" size={170} />
+              <QRCode value="https://activepong.azurewebsites.net/signup" size={1} />
             </div>
             <div className="startscreen-text">
               <p>Register and scan your QR code to jump into the action
