@@ -11,25 +11,6 @@ import LobbyCameraOverlay from './LobbyCameraOverlay'
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
 
-const LEFT_JOYSTICK_DEAD_ZONE = 0.3;
-const LEFT_JOYSTICK_CALIBRATION_OFFSET = 0.1;
-const RIGHT_JOYSTICK_DEAD_ZONE = 0.4;
-const RIGHT_JOYSTICK_CALIBRATION_OFFSET = 0.4;
-const JOYSTICK_SWING_THRESHOLD = 20;
-const ORIENTATION_SWING_THRESHOLD = 5;
-const ORIENTATION_SCALE_UP = 1.5;
-const ORIENTATION_SCALE_DOWN = 1.0;
-const ORIENTATION_MIN_PITCH = -50;
-const ORIENTATION_MAX_PITCH = 50;
-const ACCEL_SMOOTHING_ALPHA = 0.1;
-const PITCH_SMOOTHING_FACTOR = 0.1;
-const JOYSTICK_BASE_SPEED = 7;
-const JOYSTICK_MAX_ACCELERATION = 5;
-const ORIENTATION_DEAD_ZONE = 0.1;
-const ORIENTATION_BOOST = 50;
-
-
-
 const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   
   // States for QR scanning
@@ -92,23 +73,25 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
         setOverlayVisible(false);
         console.log("Overlay hidden");
       }, 500);
-      return () => clearTimeout(timer);
+  
+      // 👇 Automatically connect JoyCons 3 times over 5 seconds
+      const tryConnectInterval = setInterval(() => {
+        console.log("Auto-connecting JoyCons...");
+        handleConnectJoyCons();
+      }, 400); // 5 attempts in 2 seconds
+  
+      // Stop after 5 attempts (400ms × 5 = 2000ms)
+      const stopTimer = setTimeout(() => {
+        clearInterval(tryConnectInterval);
+      }, 2000);
+  
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(stopTimer);
+        clearInterval(tryConnectInterval);
+      };
     }
   }, [scannedPlayers]);
-
-
-
- 
-      // If the same QR code is scanned repeatedly, ignore subsequent scans.
-/*       if (qrCodeIdentifier === lastScanned) {
-        console.log("Same QR code processed recently. Ignoring duplicate scan.");
-        return;
-      }
-      setLastScanned(qrCodeIdentifier); */
-
-
-
-
 
   // JoyCon ready callbacks
   const handleLeftReady = () => {
@@ -216,179 +199,147 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
     },
   };
 
- 
-  const {
-  
-  } = usePaddleControls({
-    gameStarted: true,
-    controlModeLeft: controlModeLeft,
-    controlModeRight: controlModeRight,
-    motionDataLeft,
-    motionDataRight,
-    joystickDataLeft,
-    joystickDataRight,
-    canvasHeight,
-    WALL_THICKNESS: wallThickness,
-    initialLeftPaddleY: INITIAL_GAME_STATE.leftPaddle.y,
-    initialRightPaddleY: INITIAL_GAME_STATE.rightPaddle.y,
-    leftPaddleHeight: INITIAL_GAME_STATE.leftPaddle.height,
-    rightPaddleHeight: INITIAL_GAME_STATE.rightPaddle.height,
-    leftJoystickDeadZone: LEFT_JOYSTICK_DEAD_ZONE,
-    leftJoystickCalibrationOffset: LEFT_JOYSTICK_CALIBRATION_OFFSET,
-    rightJoystickDeadZone: RIGHT_JOYSTICK_DEAD_ZONE,
-    rightJoystickCalibrationOffset: RIGHT_JOYSTICK_CALIBRATION_OFFSET,
-    joystickSwingThreshold: JOYSTICK_SWING_THRESHOLD,
-    orientationSwingThreshold: ORIENTATION_SWING_THRESHOLD,
-    orientationScaleUp: ORIENTATION_SCALE_UP,
-    orientationScaleDown: ORIENTATION_SCALE_DOWN,
-    orientationMinPitch: ORIENTATION_MIN_PITCH,
-    orientationMaxPitch: ORIENTATION_MAX_PITCH,
-    accelSmoothingAlpha: ACCEL_SMOOTHING_ALPHA,
-    pitchSmoothingFactor: PITCH_SMOOTHING_FACTOR,
-    joystickBaseSpeed: JOYSTICK_BASE_SPEED,
-    joystickMaxAcceleration: JOYSTICK_MAX_ACCELERATION,
-    orientationDeadZone: ORIENTATION_DEAD_ZONE,
-    orientationBoost: ORIENTATION_BOOST,
-  });
-
   // Initialize game state with INITIAL_GAME_STATE
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE);
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePaused, setGamePaused] = useState(false);
+  const [leftCurrentlyNeutral, setLeftCurrentlyNeutral] = useState(false);
+  const [rightCurrentlyNeutral, setRightCurrentlyNeutral] = useState(false);
+  const [calibrationStatus, setCalibrationStatus] = useState('idle'); 
 
+
+  // Final neutral values safely stored for later use
+  const [finalCapturedNeutral, setFinalCapturedNeutral] = useState({
+    left: 0.1,
+    right: 0.1
+  });
 
 //////////////////////////////////////////////////////
-//-----------LEFT PADDLE (accelerometer)-------------
+//---------------LEFT PADDLE (joystick)---------------
 /////////////////////////////////////////////////////
 
-  useEffect(() => {
-    if (controlModeLeft === 'accelerometer'){
-    const topBeta = -100
-    const centerBeta = -7
-    const bottomBeta = 100
-    const sensitivityFactor = 1
+const joystickValueRefLeft = useRef(joystickDataLeft.leftVertical);
+const neutralRefLeft = useRef(null); // To store neutral baseline
 
-    const centerY = (canvasHeight - paddleHeight) / 2
-    const bottomY = canvasHeight -paddleHeight
-  
-    const beta = motionDataLeft.orientationBeta;
-    //console.log("Beta :" ,beta)
+useEffect(() => {
+  joystickValueRefLeft.current = joystickDataLeft.leftVertical;
+}, [joystickDataLeft.leftVertical]);
 
-    let newY
+useEffect(() => {
+  if (controlModeLeft === 'joystick') {
+    let animationFrameId;
+    const speed = 20;
+
+    // Listen for Spacebar to recalibrate neutral
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space') {
+        neutralRefLeft.current = joystickValueRefLeft.current;
+        console.log("Neutral baseline manually captured (LEFT):", neutralRefLeft.current.toFixed(2));
+        setFinalCapturedNeutral(prev => ({ ...prev, left: neutralRefLeft.current }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    const updatePaddle = (timestamp) => {
+      const raw = joystickValueRefLeft.current;
     
-    if (beta <= centerBeta) {
-      const t = (beta - topBeta) / (centerBeta - topBeta)
-      newY = t * centerY * sensitivityFactor
-  
-    } else {
-      const t = (beta - centerBeta) / (bottomBeta - centerBeta)
-      newY = centerY + t * (bottomY - centerY) * sensitivityFactor
-    }
+      const adjusted = raw - neutralRefLeft.current;
+      const clamped = Math.max(-1, Math.min(1, adjusted));
+      const deadZone = 0.1;
+      const final = Math.abs(clamped) > deadZone ? clamped : 0;
+    
+      // ADD THIS LINE:
+      setLeftCurrentlyNeutral(final === 0);
+    
+      if (final !== 0) {
+        setLeftPaddleY(prev => {
+          const newY = prev + final * speed;
+          return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20));
+        });
+      }
+    
+      animationFrameId = requestAnimationFrame(updatePaddle);
+    };
 
-    newY = Math.max(1, Math.min(newY, canvasHeight - paddleHeight - 1))
+    animationFrameId = requestAnimationFrame(updatePaddle);
 
-    setLeftPaddleY(newY)
-  }}, [motionDataLeft.orientationBeta, canvasHeight, paddleHeight]);
-
-
-//////////////////////////////////////////////////////
-//---------------LEFT PADDLE(joystick)---------------
-/////////////////////////////////////////////////////
-
-  const joystickValueRefLeft = useRef(joystickDataLeft.leftVertical)
-  useEffect(() => {
-    joystickValueRefLeft.current = joystickDataLeft.leftVertical
-  }, [joystickDataLeft.leftVertical])
-
-
-
-  useEffect(() => {
-    if (controlModeLeft === 'joystick') {
-    let animationFrameId
-    const speed = 20
-
-    const updatePaddle = () => {
-    if(Math.abs(joystickValueRefLeft.current) > LEFT_JOYSTICK_DEAD_ZONE){
-    setLeftPaddleY(prev => {
-      const newY = prev + joystickValueRefLeft.current * speed
-      //console.log(joystickValueRef)
-      return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20))
-      
-    })}
-    console.log("Left vertical raw:", joystickValueRefLeft.current);
-    animationFrameId = requestAnimationFrame(updatePaddle)
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('keydown', handleKeyDown);
+      neutralRefLeft.current = null; // Reset when unmounting or changing mode
+    };
   }
-
-  updatePaddle()
-  
-
-  return() => cancelAnimationFrame(animationFrameId)
-
-  }}, [canvasHeight, paddleHeight, controlModeLeft])
-
-
-//////////////////////////////////////////////////////
-//---------RIGHT PADDLE (accelerometer)--------------
-/////////////////////////////////////////////////////
-
-  useEffect(() => {
-    if (controlModeRight === 'accelerometer'){
-    const topBeta = -100
-    const centerBeta = -7
-    const bottomBeta = 100
-    const sensitivityFactor = 1
-
-    const centerY = (canvasHeight - paddleHeight) / 2
-    const bottomY = canvasHeight -paddleHeight
-  
-    const beta = motionDataRight.orientationBeta;
-    //console.log("Beta :" ,beta)
-
-    let newY
-    
-    if (beta <= centerBeta) {
-      const t = (beta - topBeta) / (centerBeta - topBeta)
-      newY = t * centerY * sensitivityFactor
-  
-    } else {
-      const t = (beta - centerBeta) / (bottomBeta - centerBeta)
-      newY = centerY + t * (bottomY - centerY) * sensitivityFactor
-    }
-
-    newY = Math.max(1, Math.min(newY, canvasHeight - paddleHeight - 1))
-
-    setRightPaddleY(newY)
-  }}, [motionDataRight.orientationBeta, canvasHeight, paddleHeight]);
+}, [canvasHeight, paddleHeight, controlModeLeft]);
 
 //////////////////////////////////////////////////////
 //---------RIGHT PADDLE (joystick)-------------------
 /////////////////////////////////////////////////////
 
-  const joystickValueRefRight = useRef(joystickDataRight.rightVertical)
-  useEffect(() => {
-    joystickValueRefRight.current = joystickDataRight.rightVertical
-  }, [joystickDataRight.rightVertical])
+const joystickValueRefRight = useRef(joystickDataRight.rightVertical);
+const neutralRefRight = useRef(null); // To store neutral baseline
 
-  useEffect(() => {
-    if(controlModeRight === 'joystick'){
-      let animationFrameId
-      const speed = 20
+useEffect(() => {
+  joystickValueRefRight.current = joystickDataRight.rightVertical;
+}, [joystickDataRight.rightVertical]);
 
-      const updatePaddle = () => {
-      if(Math.abs(joystickValueRefRight.current) > RIGHT_JOYSTICK_DEAD_ZONE){
-      setRightPaddleY(prev => {
-        const newY = prev + joystickValueRefRight.current * speed
-        return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20))
-      })}
-      console.log("Right vertical raw:", joystickValueRefRight.current);
-      animationFrameId = requestAnimationFrame(updatePaddle)
-    }
-    updatePaddle()
+useEffect(() => {
+  if (controlModeRight === 'joystick') {
+    let animationFrameId;
+    const speed = 20;
 
-    return() => cancelAnimationFrame(animationFrameId)
+    // Listen for Spacebar to recalibrate neutral
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space') {
+        neutralRefRight.current = joystickValueRefRight.current;
+        console.log("Neutral baseline manually captured (RIGHT):", neutralRefRight.current.toFixed(2));
+        setFinalCapturedNeutral(prev => ({ ...prev, right: neutralRefRight.current }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    const updatePaddle = (timestamp) => {
+      const raw = joystickValueRefRight.current;
     
-  }}, [canvasHeight, paddleHeight, controlModeRight])
+      if (neutralRefRight.current === null) {
+        animationFrameId = requestAnimationFrame(updatePaddle);
+        return;
+      }
+    
+      const adjusted = raw - neutralRefRight.current;
+      const clamped = Math.max(-1, Math.min(1, adjusted));
+    
+      const deadZone = 0.1;
+      const final = Math.abs(clamped) > deadZone ? clamped : 0;
+    
+      // ADD THIS:
+      setRightCurrentlyNeutral(final === 0);
+    
+      if (final !== 0) {
+        setRightPaddleY(prev => {
+          const newY = prev + final * speed;
+          return Math.max(20, Math.min(newY, canvasHeight - paddleHeight - 20));
+        });
+      }
+    
+      animationFrameId = requestAnimationFrame(updatePaddle);
+    };    
+
+    animationFrameId = requestAnimationFrame(updatePaddle);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('keydown', handleKeyDown);
+      neutralRefRight.current = null; // Reset when unmounting or changing mode
+    };
+  }
+}, [canvasHeight, paddleHeight, controlModeRight]);
+
  
+//////////////////////////////////////////////////////
+//---------PADDLE (joystick-auro-correction)-------------------
+/////////////////////////////////////////////////////
   
   useEffect(() => {
     setGameState(prevState => ({
@@ -404,48 +355,40 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
     }));
   }, [leftPaddleY, rightPaddleY]);
 
-
-//////////////////////////////////////////////////////
-//---------------TOGGLE MODE CODE--------------------
-/////////////////////////////////////////////////////
-
-
-  const toggleControlModeLeft = () => {
-    //console.log("Toggle left control mode");
-    setControlModeLeft(prev =>
-      prev === 'accelerometer' ? 'joystick' : 'accelerometer'
-    )
-  };
-
-  const toggleControlModeRight = () => {
-    //console.log("Toggle right control mode");
-    setControlModeRight(prev =>
-      prev === 'accelerometer' ? 'joystick' : 'accelerometer'
-    )
-  };
-
-  // Function to check connected gamepads
-  const checkGamepads = () => {
-    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-    for (const gp of gamepads) {
-      if (gp && gp.id) {
-        if (gp.id.includes("Joy-Con L+R")) {
-          setLeftConnected(true);
-          setRightConnected(true);
-        } else {
-          if (gp.id.includes("Joy-Con (L)")) setLeftConnected(true);
-          if (gp.id.includes("Joy-Con (R)")) setRightConnected(true);
+  useEffect(() => {
+    if (
+      scannedPlayers.player1 &&
+      scannedPlayers.player2 &&
+      leftConnected &&
+      rightConnected
+    ) {
+      setCalibrationStatus('calibrating');
+      console.log("✅ Both players scanned and Joy-Cons connected. Starting auto-neutral baseline capture...");
+  
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (attempts >= 5) {
+          clearInterval(interval);
+          setCalibrationStatus('done');
+          return;
         }
-      }
+        attempts++;
+  
+        neutralRefLeft.current = joystickValueRefLeft.current;
+        neutralRefRight.current = joystickValueRefRight.current;
+  
+        setFinalCapturedNeutral({
+          left: joystickValueRefLeft.current,
+          right: joystickValueRefRight.current
+        });
+  
+        // console.log(`🎯 Auto neutral capture ${attempts}`);
+      }, 400);
+  
+      return () => clearInterval(interval);
     }
-  };
-
- /*  useEffect(() => {
-    checkGamepads();
-    const interval = setInterval(checkGamepads, 1000);
-    return () => clearInterval(interval);
-  }, []); */
-
+  }, [scannedPlayers, leftConnected, rightConnected]);  
+  
   // Listen for custom JoyCon events
   useEffect(() => {
     const handleJoyConConnected = (event) => {
@@ -491,50 +434,12 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
       state: {
         player1: scannedPlayers.player1,
         player2: scannedPlayers.player2,
+        leftJoystickOffset: finalCapturedNeutral.left,
+        rightJoystickOffset: finalCapturedNeutral.right
       }
     }), 1100);
     return () => clearTimeout(timer);
 }}, [countdown, navigate]);              
-
-
-  // Connect JoyCons on mount (but we'll render the connector only after QR scanning)
- /*  useEffect(() => {
-    if (joyConConnectorRef.current) {
-      joyConConnectorRef.current.connect().then((connected) => {
-        if (!connected) {
-          console.warn("Could not connect JoyCons in lobby");
-        }
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if(leftConnected && rightConnected){
-      setAttemptCount(0)
-      return
-    }
-  
-
-  const interval = setInterval(() => {
-    joyConConnectorRef.current?.connect().then((connected) => {
-      if(!connected){
-        console.warn("Re-connect attemp failed")
-      }
-    })
-
-
-  setAttemptCount((prev) => {
-    const newCount = prev + 1
-    if (newCount >= 3 && (!leftConnected || !rightConnected)){
-      console.warn("Still no JoyCons after multiple attemps. Reloading...")
-        window.location.reload()
-      }
-      return newCount
-  })
-}, 500000)
-
-return () => clearInterval(interval)
-}, [leftConnected, rightConnected]) */
 
 const handleConnectJoyCons = async () => {
   try {
@@ -555,14 +460,19 @@ const handleConnectJoyCons = async () => {
 useEffect(() => {
   const onKeyDown = (e) => {
     if (e.code === 'Space') {
-      console.log("Space bar pressed. Attempting JoyCon connection.");
-      handleConnectJoyCons();
+      // 🔒 Only allow spacebar if both players are scanned in
+      if (scannedPlayers.player1 && scannedPlayers.player2) {
+        console.log("Space bar pressed. Attempting JoyCon connection.");
+        handleConnectJoyCons();
+      } else {
+        console.log("Both players need to scan before JoyCons can connect.");
+      }
     }
   };
 
   window.addEventListener('keydown', onKeyDown);
   return () => window.removeEventListener('keydown', onKeyDown);
-}, []);
+}, [scannedPlayers]);
 
 
 const DelayedLobbyCameraOverlay = (props) => {
@@ -589,16 +499,26 @@ const DelayedLobbyCameraOverlay = (props) => {
         player1Name={scannedPlayers.player1?.username || 'Waiting for player 1'}
         player2Name={scannedPlayers.player2?.username || 'Waiting for player 2'}
       />
+      
       <div className="pong-game-container">
         <div className="connection-status">
           <div className="player-1">
             <p className={!leftConnected ? "pulsate" : ""}>
               {leftConnected ? "Connected" : "Searching for JoyCon"}
             </p>
+
             {leftConnected && (
-              <p className="ready-msg-1">
-                {leftReady ? "Ready" : "Press button when ready"}
-              </p>
+              <>
+                <p className="ready-msg-1">
+                  {calibrationStatus !== 'done'
+                      ? <span className="spinner-text">
+                      <span className="spinner" />
+                    </span>
+                      : leftReady
+                        ? 'Ready'
+                        : 'PLUS button when ready'}
+                </p>
+              </>
             )}
           </div>
           <div className="player-2">
@@ -606,11 +526,19 @@ const DelayedLobbyCameraOverlay = (props) => {
               {rightConnected ? "Connected" : "Searching for JoyCon"}
             </p>
             {rightConnected && (
-              <p className="ready-msg-2">
-                {rightReady ? "Ready" : "Press button when ready"}
-              </p>
+              <>
+                <p className="ready-msg-2">
+                  {calibrationStatus !== 'done'
+                    ? <span className="spinner-text">
+                    <span className="spinner" />
+                  </span>
+                    : rightReady
+                      ? 'Ready'
+                      : 'PLUS button when ready'}
+                </p>
+              </>
             )}
-          </div>
+        </div>
         </div>
         <PongCanvas
           gameState={gameState}

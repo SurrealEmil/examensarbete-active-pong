@@ -141,10 +141,22 @@ function randomVelocity(speed, bufferDeg = 15) {
 }
 
 const PongGameTournament = () => {
-  const location = useLocation()
+  const location = useLocation();
   const navigate = useNavigate();
 
-  // 2) For dynamic screen sizing
+  const {
+    player1,
+    player2,
+    leftJoystickOffset = 0.1,
+    rightJoystickOffset = 0.1,
+    controlModeLeft: initialControlModeLeft,
+    controlModeRight: initialControlModeRight,
+    joystickDataLeft: initialJoystickDataLeft,
+    joystickDataRight: initialJoystickDataRight,
+    motionDataLeft: initialMotionDataLeft,
+    motionDataRight: initialMotionDataRight,
+  } = location.state || {};
+
   const canvasWidth = window.innerWidth;
   const canvasHeight = window.innerHeight;
 
@@ -152,7 +164,6 @@ const PongGameTournament = () => {
   const [rightJoyConConnected, setRightJoyConConnected] = useState(false);
 
   const [hitStreaks, setHitStreaks] = useState({ player1: 0, player2: 0 });
-  const { player1, player2 } = location.state || {}
 
   const player1Name = player1?.username || 'Player 1'
   const player2Name = player2?.username || 'Player 2'
@@ -288,6 +299,7 @@ const PongGameTournament = () => {
   // AUDIO
   // ──────────────────────────────────────────────────────────────────────────
   const {
+    audioEnabled,
     setAudioEnabled,
     playHitSound,
     playSideSound,
@@ -449,9 +461,9 @@ const {
   rightPaddleHeight: gameState.rightPaddle.height,
 
   leftJoystickDeadZone: LEFT_JOYSTICK_DEAD_ZONE,
-  leftJoystickCalibrationOffset: LEFT_JOYSTICK_CALIBRATION_OFFSET,
+  leftJoystickCalibrationOffset: leftJoystickOffset,
   rightJoystickDeadZone: RIGHT_JOYSTICK_DEAD_ZONE,
-  rightJoystickCalibrationOffset: RIGHT_JOYSTICK_CALIBRATION_OFFSET,
+  rightJoystickCalibrationOffset: rightJoystickOffset,
 
   joystickSwingThreshold: JOYSTICK_SWING_THRESHOLD,
   orientationSwingThreshold: ORIENTATION_SWING_THRESHOLD,
@@ -650,7 +662,6 @@ useEffect(() => {
   return () => clearInterval(timerId);
 }, []); // run only once on mount
 
-// When timer reaches 0, show the leaderboard
 useEffect(() => {
   if (timer === 0) {
     stopMusicSound()
@@ -664,7 +675,7 @@ useEffect(() => {
     const player2Payload = {
       userId: player2Id,
       username: player2Name,
-      bestScore: gameState.scores.player2,  
+      bestScore: gameState.scores.player2,
       gameMode: 'Pong',
     };
 
@@ -684,6 +695,17 @@ useEffect(() => {
           
           }
         );
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/leaderboard/submit-multiplayer`,
+        { player1: player1Payload, player2: player2Payload },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
+          }
+        }
+      );
 
         console.log('Scores submitted:', response.data);
 
@@ -695,9 +717,6 @@ useEffect(() => {
       }
     };
 
-    submitScores();
-  }
-}, [timer, player1Name, player2Name, gameState.scores, navigate]);
 
   // ──────────────────────────────────────────────────────────────────────────
   // PAUSE/RESUME Debug Renderer (Optional)
@@ -834,8 +853,7 @@ useEffect(() => {
 
   const toggleControlModeRight = () => {
     setControlModeRight((prev) => {
-      const newMode =
-        prev === 'joystick' ? 'accelerometer' : 'joystick';
+      const newMode = prev === 'joystick' ? 'accelerometer' : 'joystick';
       //console.log('Switched Right Joy-Con mode to:', newMode);
       rightPaddleVelocityRef.current = 0; // reset
       return newMode;

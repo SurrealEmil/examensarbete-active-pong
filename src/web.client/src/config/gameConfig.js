@@ -61,10 +61,10 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     
     // Joystick Sensitivity & Dead Zones
-    LEFT_JOYSTICK_DEAD_ZONE: 0.3, // Minimum joystick input required for movement (Left paddle)
+    LEFT_JOYSTICK_DEAD_ZONE: 0.1, // Minimum joystick input required for movement (Left paddle)
     LEFT_JOYSTICK_CALIBRATION_OFFSET: 0.1, // Adjusts the center position of the joystick input (Left paddle)
-    RIGHT_JOYSTICK_DEAD_ZONE: 0.3, // Minimum joystick input required for movement (Right paddle)
-    RIGHT_JOYSTICK_CALIBRATION_OFFSET: 0.3, // Adjusts the center position of the joystick input (Right paddle)
+    RIGHT_JOYSTICK_DEAD_ZONE: 0.1, // Minimum joystick input required for movement (Right paddle)
+    RIGHT_JOYSTICK_CALIBRATION_OFFSET: 0.4, // Adjusts the center position of the joystick input (Right paddle)
 
     // Motion Sensor Sensitivity
     JOYSTICK_SWING_THRESHOLD: 20, // Gyroscope threshold for detecting a paddle swing
