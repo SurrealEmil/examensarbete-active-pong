@@ -322,7 +322,7 @@ const StartScreen = () => {
               ))}
             </ul>
             </div>
-              <div className="qr-scan"><img src="./img/qr-scan-6.png" alt="" /></div>  
+              <div className="qr-scan"><img src="./img/qr-scan.png" alt="" /></div>  
         </div>
       ) : (
         
@@ -338,7 +338,7 @@ const StartScreen = () => {
       </div>
       
       <div className="footer">
-        <img src="./img/logo4.png" alt="Logo" />
+        <img src="./img/logo.png" alt="Logo" />
         <p>2025 ACTIVE SOLUTION</p>
       </div>
     
