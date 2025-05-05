@@ -32,7 +32,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsExiting(true);
-    }, 20000);
+    }, 20000); // 20 seconds
     return () => clearTimeout(timer);
   }, []);
 
