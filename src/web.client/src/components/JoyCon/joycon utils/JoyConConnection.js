@@ -21,14 +21,12 @@ export const connectJoyCon = async () => {
       throw new Error('No Joy-Con devices selected.');
     }
 
- // Open all devices in parallel
-    await Promise.all(
-      devices.map(async (device) => {
-        await device.open();
-        connectedJoyCons.set(device.productId, device);
-        // Optional: console.log(`Connected to ${device.productName} (ID: ${device.productId})`);
-      })
-    );
+    for (const device of devices) {
+      await device.open();
+      connectedJoyCons.set(device.productId, device);
+      // console.log(`Connected to ${device.productName} (ID: ${device.productId})`);
+      // Additional setup like event listeners can be added here if needed
+    }
   } catch (error) {
     console.error('Failed to connect Joy-Con:', error);
     throw error;
