@@ -37,9 +37,9 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   
     try {
       const response = await axios.get(`${API_BASE_URL}/user/qr/${trimmedCode}`);
-      console.log("API response: ", response);
+      // console.log("API response: ", response);
       const playerData = response.data; // e.g., { userId: 'fe56f90b-...', username: 'nixon', ... }
-      console.log("Player data: ", playerData);
+      // console.log("Player data: ", playerData);
   
       setScannedPlayers((prevPlayers) => {
         // Check if player1 exists and if the new scanned player's userId matches player1's userId.
@@ -62,21 +62,21 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
         return prevPlayers;
       });
     } catch (error) {
-      console.log("Error fetching player data:", error.response || error);
+      // console.log("Error fetching player data:", error.response || error);
     }
   };
   // This effect hides the overlay once both players are scanned.
   useEffect(() => {
     if (scannedPlayers.player1 && scannedPlayers.player2) {
-      console.log("Both players scanned. Hiding overlay in 500ms...");
+      // console.log("Both players scanned. Hiding overlay in 500ms...");
       const timer = setTimeout(() => {
         setOverlayVisible(false);
-        console.log("Overlay hidden");
+        // console.log("Overlay hidden");
       }, 500);
   
       // 👇 Automatically connect JoyCons 3 times over 5 seconds
       const tryConnectInterval = setInterval(() => {
-        console.log("Auto-connecting JoyCons...");
+        // console.log("Auto-connecting JoyCons...");
         handleConnectJoyCons();
       }, 400); // 5 attempts in 2 seconds
   
@@ -95,11 +95,11 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
 
   // JoyCon ready callbacks
   const handleLeftReady = () => {
-    console.log("Left ready confirmed!")  
+    // console.log("Left ready confirmed!")  
     setLeftReady(true);};
 
   const handleRightReady = () => {
-    console.log("Right ready confirmed!") 
+    // console.log("Right ready confirmed!") 
     setRightReady(true);};
 
   const handleToggleControlModeLeft = () => {handleLeftReady();};
@@ -234,7 +234,7 @@ useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === 'Space') {
         neutralRefLeft.current = joystickValueRefLeft.current;
-        console.log("Neutral baseline manually captured (LEFT):", neutralRefLeft.current.toFixed(2));
+        // console.log("Neutral baseline manually captured (LEFT):", neutralRefLeft.current.toFixed(2));
         setFinalCapturedNeutral(prev => ({ ...prev, left: neutralRefLeft.current }));
       }
     };
@@ -292,7 +292,7 @@ useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === 'Space') {
         neutralRefRight.current = joystickValueRefRight.current;
-        console.log("Neutral baseline manually captured (RIGHT):", neutralRefRight.current.toFixed(2));
+        // console.log("Neutral baseline manually captured (RIGHT):", neutralRefRight.current.toFixed(2));
         setFinalCapturedNeutral(prev => ({ ...prev, right: neutralRefRight.current }));
       }
     };
@@ -363,7 +363,7 @@ useEffect(() => {
       rightConnected
     ) {
       setCalibrationStatus('calibrating');
-      console.log("✅ Both players scanned and Joy-Cons connected. Starting auto-neutral baseline capture...");
+      // console.log("✅ Both players scanned and Joy-Cons connected. Starting auto-neutral baseline capture...");
   
       let attempts = 0;
       const interval = setInterval(() => {
@@ -448,7 +448,7 @@ const handleConnectJoyCons = async () => {
       if (!connected) {
         console.warn("Could not connect JoyCons. Make sure they're paired via Bluetooth and accessible.");
       } else {
-        console.log("JoyCons connected successfully!");
+        // console.log("JoyCons connected successfully!");
       }
     }
   } catch (error) {
@@ -462,10 +462,10 @@ useEffect(() => {
     if (e.code === 'Space') {
       // 🔒 Only allow spacebar if both players are scanned in
       if (scannedPlayers.player1 && scannedPlayers.player2) {
-        console.log("Space bar pressed. Attempting JoyCon connection.");
+        // console.log("Space bar pressed. Attempting JoyCon connection.");
         handleConnectJoyCons();
       } else {
-        console.log("Both players need to scan before JoyCons can connect.");
+        // console.log("Both players need to scan before JoyCons can connect.");
       }
     }
   };
@@ -516,7 +516,7 @@ const DelayedLobbyCameraOverlay = (props) => {
                     </span>
                       : leftReady
                         ? 'Ready'
-                        : 'PLUS button when ready'}
+                        : 'MINUS button when ready'}
                 </p>
               </>
             )}

@@ -38,7 +38,7 @@ const login = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/auth/login`, 
             {email,});
-        console.log("Login Success:", response.data);
+        // console.log("Login Success:", response.data);
         setUser(response.data);
         await fetchProfile(); // Fetch profile after login
         navigate('/userprofile')
@@ -60,7 +60,7 @@ const fetchProfile = async () => {
         const response = await axios.get(`${API_BASE_URL}/user/profile`, {
             withCredentials: true, // Required for sending cookies!
         });
-        console.log("Profile Data:", response.data);
+        // console.log("Profile Data:", response.data);
         setProfile(response.data);   
     } catch (error: any) {
         console.error("Profile Fetch Error:", error.response?.data || error.message);
@@ -70,7 +70,7 @@ const fetchProfile = async () => {
    const logout = async () => {
     try {
         await axios.post(`${API_BASE_URL}/auth/logout`);
-        console.log("Logout Successful");
+        // console.log("Logout Successful");
         setUser('');
         setProfile(''); // Clear profile on logout
     } catch (error:any) {

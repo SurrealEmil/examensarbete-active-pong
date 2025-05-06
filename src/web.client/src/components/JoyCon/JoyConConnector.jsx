@@ -98,7 +98,7 @@ const JoyConConnector = forwardRef(
       if (isLeftJoyCon) {
         if (buttons.minus && !leftJoyConLeftStickPressedRef.current) {
           leftJoyConLeftStickPressedRef.current = true;
-          console.log("LEFT Joy-Con: YOU PRESSED LEFT MINUS!");
+          // console.log("LEFT Joy-Con: YOU PRESSED LEFT MINUS!");
           joyCon.rumble(120, 10, 0.7);
             setTimeout(() => {
               joyCon.rumble(0, 0, 0); // Stop rumble after 100ms
@@ -116,7 +116,7 @@ const JoyConConnector = forwardRef(
       if (isRightJoyCon) {
         if (buttons.plus && !rightJoyConRightStickPressedRef.current) {
           rightJoyConRightStickPressedRef.current = true;
-          console.log("RIGHT Joy-Con: YOU PRESSED RIGHT PLUS!");
+          // console.log("RIGHT Joy-Con: YOU PRESSED RIGHT PLUS!");
           joyCon.rumble(120, 10, 0.7);
             setTimeout(() => {
               joyCon.rumble(0, 0, 0); // Stop rumble after 100ms

@@ -555,7 +555,7 @@ const { fps, isLagSpike } = useGameLoop({
       return;
     }
 
-    console.log("Attaching collisionStart listener...");
+    // console.log("Attaching collisionStart listener...");
     const handleCollisionStart = (event) => {
       event.pairs.forEach(({ bodyA, bodyB }) => {
         // identify which is ball and which is paddle
@@ -596,7 +596,7 @@ const { fps, isLagSpike } = useGameLoop({
     Matter.Events.on(currEngine, "collisionStart", handleCollisionStart);
   
     return () => {
-      console.log("Removing collisionStart listener...");
+      // console.log("Removing collisionStart listener...");
       Matter.Events.off(currEngine, "collisionStart", handleCollisionStart);
     };
   }, [engineRef.current]);
@@ -695,7 +695,7 @@ useEffect(() => {
           }
         );
 
-        console.log('Scores submitted:', response.data);
+        // console.log('Scores submitted:', response.data);
 
         // Navigate to leaderboard with state
         navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id] } });

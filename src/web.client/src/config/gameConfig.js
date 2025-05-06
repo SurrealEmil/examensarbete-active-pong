@@ -40,7 +40,7 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // DEBUG OPTIONS
     // ─────────────────────────────────────────────────────────────────────────
-    DEBUG: false, // Master toggle for all debug options
+    DEBUG: true, // Master toggle for all debug options
     BACKGROUND_COLOR: '#1e1e1e', // Background color of the game canvas
     WIRE_FRAMES: true, // Show wireframe mode instead of solid bodies
     SHOW_COLLISIONS: true, // Show collision outlines when objects collide
@@ -83,7 +83,7 @@ const GAME_CONFIG = {
     PITCH_SMOOTHING_FACTOR: 0.1, // Smoothing factor for tilt-based movement
 
     // Joystick Movement Tuning
-    JOYSTICK_BASE_SPEED: 7, // Base movement speed for joystick control
+    JOYSTICK_BASE_SPEED: 10, // Base movement speed for joystick control
     JOYSTICK_MAX_ACCELERATION: 9, // Max acceleration multiplier for joystick movement
     ORIENTATION_DEAD_ZONE: 0.1, // Dead zone for orientation-based movement (prevents jitter)
     ORIENTATION_BOOST: 50, // Additional boost applied when tilting quickly

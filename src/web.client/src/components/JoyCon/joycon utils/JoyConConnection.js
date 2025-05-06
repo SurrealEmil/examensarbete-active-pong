@@ -12,7 +12,7 @@ export const connectJoyCon = async () => {
   }
 
   try {
-    console.log('Requesting Joy-Con devices from the user...');
+    // console.log('Requesting Joy-Con devices from the user...');
     const devices = await navigator.hid.requestDevice({
       filters: [{ vendorId: 0x057e }], // Nintendo's Vendor ID
     });
@@ -24,11 +24,11 @@ export const connectJoyCon = async () => {
     for (const device of devices) {
       await device.open();
       connectedJoyCons.set(device.productId, device);
-      console.log(`Connected to ${device.productName} (ID: ${device.productId})`);
+      // console.log(`Connected to ${device.productName} (ID: ${device.productId})`);
       // Additional setup like event listeners can be added here if needed
     }
   } catch (error) {
-    console.error('Failed to connect Joy-Con:', error);
+    // console.error('Failed to connect Joy-Con:', error);
     throw error;
   }
 };

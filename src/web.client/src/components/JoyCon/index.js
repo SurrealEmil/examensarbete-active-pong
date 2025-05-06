@@ -23,8 +23,8 @@ const getDeviceID = (device) => {
  */
 const addDevice = async (device) => {
     const id = getDeviceID(device);
-    console.log(`✅ Joy-Con Connected: ${device.productName} (ID: ${device.productId.toString(16)})`);
-    console.log("Attempting to add device: ", device.productName, device.productId.toString(16));
+    // console.log(`✅ Joy-Con Connected: ${device.productName} (ID: ${device.productId.toString(16)})`);
+    // console.log("Attempting to add device: ", device.productName, device.productId.toString(16));
 
     connectedJoyCons.set(id, await connectDevice(device));
 
@@ -38,7 +38,7 @@ const addDevice = async (device) => {
  */
 const removeDevice = async (device) => {
     const id = getDeviceID(device);
-    console.log(`❌ Joy-Con Disconnected: ${device.productName} (ID: ${device.productId.toString(16)})`);
+    // console.log(`❌ Joy-Con Disconnected: ${device.productName} (ID: ${device.productId.toString(16)})`);
 
     connectedJoyCons.delete(id);
 
@@ -100,7 +100,7 @@ const connectJoyCon = async () => {
         const joyCons = existingDevices.filter(device => device.vendorId === 0x057e);
 
         if (joyCons.length > 0) {
-            console.log('🔄 Auto-connecting previously authorized Joy-Cons...');
+            // console.log('🔄 Auto-connecting previously authorized Joy-Cons...');
             for (const device of joyCons) {
                 await addDevice(device);
             }
@@ -108,14 +108,14 @@ const connectJoyCon = async () => {
         }
 
         // If no existing Joy-Con is found, prompt user to select one
-        console.log('🕹️ Requesting Joy-Con connection...');
+        // console.log('🕹️ Requesting Joy-Con connection...');
         const selectedDevices = await navigator.hid.requestDevice({
             filters: [{ vendorId: 0x057e }],
             multiple: true, // allow selecting multiple new Joy-Cons at once
         });
 
         if (selectedDevices.length === 0) {
-            console.log('⚠️ No Joy-Con devices selected.');
+            // console.log('⚠️ No Joy-Con devices selected.');
             return;
         }
 
@@ -140,14 +140,14 @@ const connectNewJoyCons = async () => {
     }
 
     try {
-        console.log('🔄 Searching for new Joy-Cons...');
+        // console.log('🔄 Searching for new Joy-Cons...');
         const selectedDevices = await navigator.hid.requestDevice({
             filters: [{ vendorId: 0x057e }], // Nintendo Vendor ID
             multiple: true,
         });
 
         if (selectedDevices.length === 0) {
-            console.log('⚠️ No new Joy-Con devices selected.');
+            // console.log('⚠️ No new Joy-Con devices selected.');
             return;
         }
 
@@ -157,7 +157,7 @@ const connectNewJoyCons = async () => {
             }
         }
     } catch (error) {
-        console.error('❌ Error connecting new Joy-Cons:', error);
+        // console.error('❌ Error connecting new Joy-Cons:', error);
     }
 };
 
@@ -172,7 +172,7 @@ const initializeDevices = async () => {
 
     try {
         const existingDevices = await navigator.hid.getDevices();
-        console.log("Available HID Devices: ", existingDevices);
+        // console.log("Available HID Devices: ", existingDevices);
 
         const unpairedDevices = existingDevices.filter(device =>
             device.vendorId === 0x057e && !connectedJoyCons.has(getDeviceID(device))

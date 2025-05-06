@@ -106,17 +106,17 @@ export default function usePaddleControls({
 
 
 
-  const joystickInertiaDecay = 0.92; // how fast swing slows down (0.9 = more swing, 0.99 = long glide)
+  const joystickInertiaDecay = 0.10; // how fast swing slows down (0.9 = more swing, 0.99 = long glide)
 
   const accelerationStep = 0.05;
   const maxAcceleration = 2;
   const smoothingFactor = 0.9;
 
-  useEffect(() => {
-    console.log('[usePaddleControls] Using joystick calibration offsets:');
-    console.log('  LEFT:', leftJoystickCalibrationOffset.toFixed(2));
-    console.log('  RIGHT:', rightJoystickCalibrationOffset.toFixed(2));
-  }, [leftJoystickCalibrationOffset, rightJoystickCalibrationOffset]);
+  // useEffect(() => {
+  //   console.log('[usePaddleControls] Using joystick calibration offsets:');
+  //   console.log('  LEFT:', leftJoystickCalibrationOffset.toFixed(2));
+  //   console.log('  RIGHT:', rightJoystickCalibrationOffset.toFixed(2));
+  // }, [leftJoystickCalibrationOffset, rightJoystickCalibrationOffset]);
   
   
   useEffect(() => {
@@ -251,7 +251,7 @@ export default function usePaddleControls({
       const input = rawInput - rightJoystickCalibrationOffset;
       const withinDeadZone = Math.abs(input) < rightJoystickDeadZone;
 
-      console.log('Right Paddle Input:', input.toFixed(2), 'withinDeadZone:', withinDeadZone);
+      // console.log('Right Paddle Input:', input.toFixed(2), 'withinDeadZone:', withinDeadZone);
     
       if (withinDeadZone) {
         // Let paddle glide naturally when no input

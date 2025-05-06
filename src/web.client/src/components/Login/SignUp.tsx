@@ -29,7 +29,7 @@ const SignUp: React.FC<SignUpProps> = () => {
             const response = await axios.post(`${API_BASE_URL}/auth/register`,
             { username, email },
 );
-            console.log('Register Success:', response.data)
+            // console.log('Register Success:', response.data)
             setUser(response.data)
         
             /* await loginUser(email) */
@@ -64,7 +64,7 @@ const SignUp: React.FC<SignUpProps> = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/user/profile`, 
                 { withCredentials: true });
-            console.log("Profile Data:", response.data);
+            // console.log("Profile Data:", response.data);
             setProfile(response.data);
            
         } catch (error: any) {

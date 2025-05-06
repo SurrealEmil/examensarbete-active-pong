@@ -134,24 +134,24 @@ const StartScreen = () => {
         default:
           break;
       }
-    } else if (adminActiveSection === 'users') {
-      switch (adminSelectedIndex) {
-        case 0:
-          navigate('/register/admin');
-          break;
-        case 1:
-          navigate('/leaderboard/admin');
-          break;
-        case 2:
-          console.log('Blank clicked');
-          break;
-        case 3: // Back
-          setAdminActiveSection('main');
-          setAdminSelectedIndex(0);
-          break;
-        default:
-          break;
-      }
+    // } else if (adminActiveSection === 'users') {
+    //   switch (adminSelectedIndex) {
+    //     case 0:
+    //       navigate('/register/admin');
+    //       break;
+    //     case 1:
+    //       navigate('/leaderboard/admin');
+    //       break;
+    //     case 2:
+    //       console.log('Blank clicked');
+    //       break;
+    //     case 3: // Back
+    //       setAdminActiveSection('main');
+    //       setAdminSelectedIndex(0);
+    //       break;
+    //     default:
+    //       break;
+    //   }
     } else if (adminActiveSection === 'settings') {
       switch (adminSelectedIndex) {
         case 0:

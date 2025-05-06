@@ -13,7 +13,7 @@ const useAdminAuth = () => {
           withCredentials: true, // <- includes the HttpOnly cookie
         });
 
-        console.log("Profile response:", response.data);
+        // console.log("Profile response:", response.data);
 
         setIsAdmin(response.data.isAdmin === true);
       } catch (err) {

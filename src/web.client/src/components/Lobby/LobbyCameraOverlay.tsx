@@ -17,7 +17,7 @@ const LobbyCameraOverlay: React.FC<LobbyCameraOverlayProps> = ({ onComplete, sea
 
         QrScanner.listCameras(true).then(cameras => {
             // Debug: lista alla tillgängliga kameror
-            console.log("Available cameras:", cameras);
+            // console.log("Available cameras:", cameras);
 
             if (cameras.length === 0) {
                 setError("No cameras found");
@@ -32,7 +32,7 @@ const LobbyCameraOverlay: React.FC<LobbyCameraOverlayProps> = ({ onComplete, sea
                 qrScanner = new QrScanner(
                     videoRef.current,
                     (result) => {
-                        console.log('Detailed scan result: ', result);
+                        // console.log('Detailed scan result: ', result);
                         onComplete(result.data);
                     },
                     {
