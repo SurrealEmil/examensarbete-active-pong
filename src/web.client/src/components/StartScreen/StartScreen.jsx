@@ -65,7 +65,7 @@ const StartScreen = () => {
   // The selected mode (persisted in localStorage)
   const [selectedMode, setSelectedMode] = useState(null);
 
-  // On mount, get from localStorage (if any)
+  // On mount, get from localStorage (if any).
   useEffect(() => {
     const savedMode = localStorage.getItem('selectedGameMode');
     let initialMode = null;
