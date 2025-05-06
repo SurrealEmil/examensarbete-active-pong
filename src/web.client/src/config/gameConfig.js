@@ -3,8 +3,8 @@ const GAME_CONFIG = {
     // PONG GAMELOOP SETTINGS (useGameLoop.js)
     // ─────────────────────────────────────────────────────────────────────────
     NUM_BALLS: 2,
-    BALL_SPEED: 10, // Initial ball speed when the game starts
-    MAX_BALL_SPEED: 20, // Maximum speed the ball can reach
+    BALL_SPEED: 9, // Initial ball speed when the game starts
+    MAX_BALL_SPEED: 15, // Maximum speed the ball can reach
     SPEED_INCREMENT: 1, // How much the ball speed increases over time
     MIN_BALL_SPEED_THRESHOLD: 0.001, // Minimum speed before ball is considered stopped
     BALL_RANDOM_ANGLE_RANGE: Math.PI / 2, // Random variation in ball launch angles

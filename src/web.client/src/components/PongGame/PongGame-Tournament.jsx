@@ -628,7 +628,7 @@ const { fps, isLagSpike } = useGameLoop({
     const multiplier = newStreak >= 3 ? 2 : 1;
     const totalPoints = basePoints * multiplier;
 
-    console.log(`Score for ${playerKey}: ${totalPoints} (streak: ${newStreak}, multiplier})`);
+    // console.log(`Score for ${playerKey}: ${totalPoints} (streak: ${newStreak}, multiplier})`);
   
     // Update the game state by adding these points to the appropriate player's score.
     setGameState((prevState) => {
