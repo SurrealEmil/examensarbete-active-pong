@@ -110,7 +110,7 @@ const StartScreen = () => {
 
       if (e.key === 'Enter' && selectedMode) {
           if (['QUICK GAME', 'PARTY'].includes(selectedMode.label)){
-            navigate('/lobby');
+            navigate(-1);
           } else {
             navigate('/lobby');
        
