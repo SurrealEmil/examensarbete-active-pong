@@ -2,18 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StartScreen.css';
 import QRCode from "react-qr-code";
-/* import PongBackground from './PongBackground'; */
-/* import TransitionOverlay from '../UI/TransitionOverlay'; */
 import { motion, AnimatePresence } from 'framer-motion'
 
 const gameModes = [
   {
     label: 'QUICK GAME',
     route: '/pong',
-    description: [
-      'Start a standard match of Pong',
-      'First player to 10 points wins'
-    ]
+    description: ['Site under contruction']
   },
   {
     label: 'TOURNAMENT',
@@ -31,6 +26,23 @@ const gameModes = [
   }
 ];
 
+// Simple under-construction screen:
+function UnderConstruction({ onBack }) {
+  return (
+    <motion.div
+      className="construction-container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h2>🚧 Site Under Construction 🚧</h2>
+      <p>This game mode is not ready yet. Check back soon!</p>
+      <button onClick={onBack}>← Back to Start</button>
+    </motion.div>
+  )
+}
+
 // Each 'section' has exactly 4 items.
 const adminMenus = {
   main: ['Users', 'Settings', 'Modes', 'Exit'],
@@ -41,6 +53,7 @@ const adminMenus = {
 
 const StartScreen = () => {
   const navigate = useNavigate()
+  const [showUnderConstruction, setShowUnderConstruction] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
  
@@ -85,10 +98,6 @@ const StartScreen = () => {
   // Keydown for arrow selection & Enter
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // if (e.key === 'a' || e.key === 'A') {
-      //   toggleAdminDropdown(); // Open/close Admin menu with "A"
-      // }
-
       if (adminOpen) {
         if (e.key === 'ArrowUp' || e.key === 'w') {
           setAdminSelectedIndex((prev) => (prev > 0 ? prev - 1 : 3));
@@ -97,17 +106,30 @@ const StartScreen = () => {
         } else if (e.key === 'Enter' || e.key === ' ') {
           handleAdminEnter();
         }
-      } else {
-        // If admin is NOT open, pressing Enter starts the game
-        if (e.key === 'Enter' && selectedMode) {
-          navigate('/lobby');
+        return;
+      } 
+
+      if (e.key === 'Enter' && selectedMode) {
+          const unavailable = ['QUICK GAME', 'PARTY'].includes(selectedMode.label);
+          if (unavailable) {
+            setShowUnderConstruction(true);
+          } else {
+            navigate(selectedMode.route);
+       
         }
       }
-    };
+    
+  };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [adminOpen, adminActiveSection, adminSelectedIndex, selectedMode, navigate]);
+  }, [adminOpen, selectedMode, navigate]);
+
+  if(showUnderConstruction){
+    return (
+      <UnderConstruction onBack={() => setShowUnderConstruction(false)} />
+    )
+  }
 
   const handleAdminEnter = () => {
     const items = adminMenus[adminActiveSection];
