@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react'
 import StartScreen from './components/StartScreen/StartScreen';
-import PongGame from './components/PongGame/PongGame';
+/* import PongGame from './components/PongGame/PongGame'; */
 import PongGameTournament from './components/PongGame/PongGame-Tournament'
 import Leaderboard from './components/StartScreen/Leaderboard'
 import ConnectOverlay from './components/UI/ConnectOverlay';
@@ -39,10 +39,10 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<StartScreen />} />
           <Route path="/lobby" element={<Lobby />}/>
-          <Route path="/pong" element={<PongGame />} />
+         {/*  <Route path="/pong" element={<PongGame />} /> */}
           <Route path="/tournament" element={<PongGameTournament />}/>
           <Route path="/arcade" element={<div>Arcade Mode</div>} />
-          <Route path="/party" element={<div>Party Mode</div>} />
+         {/*  <Route path="/party" element={<div>Party Mode</div>} /> */}
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/login" element={<Login/>}/>
           <Route path="/signup" element={<SignUp/>}/>

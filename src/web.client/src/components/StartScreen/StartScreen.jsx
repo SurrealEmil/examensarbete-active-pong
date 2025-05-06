@@ -8,14 +8,13 @@ import { useDebug } from '../../utils/DebugContext';
 /* import TransitionOverlay from '../UI/TransitionOverlay'; */
 import { motion, AnimatePresence } from 'framer-motion'
 
+
 const gameModes = [
   {
     label: 'QUICK GAME',
     route: '/pong',
-    description: [
-      'Start a standard match of Pong',
-      'First player to 10 points wins'
-    ]
+    description: [''],
+    showRegistration: false
   },
   {
     label: 'TOURNAMENT',
@@ -25,13 +24,12 @@ const gameModes = [
   {
     label: 'PARTY',
     route: '/pong',
-    description: [
-      'Casual mode with power-ups and modifiers',
-      'Different game-altering effects will appear',
-      'Have fun and experiment with various playstyles'
-    ]
+    description: [''],
+    showRegistration: false
   }
 ];
+
+
 
 // Each 'section' has exactly 4 items.
 const adminMenus = {
@@ -45,6 +43,7 @@ const StartScreen = () => {
   const adminRef = useRef(null);
   const { debug, setDebug } = useDebug();
   const navigate = useNavigate()
+  const videoRef = useRef(null);
   const [adminOpen, setAdminOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
  
@@ -68,7 +67,7 @@ const StartScreen = () => {
   // On mount, get from localStorage (if any).
   useEffect(() => {
     const savedMode = localStorage.getItem('selectedGameMode');
-    let initialMode = null;
+    let initialMode
 
     if (savedMode) {
       initialMode= JSON.parse(savedMode);
@@ -84,15 +83,20 @@ const StartScreen = () => {
     if (selectedMode) {
       localStorage.setItem('selectedGameMode', JSON.stringify(selectedMode));
     }
+    if (!videoRef.current) return;
+    const needsPause = ['QUICK GAME', 'PARTY'].includes(selectedMode?.label);
+  if (needsPause) {
+    videoRef.current.pause();
+  } else {
+    // if you want it to restart when you go back to Tournament
+    videoRef.current.play();
+  }
+
   }, [selectedMode]);
 
   // Keydown for arrow selection & Enter
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // if (e.key === 'a' || e.key === 'A') {
-      //   toggleAdminDropdown(); // Open/close Admin menu with "A"
-      // }
-
       if (adminOpen) {
         if (e.key === 'ArrowUp' || e.key === 'w') {
           setAdminSelectedIndex((prev) => (prev > 0 ? prev - 1 : 3));
@@ -101,17 +105,24 @@ const StartScreen = () => {
         } else if (e.key === 'Enter' || e.key === ' ') {
           handleAdminEnter();
         }
-      } else {
-        // If admin is NOT open, pressing Enter starts the game
-        if (e.key === 'Enter' && selectedMode) {
-          navigate('/lobby');
+        return;
+      } 
+
+      if (e.key === 'Enter' && selectedMode) {
+          if (['QUICK GAME', 'PARTY'].includes(selectedMode.label)){
+            navigate('/lobby');
+          } else {
+            navigate(selectedMode.route);
+       
         }
       }
-    };
+    
+  };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [adminOpen, adminActiveSection, adminSelectedIndex, selectedMode, navigate]);
+  }, [adminOpen, selectedMode, navigate]);
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -302,18 +313,13 @@ const StartScreen = () => {
         {/* <PongBackground/>  */}
         <video className="background-video" autoPlay muted loop playsInline>
           <source src="/img/pong-background-2.mov" type="video/mp4" />
-          {/* <source src="/img/pong-background.mp4" type="video/mp4" /> */}
         </video>
         {debug && (
           <div className="debug-indicator">DEBUG MODE</div>
         )}
         
       <div className="admin-button" onClick={toggleAdminDropdown}>
-        {/* <div className="hamburger-icon">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div> */}
+     
         ADMIN
       </div>
 
@@ -335,21 +341,38 @@ const StartScreen = () => {
       </div>
       {/* Selected Mode (Display as rules) */}
       {selectedMode ? (
-        <div className="old-mode-info-container">
-            <div className="qr-code">
-              <QRCode value="https://activepong.azurewebsites.net/signup" size={190} />
-            </div>
-            <div className="startscreen-text">
-              <p>Register and scan your QR code to jump into the action
-              </p>
-            <ul>
-              {selectedMode.description.map((rule, idx) => (
+          
+           ['QUICK GAME','PARTY'].includes(selectedMode.label) ? (
+            <div className="startscreen-under-construction">
+              <img src="./img/under-construction.png" alt="" />
+              <h2>🚧 Site Under Construction 🚧</h2>
+              <ul>
+                {selectedMode.description
+              .filter(rule => rule.trim() !== '')    // remove blank strings
+              .map((rule, idx) => (
                 <li key={idx}>{rule}</li>
-              ))}
-            </ul>
+              ))
+            }
+              </ul>
             </div>
-              <div className="qr-scan"><img src="./img/qr-scan.png" alt="" /></div>  
-        </div>
+          ) : (
+            <div className="old-mode-info-container">
+              <div className="qr-code">
+                <QRCode value="https://activepong.azurewebsites.net/signup" size={190} />
+              </div>
+              <div className="startscreen-text">
+                <p>Register and scan your QR code to jump into the action</p>
+                <ul>
+                  {selectedMode.description.map((rule, idx) => (
+                    <li key={idx}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
+                <div className="qr-scan">
+                  <img src="./img/qr-scan.png" alt="" />
+                </div>  
+            </div>
+        )
       ) : (
         
         <div className="mode-info">
