@@ -15,6 +15,7 @@ import TopBar from '../UI/TopBar';
 import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
+import { useDebug } from '../../utils/DebugContext';
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -143,6 +144,7 @@ function randomVelocity(speed, bufferDeg = 15) {
 const PongGameTournament = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { debug } = useDebug();
 
   const {
     player1,
@@ -415,7 +417,7 @@ const {
   // ──────────────────────────────────────────────────────────────────────────
   // DEBUG & VISUAL SETTINGS
   // ──────────────────────────────────────────────────────────────────────────
-  debug: DEBUG,
+  debug,
   backgroundColor: BACKGROUND_COLOR,
   wireFrames: WIRE_FRAMES,
   showCollisions: SHOW_COLLISIONS,

@@ -3,8 +3,8 @@ const GAME_CONFIG = {
     // PONG GAMELOOP SETTINGS (useGameLoop.js)
     // ─────────────────────────────────────────────────────────────────────────
     NUM_BALLS: 2,
-    BALL_SPEED: 9, // Initial ball speed when the game starts
-    MAX_BALL_SPEED: 15, // Maximum speed the ball can reach
+    BALL_SPEED: 10, // Initial ball speed when the game starts
+    MAX_BALL_SPEED: 20, // Maximum speed the ball can reach
     SPEED_INCREMENT: 1, // How much the ball speed increases over time
     MIN_BALL_SPEED_THRESHOLD: 0.001, // Minimum speed before ball is considered stopped
     BALL_RANDOM_ANGLE_RANGE: Math.PI / 2, // Random variation in ball launch angles
@@ -27,7 +27,7 @@ const GAME_CONFIG = {
     BALL_DIAMETER: 20, // Diameter of the ball
     PADDLE_WIDTH: 20, // Width of the paddles
     PADDLE_HEIGHT: 200, // Height of the paddles
-    WALL_THICKNESS: 10, // Thickness of the walls
+    WALL_THICKNESS: 20, // Thickness of the walls
     PADDLE_OFFSET_LEFT_X: 25, // X position offset for left paddle
     PADDLE_OFFSET_LEFT_Y: 200, // Y position offset for left paddle
     PADDLE_OFFSET_RIGHT_X: 25, // X position offset for right paddle
@@ -40,7 +40,7 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // DEBUG OPTIONS
     // ─────────────────────────────────────────────────────────────────────────
-    DEBUG: true, // Master toggle for all debug options
+    DEBUG: false, // Master toggle for all debug options
     BACKGROUND_COLOR: '#1e1e1e', // Background color of the game canvas
     WIRE_FRAMES: true, // Show wireframe mode instead of solid bodies
     SHOW_COLLISIONS: true, // Show collision outlines when objects collide
