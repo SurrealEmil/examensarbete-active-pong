@@ -311,7 +311,13 @@ const StartScreen = () => {
         >
      
         {/* <PongBackground/>  */}
-        <video className="background-video" autoPlay muted loop playsInline>
+
+        <video className="background-video"
+         ref={videoRef}
+         autoPlay
+         muted
+         loop
+         playsInline>
           <source src="/img/pong-background-2.mov" type="video/mp4" />
         </video>
         {debug && (
