@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StartScreen.css';
 import QRCode from "react-qr-code";
 import { motion, AnimatePresence } from 'framer-motion'
 
+
 const gameModes = [
   {
     label: 'QUICK GAME',
     route: '/pong',
-    description: ['Site under contruction']
+    description: [''],
+    showRegistration: false
   },
   {
     label: 'TOURNAMENT',
@@ -18,30 +20,12 @@ const gameModes = [
   {
     label: 'PARTY',
     route: '/pong',
-    description: [
-      'Casual mode with power-ups and modifiers',
-      'Different game-altering effects will appear',
-      'Have fun and experiment with various playstyles'
-    ]
+    description: [''],
+    showRegistration: false
   }
 ];
 
-// Simple under-construction screen:
-function UnderConstruction({ onBack }) {
-  return (
-    <motion.div
-      className="construction-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2>🚧 Site Under Construction 🚧</h2>
-      <p>This game mode is not ready yet. Check back soon!</p>
-      <button onClick={onBack}>← Back to Start</button>
-    </motion.div>
-  )
-}
+
 
 // Each 'section' has exactly 4 items.
 const adminMenus = {
@@ -53,7 +37,7 @@ const adminMenus = {
 
 const StartScreen = () => {
   const navigate = useNavigate()
-  const [showUnderConstruction, setShowUnderConstruction] = useState(false);
+  const videoRef = useRef(null);
   const [adminOpen, setAdminOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
  
@@ -77,7 +61,7 @@ const StartScreen = () => {
   // On mount, get from localStorage (if any)
   useEffect(() => {
     const savedMode = localStorage.getItem('selectedGameMode');
-    let initialMode = null;
+    let initialMode
 
     if (savedMode) {
       initialMode= JSON.parse(savedMode);
@@ -93,6 +77,15 @@ const StartScreen = () => {
     if (selectedMode) {
       localStorage.setItem('selectedGameMode', JSON.stringify(selectedMode));
     }
+    if (!videoRef.current) return;
+    const needsPause = ['QUICK GAME', 'PARTY'].includes(selectedMode?.label);
+  if (needsPause) {
+    videoRef.current.pause();
+  } else {
+    // if you want it to restart when you go back to Tournament
+    videoRef.current.play();
+  }
+
   }, [selectedMode]);
 
   // Keydown for arrow selection & Enter
@@ -110,9 +103,8 @@ const StartScreen = () => {
       } 
 
       if (e.key === 'Enter' && selectedMode) {
-          const unavailable = ['QUICK GAME', 'PARTY'].includes(selectedMode.label);
-          if (unavailable) {
-            setShowUnderConstruction(true);
+          if (['QUICK GAME', 'PARTY'].includes(selectedMode.label)){
+            navigate('/lobby');
           } else {
             navigate(selectedMode.route);
        
@@ -125,11 +117,6 @@ const StartScreen = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [adminOpen, selectedMode, navigate]);
 
-  if(showUnderConstruction){
-    return (
-      <UnderConstruction onBack={() => setShowUnderConstruction(false)} />
-    )
-  }
 
   const handleAdminEnter = () => {
     const items = adminMenus[adminActiveSection];
@@ -296,20 +283,19 @@ const StartScreen = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 2 }}
         >
-      {/* ADMIN Button */}
-     
-        {/* <PongBackground/>  */}
-        <video className="background-video" autoPlay muted loop playsInline>
+  
+        <video 
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="background-video">
           <source src="/img/pong-background-2.mov" type="video/mp4" />
-          {/* <source src="/img/pong-background.mp4" type="video/mp4" /> */}
         </video>
       
       <div className="admin-button" onClick={toggleAdminDropdown}>
-        {/* <div className="hamburger-icon">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div> */}
+     
         ADMIN
       </div>
 
@@ -331,21 +317,38 @@ const StartScreen = () => {
       </div>
       {/* Selected Mode (Display as rules) */}
       {selectedMode ? (
-        <div className="old-mode-info-container">
-            <div className="qr-code">
-              <QRCode value="https://activepong.azurewebsites.net/signup" size={190} />
-            </div>
-            <div className="startscreen-text">
-              <p>Register and scan your QR code to jump into the action
-              </p>
-            <ul>
-              {selectedMode.description.map((rule, idx) => (
+          
+           ['QUICK GAME','PARTY'].includes(selectedMode.label) ? (
+            <div className="startscreen-under-construction">
+              <img src="./img/under-construction.png" alt="" />
+              <h2>🚧 Site Under Construction 🚧</h2>
+              <ul>
+                {selectedMode.description
+              .filter(rule => rule.trim() !== '')    // remove blank strings
+              .map((rule, idx) => (
                 <li key={idx}>{rule}</li>
-              ))}
-            </ul>
+              ))
+            }
+              </ul>
             </div>
-              <div className="qr-scan"><img src="./img/qr-scan.png" alt="" /></div>  
-        </div>
+          ) : (
+            <div className="old-mode-info-container">
+              <div className="qr-code">
+                <QRCode value="https://activepong.azurewebsites.net/signup" size={190} />
+              </div>
+              <div className="startscreen-text">
+                <p>Register and scan your QR code to jump into the action</p>
+                <ul>
+                  {selectedMode.description.map((rule, idx) => (
+                    <li key={idx}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
+                <div className="qr-scan">
+                  <img src="./img/qr-scan.png" alt="" />
+                </div>  
+            </div>
+        )
       ) : (
         
         <div className="mode-info">
