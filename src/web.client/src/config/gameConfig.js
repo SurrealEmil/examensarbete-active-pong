@@ -40,7 +40,7 @@ const GAME_CONFIG = {
     // ─────────────────────────────────────────────────────────────────────────
     // DEBUG OPTIONS
     // ─────────────────────────────────────────────────────────────────────────
-    DEBUG: true, // Master toggle for all debug options
+    DEBUG: false, // Master toggle for all debug options
     BACKGROUND_COLOR: '#1e1e1e', // Background color of the game canvas
     WIRE_FRAMES: true, // Show wireframe mode instead of solid bodies
     SHOW_COLLISIONS: true, // Show collision outlines when objects collide
