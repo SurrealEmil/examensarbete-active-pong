@@ -114,19 +114,19 @@ export default function useInitializeMatter({
   // ──────────────────────────────────────────────────────────────────────────
   debug = true,              // Enable debug rendering by default
   backgroundColor = '#1e1e1e', // Default background color
-  wireFrames = true,
-  showCollisions = true,
-  showVelocity = true,
-  showAngleIndicator = true,
-  showIds = true,
-  showPositions = true,       // Show body center positions
-  showBounds = true,          // Show AABB bounding boxes
-  showAxes = true,            // Show axes for each body
-  showSleeping = true,        // Gray out sleeping bodies
-  showSeparations = true,     // Show collision separation vectors
-  showConstraints = true,     // Show constraints (joints, ropes, etc.)
-  showDebug = true,           // Show internal debug info
-  showBroadphase = true,      // Show broadphase collision detection
+  // wireFrames = true,
+  // showCollisions = true,
+  // showVelocity = true,
+  // showAngleIndicator = true,
+  // showIds = true,
+  // showPositions = true,       // Show body center positions
+  // showBounds = true,          // Show AABB bounding boxes
+  // showAxes = true,            // Show axes for each body
+  // showSleeping = true,        // Gray out sleeping bodies
+  // showSeparations = true,     // Show collision separation vectors
+  // showConstraints = true,     // Show constraints (joints, ropes, etc.)
+  // showDebug = true,           // Show internal debug info
+  // showBroadphase = true,      // Show broadphase collision detection
 
   // ──────────────────────────────────────────────────────────────────────────
   // ENGINE VERSION (Triggers re-initialization)
@@ -174,22 +174,32 @@ export default function useInitializeMatter({
           options: {
             width: canvasWidth,
             height: canvasHeight,
-            wireframes: wireFrames,
+            wireframes: debug,
             background: backgroundColor,
-            showCollisions: showCollisions,
-            showVelocity: showVelocity,
-            showAngleIndicator: showAngleIndicator,
-            showIds: showIds,
-            showPositions: showPositions,
-            showBounds: showBounds,
-            showAxes: showAxes,
-            showSleeping: showSleeping,
-            showSeparations: showSeparations,
-            showConstraints: showConstraints,
-            showDebug: showDebug,
-            showBroadphase: showBroadphase,
+            showCollisions: debug,
+            showVelocity: debug,
+            showAngleIndicator: debug,
+            showIds: debug,
+            showPositions: debug,
+            showBounds: debug,
+            showAxes: debug,
+            showSleeping: debug,
+            showSeparations: debug,
+            showConstraints: debug,
+            showDebug: debug,
+            showBroadphase: debug,
           },
         });
+        render.canvas.style.position = 'absolute';
+        render.canvas.style.top = '0';
+        render.canvas.style.left = '0';
+        render.canvas.style.width = '100%';
+        render.canvas.style.height = '100%';
+        render.canvas.style.zIndex = '2';
+        render.canvas.style.pointerEvents = 'none';
+        render.canvas.style.boxSizing = 'border-box'; // match CSS canvas
+          
+
         renderRef.current = render;
         Matter.Render.run(render);
       }
@@ -229,9 +239,7 @@ export default function useInitializeMatter({
         }
       ); */
       const ballBodies = [];
-
-      // b. build two identical Ball objects
-      for (let i = 0; i < 2; i++) {
+      
         const ball = Matter.Bodies.circle(
         canvasWidth / 2,
         canvasHeight / 2,
@@ -243,9 +251,9 @@ export default function useInitializeMatter({
         inertia:     ballInertia,
         label: 'ball',          // all balls share the same label
       }
-    );
+      );
       ballBodies.push(ball);
-}
+
 
       const leftPaddleBody = Matter.Bodies.rectangle(
         paddleOffsetLeftX + paddleWidth / 2, 

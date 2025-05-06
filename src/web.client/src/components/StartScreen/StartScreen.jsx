@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StartScreen.css';
 import QRCode from "react-qr-code";
+import GAME_CONFIG from '../../config/gameConfig';
+import { useDebug } from '../../utils/DebugContext';
 /* import PongBackground from './PongBackground'; */
 /* import TransitionOverlay from '../UI/TransitionOverlay'; */
 import { motion, AnimatePresence } from 'framer-motion'
@@ -40,6 +42,8 @@ const adminMenus = {
 };
 
 const StartScreen = () => {
+  const adminRef = useRef(null);
+  const { debug, setDebug } = useDebug();
   const navigate = useNavigate()
   const [adminOpen, setAdminOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -109,6 +113,25 @@ const StartScreen = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [adminOpen, adminActiveSection, adminSelectedIndex, selectedMode, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (adminRef.current && !adminRef.current.contains(e.target)) {
+        setAdminOpen(false);
+        setAdminActiveSection('main');
+        setAdminSelectedIndex(0);
+      }
+    };
+  
+    if (adminOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [adminOpen]);
+  
+  
   const handleAdminEnter = () => {
     const items = adminMenus[adminActiveSection];
     const choice = items[adminSelectedIndex];
@@ -160,9 +183,10 @@ const StartScreen = () => {
         case 1:
           console.log('Controls clicked');
           break;
-        case 2:
-          console.log('Debug clicked');
-          break;
+        case 2: // "Debug"
+          setDebug((prev) => !prev);
+          console.log('Debug mode now:', !debug);
+          break;    
         case 3: // Back
           setAdminActiveSection('main');
           setAdminSelectedIndex(0);
@@ -274,14 +298,16 @@ const StartScreen = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 2 }}
         >
-      {/* ADMIN Button */}
      
         {/* <PongBackground/>  */}
         <video className="background-video" autoPlay muted loop playsInline>
           <source src="/img/pong-background-2.mov" type="video/mp4" />
           {/* <source src="/img/pong-background.mp4" type="video/mp4" /> */}
         </video>
-      
+        {debug && (
+          <div className="debug-indicator">DEBUG MODE</div>
+        )}
+        
       <div className="admin-button" onClick={toggleAdminDropdown}>
         {/* <div className="hamburger-icon">
           <span></span>
@@ -293,7 +319,7 @@ const StartScreen = () => {
 
       {/* Dropdown */}
       {adminOpen && (
-        <div className="admin-dropdown">
+        <div className="admin-dropdown" ref={adminRef}>
           {renderAdminMenuItems()}
         </div>
       )}
