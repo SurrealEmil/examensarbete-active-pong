@@ -217,6 +217,7 @@ const PongGameTournament = () => {
           ...s,
           balls: [...s.balls, newBallObj],
         }));
+        playBallSound()
       }
     
                
@@ -308,6 +309,10 @@ const PongGameTournament = () => {
     playMissSound,
     playMusicSound,
     stopMusicSound,
+    playCountLowSound,
+    playCountHighSound,
+    playBallSound,  
+    playGameEndSound,
   } = audioManager();
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -508,6 +513,10 @@ const { fps, isLagSpike } = useGameLoop({
   playSideSound,
   playHitSound,
   playMusicSound,
+  playCountLowSound,
+  playCountHighSound,
+  playBallSound,
+  playGameEndSound,
   controlModeLeft,
   controlModeRight,
   enableFps: SHOW_FPS,
@@ -644,7 +653,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90);
+const [timer, setTimer] = useState(15);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
@@ -664,8 +673,19 @@ useEffect(() => {
   return () => clearInterval(timerId);
 }, []); // run only once on mount
 
+
+// Play sound when timer is between 10 and 0 seconds
 useEffect(() => {
-  if (timer === 0) {
+  if (timer > 0 && timer <= 10) { 
+    playCountLowSound() 
+  } else if (timer === 0) {
+    playCountHighSound()
+    setTimeout(() => playGameEndSound(), 500)
+  }
+},[timer, playCountLowSound, playCountHighSound, playGameEndSound]);
+
+useEffect(() => {
+  if (timer === 1) {
     stopMusicSound();
     const player1Payload = {
       userId: player1Id,
@@ -786,6 +806,19 @@ useEffect(() => {
   // START/RESTART GAME LOGIC
   // ──────────────────────────────────────────────────────────────────────────
   const handleStartGame = async () => {
+    // Start game and musique!
+    setGameStarted(true);
+    setAudioEnabled(true);
+    setGamePaused(false); 
+
+    // 2) user-gestureed music start (await so browser won't block it)
+    try {
+      await playMusicSound();
+      console.log('Music started successfully!');
+    } catch (err) {
+      console.warn('Failed to start music:', err);
+    }
+
     // Attempt Joy-Con connection
     if (joyConConnectorRef.current) {
       const connected = await joyConConnectorRef.current.connect();
@@ -794,27 +827,18 @@ useEffect(() => {
       }
     }
 
-    // Start game and musique!
-    setGameStarted(true);
-    setAudioEnabled(true);
-    setGamePaused(false);
-
     // Start Matter.js simulation by running the runner
     if (runnerRef.current && engineRef.current) {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
+    
+    setTimeout(() => {
+      ballBodyRef.current.forEach(body => {
+        Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
+          playBallSound();
+          })
+    }, 0)
 
-    ballBodyRef.current.forEach(body => {
-      Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
-    })
-
-    try {
-      await playMusicSound()
-      
-      //console.log('Music started successfully!')
-    } catch (error) {
-      //console.log('Failed to start the music', error)
-    }
     [40_000, 80_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
     })
