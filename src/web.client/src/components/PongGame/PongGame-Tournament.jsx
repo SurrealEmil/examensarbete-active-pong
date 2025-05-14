@@ -811,7 +811,7 @@ useEffect(() => {
     setAudioEnabled(true);
     setGamePaused(false); 
 
-    // 2) user-gestureed music start (await so browser won't block it)
+    // user-gestureed music start (await so browser won't block it)
     try {
       await playMusicSound();
       console.log('Music started successfully!');
@@ -832,13 +832,18 @@ useEffect(() => {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
     
+    // serve the ball(s) one tick later so audioEnabled is flushed
     setTimeout(() => {
       ballBodyRef.current.forEach(body => {
-        Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
-          playBallSound();
-          })
+        Matter.Body.setVelocity(
+          body, 
+          randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)
+        ) 
+        playBallSound();
+      })
     }, 0)
 
+    //schedule extra balls
     [40_000, 80_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
     })
