@@ -16,6 +16,7 @@ import GAME_CONFIG from '../../config/gameConfig';
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
 import { useDebug } from '../../utils/DebugContext';
+import { flushSync } from 'react-dom';
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -217,7 +218,7 @@ const PongGameTournament = () => {
           ...s,
           balls: [...s.balls, newBallObj],
         }));
-        playBallSound()
+        
       }
     
                
@@ -653,7 +654,7 @@ const { fps, isLagSpike } = useGameLoop({
 
 
 // Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(15);
+const [timer, setTimer] = useState(90);
 /* const [showLeaderboard, setShowLeaderboard] = useState(false);
  */
 
@@ -807,16 +808,19 @@ useEffect(() => {
   // ──────────────────────────────────────────────────────────────────────────
   const handleStartGame = async () => {
     // Start game and musique!
-    setGameStarted(true);
-    setAudioEnabled(true);
+    flushSync(() => {
+      setGameStarted(true);
+      setAudioEnabled(true);
+    })
+   
     setGamePaused(false); 
 
     // user-gestureed music start (await so browser won't block it)
     try {
-      await playMusicSound();
-      console.log('Music started successfully!');
+      playMusicSound();
+        console.log('Music started successfully!');
     } catch (err) {
-      console.warn('Failed to start music:', err);
+        console.warn('Failed to start music:', err);
     }
 
     // Attempt Joy-Con connection
@@ -833,19 +837,22 @@ useEffect(() => {
     }
     
     // serve the ball(s) one tick later so audioEnabled is flushed
-    setTimeout(() => {
+    
       ballBodyRef.current.forEach(body => {
         Matter.Body.setVelocity(
           body, 
           randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)
         ) 
+        console.log('playBallSound() was played, audioEnabled=', audioEnabled)
         playBallSound();
+
       })
-    }, 0)
+   
 
     //schedule extra balls
     [40_000, 80_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
+         playBallSound()
     })
   };
 

@@ -1,12 +1,12 @@
 import { useState, useRef, useCallback } from 'react';
 
-import hitSoundSrc from '../assets/Audio/Hit.wav';
-import sideSoundSrc from '../assets/Audio/Bounce.wav';
-import missSoundSrc from '../assets/Audio/Miss.wav';
+import hitSoundSrc from '../assets/Audio/soundeffects/hit.mp3';
+import sideSoundSrc from '../assets/Audio/soundeffects/bounce.mp3';
+import missSoundSrc from '../assets/Audio/soundeffects/miss.mp3';
 import musicSoundSrc from '../assets/Audio/music/PongMusic.mp3'
 import beatSoundSrc from '../assets/Audio/music/pong-beat.mp3'
-import countLowSoundSrc from '../assets/Audio/soundeffects/CountLow-1.mp3';
-import countHighSoundSrc from '../assets/Audio/soundeffects/CountHigh1Long.mp3';
+import countLowSoundSrc from '../assets/Audio/soundeffects/countLow-1.mp3';
+import countHighSoundSrc from '../assets/Audio/soundeffects/countHigh1Long.mp3';
 import ballSoundSrc from '../assets/Audio/soundeffects/ball-2.mp3';
 import gameEndSoundSrc from '../assets/Audio/soundeffects/lose-1.mp3';
 
@@ -86,11 +86,17 @@ const audioManager = () => {
     }
   }, [audioEnabled]);
 
-  const playMusicSound = useCallback(() => {
+  /* const playMusicSound = useCallback(() => {
     if (audioEnabled) {
     musicSoundRef.current.play().catch(error => console.error('Error playing music:', error));
     }
-  }, [audioEnabled])
+  }, [audioEnabled]) */
+
+  const playMusicSound = useCallback(() => {
+    
+    musicSoundRef.current.play().catch(error => console.error('Error playing music:', error));
+    }
+  , []) 
 
   const playCountLowSound = useCallback(() => {
     if (audioEnabled) {
@@ -111,13 +117,13 @@ const audioManager = () => {
   , [audioEnabled]);
 
   const playBallSound = useCallback(() => {   
-    if (audioEnabled) {
+    
       const sfx = ballSoundRef.current;
       sfx.currentTime = 0; // Reset the sound to the beginning
       sfx.play().catch(error => console.error('Error playing ball sound:', error))
-    }
+    
   }
-  , [audioEnabled]);
+  , []);
 
   const playGameEndSound = useCallback(() => {   
     if (audioEnabled) {
