@@ -806,23 +806,7 @@ useEffect(() => {
   // ──────────────────────────────────────────────────────────────────────────
   // START/RESTART GAME LOGIC
   // ──────────────────────────────────────────────────────────────────────────
-  const handleStartGame = async () => {
-    // Start game and musique!
-    flushSync(() => {
-      setGameStarted(true);
-      setAudioEnabled(true);
-    })
-   
-    setGamePaused(false); 
-
-    // user-gestureed music start (await so browser won't block it)
-    try {
-      playMusicSound();
-        console.log('Music started successfully!');
-    } catch (err) {
-        console.warn('Failed to start music:', err);
-    }
-
+const handleStartGame = async () => {
     // Attempt Joy-Con connection
     if (joyConConnectorRef.current) {
       const connected = await joyConConnectorRef.current.connect();
@@ -831,28 +815,29 @@ useEffect(() => {
       }
     }
 
+    // Start game and musique!
+    setGameStarted(true);
+    setAudioEnabled(true);
+    setGamePaused(false);
+
     // Start Matter.js simulation by running the runner
     if (runnerRef.current && engineRef.current) {
       Matter.Runner.run(runnerRef.current, engineRef.current);
     }
-    
-    // serve the ball(s) one tick later so audioEnabled is flushed
-    
-      ballBodyRef.current.forEach(body => {
-        Matter.Body.setVelocity(
-          body, 
-          randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)
-        ) 
-        console.log('playBallSound() was played, audioEnabled=', audioEnabled)
-        playBallSound();
 
-      })
-   
+    ballBodyRef.current.forEach(body => {
+      Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
+    })
 
-    //schedule extra balls
+    try {
+      await playMusicSound()
+      
+      //console.log('Music started successfully!')
+    } catch (error) {
+      //console.log('Failed to start the music', error)
+    }
     [40_000, 80_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
-         playBallSound()
     })
   };
 
