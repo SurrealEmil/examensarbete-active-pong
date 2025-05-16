@@ -5,8 +5,8 @@ import sideSoundSrc from '../assets/Audio/soundeffects/bounce.mp3';
 import missSoundSrc from '../assets/Audio/soundeffects/miss.mp3';
 import musicSoundSrc from '../assets/Audio/music/PongMusic.mp3'
 import beatSoundSrc from '../assets/Audio/music/pong-beat.mp3'
-import countLowSoundSrc from '../assets/Audio/soundeffects/countLow-1.mp3';
-import countHighSoundSrc from '../assets/Audio/soundeffects/countHigh1Long.mp3';
+import countLowSoundSrc from '../assets/Audio/soundeffects/CountLow-1.mp3';
+import countHighSoundSrc from '../assets/Audio/soundeffects/CountHigh1Long.mp3';
 import ballSoundSrc from '../assets/Audio/soundeffects/ball-2.mp3';
 import gameEndSoundSrc from '../assets/Audio/soundeffects/lose-1.mp3';
 import confirmSoundSrc from '../assets/Audio/soundeffects/confirm.mp3';
