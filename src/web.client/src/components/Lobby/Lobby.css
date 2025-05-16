@@ -93,8 +93,9 @@
     color: var(--white);
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.089);
-
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(8px);  
+    -webkit-backdrop-filter: blur(8px);   
     font-family: 'arcade';
     
     letter-spacing: 1rem;

@@ -20,7 +20,7 @@ const LobbyCameraOverlay: React.FC<LobbyCameraOverlayProps> = ({ onComplete, sea
             // console.log("Available cameras:", cameras);
 
             if (cameras.length === 0) {
-                setError("No cameras found");
+                /* setError("No cameras found"); */
                 return;
             }
 
