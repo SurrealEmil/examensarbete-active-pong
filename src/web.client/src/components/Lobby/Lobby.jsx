@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import audioManager from '../../utils/audioManager';
 import JoyConConnector from '../JoyCon/JoyConConnector';
-import usePaddleControls from '../../hooks/usePaddleControls';
+/* import usePaddleControls from '../../hooks/usePaddleControls'; */
 import TopBar from '../UI/TopBar';
 //import ScoreDisplay from '../UI/ScoreDisplay';
 import PongCanvas from '../PongGame/PongCanvas-Lobby';
@@ -10,19 +11,53 @@ import '../Lobby/Lobby.css'
 import LobbyCameraOverlay from './LobbyCameraOverlay'
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
-import audioManager from '../../utils/audioManager';
+
 
 const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
-  
-  // States for QR scanning
+
+  // ─────────────────────────────────────────────────────────────
+  // AUDIO MANAGER
+  // ─────────────────────────────────────────────────────────────
+
+  const {
+    audioEnabled,
+    setAudioEnabled,
+    playCountLowSound,
+    playCountHighSound,
+    playConfirmSound,
+  } = audioManager();
+
+  // ─────────────────────────────────────────────────────────────
+  // SCANNING & READY STATE
+  // ─────────────────────────────────────────────────────────────
+
   const [scannedPlayers, setScannedPlayers] = useState({ player1: null, player2: null})
   const [overlayVisible, setOverlayVisible] = useState(true)
- /*  const [scanLock, setScanLock] = useState(false)
 
-  const [lastScanned, setLastScanned] = useState(null);
+  // ─────────────────────────────────────────────────────────────
+  // ENABLE AUDIO AFTER QR SCANS
+  // ─────────────────────────────────────────────────────────────
 
- */
+  useEffect(() => {
+    if (scannedPlayers.player1 && scannedPlayers.player2 && !audioEnabled) {
+      setAudioEnabled(true);
+    }
+  }, [scannedPlayers, audioEnabled, setAudioEnabled]);
 
+  // ─────────────────────────────────────────────────────────────
+  // READY HANDLERS (play beep)
+  // ─────────────────────────────────────────────────────────────  
+
+  const handleLeftReady = () => {
+    setLeftReady(true);
+    if (audioEnabled) playConfirmSound();    // ← play a beep when left presses “–”
+  };
+
+  const handleRightReady = () => {
+    setRightReady(true);
+    if (audioEnabled) playConfirmSound();    // ← play a beep when right  presses “+”
+  };
+  
   const scannedQrCodesRef = useRef(new Set())
 
   // Function to fetch user data from QR code
@@ -95,14 +130,14 @@ const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   }, [scannedPlayers]);
 
   // JoyCon ready callbacks
-  const handleLeftReady = () => {
+ /*  const handleLeftReady = () => {
     // console.log("Left ready confirmed!")  
-    setLeftReady(true);};
+    setLeftReady(true);}; */
 
-  const handleRightReady = () => {
+  /* const handleRightReady = () => {
     // console.log("Right ready confirmed!") 
     setRightReady(true);};
-
+ */
   const handleToggleControlModeLeft = () => {handleLeftReady();};
   const handleToggleControlModeRight = () => {handleRightReady();};
 
@@ -420,17 +455,26 @@ useEffect(() => {
   // Start countdown when both Joy-Cons are connected
   useEffect(() => {
     if (leftConnected && rightConnected && leftReady && rightReady && countdown === null) {
+      const delayId = setTimeout(() => {    
       setCountdown(3);
+      }, 2000)
     }
   }, [leftConnected, rightConnected, leftReady, rightReady, countdown]);
+
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // COUNTDOWN TO START
+  // ──────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (countdown === null) return;
     if (countdown > 0) {
+      playCountLowSound()
       const timer = setTimeout(()=> setCountdown(countdown - 1), 1000)
       return () => clearTimeout(timer)
     }
     if (countdown === 0){
+      playCountHighSound()
     const timer = setTimeout(() => navigate('/tournament', {
       state: {
         player1: scannedPlayers.player1,
@@ -440,7 +484,7 @@ useEffect(() => {
       }
     }), 1100);
     return () => clearTimeout(timer);
-}}, [countdown, navigate]);              
+}}, [countdown, navigate, playCountHighSound, playCountLowSound]);              
 
 const handleConnectJoyCons = async () => {
   try {
@@ -578,6 +622,8 @@ const DelayedLobbyCameraOverlay = (props) => {
         onJoystickDataRight={(data) => setJoystickDataRight(data)}
         onToggleControlModeLeft={handleToggleControlModeLeft}
         onToggleControlModeRight={handleToggleControlModeRight}
+       /*  onToggleControlModeLeft={handleLeftReady}
+        /* onToggleControlModeRight={handleRightReady} */
       />
     )}
     </div>

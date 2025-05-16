@@ -656,7 +656,7 @@ const { fps, isLagSpike } = useGameLoop({
 // TIMER STATE
 // ──────────────────────────────────────────────────────────────
 
-const [timer, setTimer] = useState(80); // 40 seconds countdown timer
+const [timer, setTimer] = useState(80); // 80 seconds countdown timer
 
 // ──────────────────────────────────────────────────────────────────────────
 // COUNTDOWN + SFX + SUBMIT/NAVIGATE EFFECT 
@@ -706,7 +706,7 @@ useEffect(() => {
           playGameEndSound();            // end‐game SFX
           stopMusicSound();
         }, 1500);
-        setTimeout(submitScores, 3000);  // then submit + navigate
+        setTimeout(submitScores, 2000);  // then submit + navigate
       }
 
       return next;
@@ -826,13 +826,13 @@ const handleStartGame = async () => {
     })
 
     try {
-      await playMusicSound()
+      playMusicSound()
       
       //console.log('Music started successfully!')
     } catch (error) {
       //console.log('Failed to start the music', error)
     }
-    [40_000, 80_000].forEach((delay) => {
+    [40_000, 65_000].forEach((delay) => {
       setTimeout(addExtraBall, delay)
     })
   };
