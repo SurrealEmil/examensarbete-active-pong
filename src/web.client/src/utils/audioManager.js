@@ -76,33 +76,24 @@ const audioManager = () => {
   }
 
   const playHitSound = useCallback(() => {
-  
-      const sfx = hitSoundRef.current;
+      const sfx = hitSoundRef.current.cloneNode();
       sfx.currentTime = 0; 
-      sfx.play().catch(error => console.error('Error playing hit sound:', error))
-    
+      sfx.play().catch(error => console.error('Error playing hit sound:', error))   
   }, []);
 
   const playSideSound = useCallback(() => {
-    if (audioEnabled) {
-      sideSoundRef.current.play().catch(error => console.error('Error playing side sound:', error));
-    }
-  }, [audioEnabled]);
+    const sfx = sideSoundRef.current.cloneNode();
+    sfx.currentTime = 0; 
+    sfx.play().catch(error => console.error('Error playing side sound:', error));  
+  }, []);
 
   const playMissSound = useCallback(() => {
-    if (audioEnabled) {
-      missSoundRef.current.play().catch(error => console.error('Error playing miss sound:', error));
-    }
-  }, [audioEnabled]);
-
-  /* const playMusicSound = useCallback(() => {
-    if (audioEnabled) {
-    musicSoundRef.current.play().catch(error => console.error('Error playing music:', error));
-    }
-  }, [audioEnabled]) */
+    const sfx = missSoundRef.current.cloneNode();
+    sfx.currentTime = 0; 
+    sfx.play().catch(error => console.error('Error playing miss sound:', error));  
+  }, []);
 
   const playMusicSound = useCallback(() => {
-    
     musicSoundRef.current.play().catch(error => console.error('Error playing music:', error));
     }
   , []) 
