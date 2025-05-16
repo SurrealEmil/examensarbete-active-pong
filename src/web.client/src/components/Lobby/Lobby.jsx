@@ -10,6 +10,7 @@ import '../Lobby/Lobby.css'
 import LobbyCameraOverlay from './LobbyCameraOverlay'
 import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
+import audioManager from '../../utils/audioManager';
 
 const Lobby = ({ onPlayer1NameChange, onPlayer2NameChange}) => {
   

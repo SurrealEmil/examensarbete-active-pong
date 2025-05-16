@@ -38,8 +38,8 @@ const audioManager = () => {
   }
   if (!musicSoundRef.current) {
     musicSoundRef.current = new Audio(musicSoundSrc)
-    musicSoundRef.current.volume = 0.9;
-    musicSoundRef.current.loop = true;
+    musicSoundRef.current.volume = 0.75;
+    musicSoundRef.current.loop = false;
   }
 
   if (!beatSoundRef.current) {

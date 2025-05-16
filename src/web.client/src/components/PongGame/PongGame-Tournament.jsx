@@ -17,6 +17,7 @@ import API_BASE_URL from '../../config/apiConfig'
 import axios from 'axios'
 import { useDebug } from '../../utils/DebugContext';
 import { flushSync } from 'react-dom';
+/* import { clear } from 'console'; */
 
 const {
   // ──────────────────────────────────────────────────────────────────────────
@@ -651,85 +652,80 @@ const { fps, isLagSpike } = useGameLoop({
   })
   } 
   
+// ──────────────────────────────────────────────────────────────────────────
+// TIMER STATE
+// ──────────────────────────────────────────────────────────────
 
+const [timer, setTimer] = useState(80); // 40 seconds countdown timer
 
-// Timer state: starts at 90 seconds
-const [timer, setTimer] = useState(90);
-/* const [showLeaderboard, setShowLeaderboard] = useState(false);
- */
+// ──────────────────────────────────────────────────────────────────────────
+// COUNTDOWN + SFX + SUBMIT/NAVIGATE EFFECT 
+// ──────────────────────────────────────────────────────────────────────────
 
 useEffect(() => {
-  // Start the timer when the game starts (or immediately if you prefer)
+  const submitScores = async () => {
+  // 1) build payloads in scope
+  const player1Payload = {
+    userId: player1Id,
+    username: player1Name,
+    bestScore: gameState.scores.player1,
+    gameMode: 'Pong',
+  };
+  const player2Payload = {
+    userId: player2Id,
+    username: player2Name,
+    bestScore: gameState.scores.player2,
+    gameMode: 'Pong',
+  };
+
+  // 2) helper to POST & navigate
+  
+    try {
+      await axios.post(
+        `${API_BASE_URL}/leaderboard/submit-multiplayer`,
+        { player1: player1Payload, player2: player2Payload },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id] } });
+    } catch (err) {
+      console.error('Error submitting scores:', err);
+    }
+  };
+
+  // 3) single interval for countdown + SFX + end logic
   const timerId = setInterval(() => {
-    setTimer((prevTimer) => {
-      if (prevTimer <= 1) {
-        clearInterval(timerId);
-        // Optionally, add any game-over logic here.
-        return 0;
+    setTimer(prev => {
+      const next = prev <= 1 ? 0 : prev - 1;
+
+      if (next > 0 && next <= 10) {
+        playCountLowSound();
+      } else if (next === 0) {
+        clearInterval(timerId);           // stop further ticks
+        playCountHighSound();            // big beep
+        setTimeout(() => {
+          playGameEndSound();            // end‐game SFX
+          stopMusicSound();
+        }, 1500);
+        setTimeout(submitScores, 3000);  // then submit + navigate
       }
-      return prevTimer - 1;
+
+      return next;
     });
   }, 1000);
 
+  // cleanup
   return () => clearInterval(timerId);
-}, []); // run only once on mount
-
-
-// Play sound when timer is between 10 and 0 seconds
-useEffect(() => {
-  if (timer > 0 && timer <= 10) { 
-    playCountLowSound() 
-  } else if (timer === 0) {
-    playCountHighSound()
-    setTimeout(() => playGameEndSound(), 500)
-  }
-},[timer, playCountLowSound, playCountHighSound, playGameEndSound]);
-
-useEffect(() => {
-  if (timer === 1) {
-    stopMusicSound();
-    const player1Payload = {
-      userId: player1Id,
-      username: player1Name,
-      bestScore: gameState.scores.player1,
-      gameMode: 'Pong',
-    };
-
-    const player2Payload = {
-      userId: player2Id,
-      username: player2Name,
-      bestScore: gameState.scores.player2,
-      gameMode: 'Pong',
-    };
-
-    const submitScores = async () => {
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/leaderboard/submit-multiplayer`,
-          {
-            player1: player1Payload,
-            player2: player2Payload,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: '*/*',
-            },
-          }
-        );
-
-        // console.log('Scores submitted:', response.data);
-
-        // Navigate to leaderboard with state
-        navigate('/leaderboard', { state: { recentIds: [player1Id, player2Id] } });
-      } catch (error) {
-        console.error('Error submitting scores:', error.response?.data || error.message);
-      }
-    };
-
-    submitScores(); // Call the function
-  }
-}, [timer]); // Add dependencies
+}, [
+  playCountLowSound,
+  playCountHighSound,
+  playGameEndSound,
+  stopMusicSound,
+  navigate,       // navigate is stable, but React Rule-of-Hooks asks you to include it
+  player1Id,
+  player1Name,
+  player2Id,
+  player2Name
+]);
   
 
   // ──────────────────────────────────────────────────────────────────────────
