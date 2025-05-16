@@ -706,7 +706,7 @@ useEffect(() => {
           playGameEndSound();            // end‐game SFX
           stopMusicSound();
         }, 1500);
-        setTimeout(submitScores, 2000);  // then submit + navigate
+        setTimeout(submitScores, 3000);  // then submit + navigate
       }
 
       return next;
