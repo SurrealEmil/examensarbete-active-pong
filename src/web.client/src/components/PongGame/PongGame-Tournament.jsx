@@ -656,7 +656,7 @@ const { fps, isLagSpike } = useGameLoop({
 // TIMER STATE
 // ──────────────────────────────────────────────────────────────
 
-const [timer, setTimer] = useState(80); // 80 seconds countdown timer
+const [timer, setTimer] = useState(81); // 80 seconds countdown timer
 
 // ──────────────────────────────────────────────────────────────────────────
 // COUNTDOWN + SFX + SUBMIT/NAVIGATE EFFECT 
