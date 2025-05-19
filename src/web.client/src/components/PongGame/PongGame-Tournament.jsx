@@ -219,7 +219,7 @@ const PongGameTournament = () => {
           ...s,
           balls: [...s.balls, newBallObj],
         }));
-        
+        if (playBallSound) playBallSound()
       }
     
                
@@ -315,6 +315,7 @@ const PongGameTournament = () => {
     playCountHighSound,
     playBallSound,  
     playGameEndSound,
+    playGameEndSound2
   } = audioManager();
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -519,6 +520,7 @@ const { fps, isLagSpike } = useGameLoop({
   playCountHighSound,
   playBallSound,
   playGameEndSound,
+  playGameEndSound2,
   controlModeLeft,
   controlModeRight,
   enableFps: SHOW_FPS,
@@ -705,7 +707,8 @@ useEffect(() => {
         setTimeout(() => {
           playGameEndSound();            // end‐game SFX
           stopMusicSound();
-        }, 1500);
+        }, 1000);
+        playGameEndSound2();             // end‐game SFX
         setTimeout(submitScores, 3000);  // then submit + navigate
       }
 
@@ -733,6 +736,8 @@ useEffect(() => {
   // ──────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!engineRef.current) return;
+
+    
     if (!gameStarted || gamePaused) {
       if (renderRef.current) {
         Matter.Render.stop(renderRef.current);
@@ -742,6 +747,7 @@ useEffect(() => {
         Matter.Render.run(renderRef.current);
       }
     }
+    /* if(playBallSound) playBallSound() */
   }, [gameStarted, gamePaused, renderRef]);
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -824,6 +830,8 @@ const handleStartGame = async () => {
     ballBodyRef.current.forEach(body => {
       Matter.Body.setVelocity(body, randomVelocity(BALL_SPEED, LAUNCH_BUFFER_DEG)) 
     })
+
+    if(playBallSound) playBallSound()
 
     try {
       playMusicSound()

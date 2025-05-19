@@ -69,7 +69,6 @@ export default function useGameLoop({
   gameOver,
   setGameState,
   engineRef,
-  /* ballBodyRef, */
   ballBodyRefs,
   leftPaddleBodyRef,
   rightPaddleBodyRef,
@@ -83,6 +82,7 @@ export default function useGameLoop({
   playMissSound,
   playSideSound,
   playHitSound,
+  playBallSound,
   controlModeLeft,
   controlModeRight,
   enableFps = true,
@@ -213,7 +213,10 @@ newBalls.forEach((b, i) => {
     newScores.player2 += 1;
     newBalls[i] = { ...b, resetting: true };
     if (playMissSound) playMissSound();
-    setTimeout(() => resetBall(body, i), ballResetDelay);
+    setTimeout(() => {
+      resetBall(body, i)
+      if(playBallSound) playBallSound();
+      }, ballResetDelay);
   }
 
   // RIGHT wall →  Player 1 scores
@@ -221,7 +224,10 @@ newBalls.forEach((b, i) => {
     newScores.player1 += 1;
     newBalls[i] = { ...b, resetting: true };
     if (playMissSound) playMissSound();
-    setTimeout(() => resetBall(body, i), ballResetDelay);
+    setTimeout(() => {
+      resetBall(body, i) 
+      if(playBallSound) playBallSound()
+      },ballResetDelay);
   }
 });
 
@@ -288,7 +294,6 @@ function resetBall(body, idx) {
     canvasWidth,
     enableFps,
     engineRef,
-    /* ballBodyRef, */
     ballBodyRefs,
     playMissSound,
     playSideSound,

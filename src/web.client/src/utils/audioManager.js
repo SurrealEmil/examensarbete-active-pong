@@ -9,6 +9,7 @@ import countLowSoundSrc from '../assets/Audio/soundeffects/CountLow-1.mp3';
 import countHighSoundSrc from '../assets/Audio/soundeffects/CountHigh1Long.mp3';
 import ballSoundSrc from '../assets/Audio/soundeffects/ball-2.mp3';
 import gameEndSoundSrc from '../assets/Audio/soundeffects/lose-1.mp3';
+import gameEndSound2Src from '../assets/Audio/soundeffects/lose-2.mp3';
 import confirmSoundSrc from '../assets/Audio/soundeffects/confirm.mp3';
 
 const audioManager = () => {
@@ -23,6 +24,7 @@ const audioManager = () => {
   const countHighSoundRef = useRef(null);
   const ballSoundRef = useRef(null);
   const gameEndSoundRef = useRef(null);
+  const gameEndSound2Ref = useRef(null);
   const confirmSoundRef = useRef(null);
 
 
@@ -68,6 +70,11 @@ const audioManager = () => {
   if (!gameEndSoundRef.current) {
     gameEndSoundRef.current = new Audio(gameEndSoundSrc);
     gameEndSoundRef.current.volume = 1;
+  }
+
+    if (!gameEndSound2Ref.current) {
+    gameEndSound2Ref.current = new Audio(gameEndSound2Src);
+    gameEndSound2Ref.current.volume = 1;
   }
 
   if (!confirmSoundRef.current) {
@@ -117,25 +124,27 @@ const audioManager = () => {
   , [audioEnabled]);
 
   const playBallSound = useCallback(() => {   
-    
-      const sfx = ballSoundRef.current;
-      sfx.currentTime = 0; // Reset the sound to the beginning
-      sfx.play().catch(error => console.error('Error playing ball sound:', error))
-    
+      const sfx = ballSoundRef.current.cloneNode();
+      sfx.currentTime = 0;
+      sfx.play().catch(error => console.error('Error playing ball sound:', error))  
   }
   , []);
 
   const playGameEndSound = useCallback(() => {   
-    if (audioEnabled) {
-      const sfx = gameEndSoundRef.current;
-      sfx.currentTime = 0; // Reset the sound to the beginning
+      const sfx = gameEndSoundRef.current.cloneNode();
+      sfx.currentTime = 0; 
       sfx.play().catch(error => console.error('Error playing game end sound:', error))
     }
-  }
-  , [audioEnabled]);
+  , []);
 
-  const playConfirmSound = useCallback(() => {
-    
+  const playGameEndSound2 = useCallback(() => {   
+      const sfx = gameEndSound2Ref.current.cloneNode();
+      sfx.currentTime = 0; 
+      sfx.play().catch(error => console.error('Error playing game end sound:', error))
+    }
+  , []);
+
+  const playConfirmSound = useCallback(() => { 
       const sfx = confirmSoundRef.current;  
       sfx.currentTime = 0; // Reset the sound to the beginning
       sfx.play().catch(error => console.error('Error playing confirm sound:', error))
@@ -179,7 +188,8 @@ const audioManager = () => {
     playCountHighSound,
     playBallSound,
     playGameEndSound,
-    playConfirmSound
+    playGameEndSound2,
+    playConfirmSound,
   };
 };
 
